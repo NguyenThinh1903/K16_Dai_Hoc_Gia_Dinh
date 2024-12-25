@@ -1,0 +1,111 @@
+package xepSo;
+
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+public class GiaoDien {
+	private Stage sanKhau; // Cửa sổ chính nơi các cảnh sẽ được hiển thị
+	private Scene canhVat1, canhVat2; // Hai cảnh cho các giao diện trò chơi khác nhau
+	
+	private GridPane gridPage; // Bố cục dạng lưới để sắp xếp các nút theo dạng lưới
+	private short n = 100; // Kích thước cơ bản cho các thành phần giao diện
+	
+	private byte m = 10; // Kích thước lưới mặc định, đặt thành 10x10
+	private Button[][] b = new Button[m][m]; // Mảng 2D để chứa các nút cho mỗi ô trong lưới
+	private byte[][] a = new byte[m][m]; // Mảng 2D để lưu trữ giá trị cho mỗi ô trong lưới
+	
+	private byte hang; // Chỉ số hàng cho ô trống (nếu có)
+	private byte cot; // Chỉ số cột cho ô trống (nếu có)
+	
+	private ComboBox<String> cbKichThuoc; // ComboBox để chọn kích thước lưới
+	private ComboBox<String> cbCachSapXep; // ComboBox để chọn kiểu sắp xếp
+	
+	private byte cachSapXep; // Biến để lưu kiểu sắp xếp đã chọn
+	
+	// Hàm khởi tạo để khởi tạo cửa sổ chính
+	public GiaoDien(Stage sanKhau) {
+		this.sanKhau = sanKhau;
+	}
+	
+	// Phương thức để hiển thị màn hình cài đặt ban đầu của trò chơi
+	public void hienThi() {
+		// Nhãn để hiển thị tiêu đề của phần tùy chọn
+		Label labelTitle = new Label("Tùy chọn ban đầu: ");
+		
+		// ComboBox để chọn kích thước lưới
+		cbKichThuoc = new ComboBox<>();
+		cbKichThuoc.getItems().addAll("3x3", "4x4", "5x5", "6x6", "7x7", "8x8", "9x9"); // Các kích thước lưới có sẵn
+		cbKichThuoc.setPromptText("Chọn số ô của trò chơi"); // Văn bản gợi ý cho ComboBox
+		cbKichThuoc.setPrefWidth(n * 3); // Đặt chiều rộng ưu tiên của ComboBox
+		
+		// ComboBox để chọn kiểu sắp xếp
+		cbCachSapXep = new ComboBox<>();
+		cbCachSapXep.getItems().addAll(
+				"1. Tăng theo hàng từ trái sang phải", // Sắp xếp theo hàng từ trái sang phải
+				"2. Tăng theo cột từ trên xuống dưới", // Sắp xếp theo cột từ trên xuống dưới
+				"3. Tăng hàng Zig-Zag" // Sắp xếp theo kiểu zig-zag
+		);
+		cbCachSapXep.setPromptText("Chọn cách chơi - Cách sắp xếp"); // Văn bản gợi ý cho ComboBox sắp xếp
+		cbCachSapXep.setPrefWidth(n * 3); // Đặt chiều rộng ưu tiên của ComboBox
+		
+		// Nút để xác nhận lựa chọn
+		Button buttonOK = new Button("OK");
+		buttonOK.setPrefWidth(n * 3); // Đặt chiều rộng ưu tiên của nút
+		
+		// Bố cục VBox để sắp xếp các thành phần giao diện theo chiều dọc
+		VBox vbox = new VBox();
+		vbox.getChildren().addAll(labelTitle, cbKichThuoc, cbCachSapXep, buttonOK); // Thêm các thành phần vào VBox
+		canhVat1 = new Scene(vbox, n * 4, n * 2); // Tạo cảnh với chiều rộng và chiều cao được chỉ định
+		
+		// Thiết lập cảnh trên sân khấu chính và cấu hình các thuộc tính của sân khấu
+		sanKhau.setScene(canhVat1); // Hiển thị canhVat1 trên sân khấu chính
+		sanKhau.setTitle("Cài đặt"); // Đặt tiêu đề của cửa sổ chính
+		sanKhau.setResizable(false); // Ngăn không cho cửa sổ thay đổi kích thước
+		sanKhau.show(); // Hiển thị cửa sổ
+	}
+
+	public Scene getCanhVat2() {
+		return canhVat2;
+	}
+
+	public void setCanhVat2(Scene canhVat2) {
+		this.canhVat2 = canhVat2;
+	}
+
+	public GridPane getGridPage() {
+		return gridPage;
+	}
+
+	public void setGridPage(GridPane gridPage) {
+		this.gridPage = gridPage;
+	}
+
+	public Button[][] getB() {
+		return b;
+	}
+
+	public void setB(Button[][] b) {
+		this.b = b;
+	}
+
+	public byte[][] getA() {
+		return a;
+	}
+
+	public void setA(byte[][] a) {
+		this.a = a;
+	}
+
+	public byte getCot() {
+		return cot;
+	}
+
+	public void setCot(byte cot) {
+		this.cot = cot;
+	}
+}

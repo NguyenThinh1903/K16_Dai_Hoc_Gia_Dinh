@@ -1,0 +1,10 @@
+C:\Users\thinh\OneDrive\Documents\C#\listbox1\obj\Debug\listbox1.csproj.AssemblyReference.cache
+C:\Users\thinh\OneDrive\Documents\C#\listbox1\obj\Debug\listbox1.Form1.resources
+C:\Users\thinh\OneDrive\Documents\C#\listbox1\obj\Debug\listbox1.Properties.Resources.resources
+C:\Users\thinh\OneDrive\Documents\C#\listbox1\obj\Debug\listbox1.csproj.GenerateResource.cache
+C:\Users\thinh\OneDrive\Documents\C#\listbox1\obj\Debug\listbox1.csproj.CoreCompileInputs.cache
+C:\Users\thinh\OneDrive\Documents\C#\listbox1\bin\Debug\listbox1.exe.config
+C:\Users\thinh\OneDrive\Documents\C#\listbox1\bin\Debug\listbox1.exe
+C:\Users\thinh\OneDrive\Documents\C#\listbox1\bin\Debug\listbox1.pdb
+C:\Users\thinh\OneDrive\Documents\C#\listbox1\obj\Debug\listbox1.exe
+C:\Users\thinh\OneDrive\Documents\C#\listbox1\obj\Debug\listbox1.pdb

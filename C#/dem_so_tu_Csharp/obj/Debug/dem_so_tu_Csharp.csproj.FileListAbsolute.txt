@@ -1,0 +1,10 @@
+C:\Users\thinh\OneDrive\Documents\C#\dem_so_tu_Csharp\bin\Debug\dem_so_tu_Csharp.exe.config
+C:\Users\thinh\OneDrive\Documents\C#\dem_so_tu_Csharp\bin\Debug\dem_so_tu_Csharp.exe
+C:\Users\thinh\OneDrive\Documents\C#\dem_so_tu_Csharp\bin\Debug\dem_so_tu_Csharp.pdb
+C:\Users\thinh\OneDrive\Documents\C#\dem_so_tu_Csharp\obj\Debug\dem_so_tu_Csharp.csproj.AssemblyReference.cache
+C:\Users\thinh\OneDrive\Documents\C#\dem_so_tu_Csharp\obj\Debug\dem_so_tu_Csharp.Form1.resources
+C:\Users\thinh\OneDrive\Documents\C#\dem_so_tu_Csharp\obj\Debug\dem_so_tu_Csharp.Properties.Resources.resources
+C:\Users\thinh\OneDrive\Documents\C#\dem_so_tu_Csharp\obj\Debug\dem_so_tu_Csharp.csproj.GenerateResource.cache
+C:\Users\thinh\OneDrive\Documents\C#\dem_so_tu_Csharp\obj\Debug\dem_so_tu_Csharp.csproj.CoreCompileInputs.cache
+C:\Users\thinh\OneDrive\Documents\C#\dem_so_tu_Csharp\obj\Debug\dem_so_tu_Csharp.exe
+C:\Users\thinh\OneDrive\Documents\C#\dem_so_tu_Csharp\obj\Debug\dem_so_tu_Csharp.pdb

@@ -1,0 +1,10 @@
+C:\Users\thinh\OneDrive\Documents\C#\Combobox_Csharp\bin\Debug\Combobox_Csharp.exe.config
+C:\Users\thinh\OneDrive\Documents\C#\Combobox_Csharp\bin\Debug\Combobox_Csharp.exe
+C:\Users\thinh\OneDrive\Documents\C#\Combobox_Csharp\bin\Debug\Combobox_Csharp.pdb
+C:\Users\thinh\OneDrive\Documents\C#\Combobox_Csharp\obj\Debug\Combobox_Csharp.csproj.AssemblyReference.cache
+C:\Users\thinh\OneDrive\Documents\C#\Combobox_Csharp\obj\Debug\Combobox_Csharp.Form1.resources
+C:\Users\thinh\OneDrive\Documents\C#\Combobox_Csharp\obj\Debug\Combobox_Csharp.Properties.Resources.resources
+C:\Users\thinh\OneDrive\Documents\C#\Combobox_Csharp\obj\Debug\Combobox_Csharp.csproj.GenerateResource.cache
+C:\Users\thinh\OneDrive\Documents\C#\Combobox_Csharp\obj\Debug\Combobox_Csharp.csproj.CoreCompileInputs.cache
+C:\Users\thinh\OneDrive\Documents\C#\Combobox_Csharp\obj\Debug\Combobox_Csharp.exe
+C:\Users\thinh\OneDrive\Documents\C#\Combobox_Csharp\obj\Debug\Combobox_Csharp.pdb

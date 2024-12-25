@@ -1,0 +1,6 @@
+Họ và tên: 123123
+Lớp: 123
+Giới tính: Nam
+Lập trình trực quan
+Lập trình web
+

@@ -1,0 +1,8 @@
+INDEX VERSION 1.134+D:\Documents\Eclipse2\clientSocket\.metadata\.plugins\org.eclipse.jdt.core
+3951838913.index
+1903308470.index
+1865797976.index
+2474053123.index
+3737247315.index
+3902886482.index
+1560291650.index

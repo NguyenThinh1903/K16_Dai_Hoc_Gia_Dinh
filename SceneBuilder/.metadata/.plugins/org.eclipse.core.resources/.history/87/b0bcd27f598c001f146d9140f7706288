@@ -1,0 +1,20 @@
+package serverSocket;
+
+import java.io.IOException;
+
+public class KiemThu {
+    public static void main(String[] args) {
+        int port = 3333; // Cổng mà server sẽ lắng nghe
+        int timeOut = 20000; // Thời gian chờ kết nối từ máy trạm (đơn vị: ms)
+
+        try {
+            // Tạo đối tượng Server với cổng và thời gian chờ
+            Server server = new Server(port, timeOut);
+            System.out.println("Máy chủ đã khởi động thành công!");
+            // Gọi phương thức để chạy server
+            server.chay();
+        } catch (IOException e) {
+            System.out.println("Lỗi khởi động máy chủ: " + e.getMessage());
+        }
+    }
+}

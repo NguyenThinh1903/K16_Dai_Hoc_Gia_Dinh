@@ -1,0 +1,17 @@
+package xepSo;
+	
+import javafx.application.Application;
+import javafx.stage.Stage;
+
+
+public class KiemThu extends Application {
+	@Override
+	public void start(Stage primaryStage) {
+		GiaoDien giaoDien = new GiaoDien(primaryStage);
+		giaoDien.hienThi();
+	}
+	
+	public static void main(String[] args) {
+		launch(args);
+	}
+}

@@ -1,0 +1,61 @@
+package xepSo;
+
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+public class GiaoDien {
+	private Stage sanKhau;
+	private Scene canhVat1, canhVat2;
+	
+	private GridPane gridPage;
+	private short n = 100;
+	
+	private byte m = 10;
+	private Button[][] b = new Button[m][m];
+	private byte[][] a = new byte[m][m];
+	
+	private byte hang;
+	private byte cot;
+	
+	private ComboBox<String> cbKichThuoc;
+	private ComboBox<String> cbCachSapXep;
+	
+	private byte cachSapXep;
+	
+	public GiaoDien(Stage sanKhau) {
+		this.sanKhau = sanKhau;
+	}
+	
+	public void hienThi() {
+		Label labelTitle = new Label("Tùy chọn ban đầu: ");
+		
+		cbKichThuoc = new ComboBox<String>();
+		cbKichThuoc.getItems().addAll("3x3", "4x4", "5x5", "6x6", "7x7", "8x8", "9x9");
+		cbKichThuoc.setPromptText("Chọn số ô của trò chơi");
+		cbKichThuoc.setPrefWidth(n * 3);
+		
+		cbCachSapXep = new ComboBox<String>();
+		cbCachSapXep.getItems().addAll("1.Tăng theo hàng từ trái sang phải",
+				"2.Tăng theo cột từ trên xuống dưới",
+				"3.Tăng hàng Zig-Zag");
+		cbCachSapXep.setPromptText("Chọn cách chơi - Cách sắp xếp");
+		cbCachSapXep.setPrefWidth(n * 3);
+		
+		Button buttonOK;
+		buttonOK = new Button("OK");
+		buttonOK.setPrefWidth(n * 3);
+		
+		VBox vbox = new VBox();
+		vbox.getChildren().addAll(labelTitle, cbKichThuoc, cbCachSapXep, buttonOK);
+		canhVat1 = new Scene(vbox, n * 2.1, n * 0.93);
+		
+		sanKhau.setScene(canhVat1);
+		sanKhau.setTitle("Cài đặt");
+		sanKhau.setResizable(false);
+		sanKhau.show();
+		
+	}
+}

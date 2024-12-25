@@ -1,0 +1,15 @@
+C:\Users\thinh\OneDrive\Documents\C#\bt1\bin\Debug\bt1.exe.config
+C:\Users\thinh\OneDrive\Documents\C#\bt1\bin\Debug\bt1.exe
+C:\Users\thinh\OneDrive\Documents\C#\bt1\bin\Debug\bt1.pdb
+C:\Users\thinh\OneDrive\Documents\C#\bt1\obj\Debug\bt1.csproj.AssemblyReference.cache
+C:\Users\thinh\OneDrive\Documents\C#\bt1\obj\Debug\bt1.Form1.resources
+C:\Users\thinh\OneDrive\Documents\C#\bt1\obj\Debug\bt1.Properties.Resources.resources
+C:\Users\thinh\OneDrive\Documents\C#\bt1\obj\Debug\bt1.csproj.GenerateResource.cache
+C:\Users\thinh\OneDrive\Documents\C#\bt1\obj\Debug\bt1.csproj.CoreCompileInputs.cache
+C:\Users\thinh\OneDrive\Documents\C#\bt1\obj\Debug\bt1.exe
+C:\Users\thinh\OneDrive\Documents\C#\bt1\obj\Debug\bt1.pdb
+C:\Users\thinh\OneDrive\Documents\C#\bt1\bin\Debug\bt1.exe.manifest
+C:\Users\thinh\OneDrive\Documents\C#\bt1\bin\Debug\bt1.application
+C:\Users\thinh\OneDrive\Documents\C#\bt1\obj\Debug\bt1.TrustInfo.xml
+C:\Users\thinh\OneDrive\Documents\C#\bt1\obj\Debug\bt1.exe.manifest
+C:\Users\thinh\OneDrive\Documents\C#\bt1\obj\Debug\bt1.application

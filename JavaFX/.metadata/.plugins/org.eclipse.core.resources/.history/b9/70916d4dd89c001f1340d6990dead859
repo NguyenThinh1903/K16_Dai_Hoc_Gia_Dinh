@@ -1,0 +1,22 @@
+package xepSo;
+
+import javafx.application.Application; // Thư viện JavaFX để tạo ứng dụng
+import javafx.stage.Stage; // Thư viện JavaFX cho cửa sổ ứng dụng chính
+
+public class KiemThu extends Application {
+    
+	// Phương thức start() khởi tạo ứng dụng JavaFX
+	@Override
+	public void start(Stage primaryStage) {
+		// Tạo một đối tượng GiaoDien để quản lý giao diện của trò chơi
+		GiaoDien giaoDien = new GiaoDien(primaryStage);
+		// Gọi phương thức hienThi() để hiển thị giao diện người dùng
+		giaoDien.hienThi();
+	}
+	
+	// Phương thức main() là điểm bắt đầu của ứng dụng
+	public static void main(String[] args) {
+		// Khởi chạy ứng dụng JavaFX
+		launch(args);
+	}
+}

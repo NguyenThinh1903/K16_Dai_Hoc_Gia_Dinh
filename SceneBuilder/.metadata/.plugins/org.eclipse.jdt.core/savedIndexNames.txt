@@ -1,0 +1,14 @@
+INDEX VERSION 1.134+D:\Documents\SceneBuilder\.metadata\.plugins\org.eclipse.jdt.core
+2767341744.index
+1397225430.index
+2474053123.index
+3479301503.index
+323587414.index
+3107199299.index
+2328269416.index
+3271193799.index
+2022930229.index
+1865797976.index
+2319506668.index
+1560291650.index
+3737247315.index

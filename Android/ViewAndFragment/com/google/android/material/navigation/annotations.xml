@@ -1,0 +1,5 @@
+<root>
+    <item name='com.google.android.material.navigation.NavigationBarView.OnItemSelectedListener boolean onNavigationItemSelected(android.view.MenuItem)'>
+        <annotation name='java.lang.Deprecated' />
+    </item>
+</root>
