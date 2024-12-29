@@ -1,3 +1,4 @@
+//use get
 // var express = require('express'); 
 // var app = express(); 
 
@@ -23,14 +24,16 @@
 //     console.log("Ứng dụng Node.js đang lắng nghe tại địa chỉ: http://%s:%s", host, port); 
 // });
 
+
+//use post
 var express = require('express'); 
 var bodyParser = require('body-parser');
 var app = express(); 
 
-// Cung cấp các tệp tĩnh từ thư mục public
+
 app.use(express.static('public')); 
 
-// Sử dụng body-parser để phân tích dữ liệu từ body request
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
