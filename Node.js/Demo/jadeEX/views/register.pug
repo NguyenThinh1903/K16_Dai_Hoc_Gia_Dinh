@@ -1,0 +1,22 @@
+doctype html
+html
+  head
+    title Đăng Ký
+    link(rel="stylesheet" href="/css/styles.css")
+  body
+    .login-container
+      h1 Đăng Ký
+      form(action="/register" method="POST")
+        .form-group
+          label(for="username") Tên tài khoản
+          input#username(type="text" name="username" placeholder="Nhập tên tài khoản" required)
+        .form-group
+          label(for="password") Mật khẩu
+          input#password(type="password" name="password" placeholder="Nhập mật khẩu" required)
+        .form-group
+          label(for="confirmPassword") Xác nhận mật khẩu
+          input#confirmPassword(type="password" name="confirmPassword" placeholder="Xác nhận mật khẩu" required)
+        .form-group
+          button(type="submit") Đăng Ký
+        .form-group
+          a(href="/login") Đã có tài khoản? Đăng nhập
