@@ -1,0 +1,19 @@
+doctype html
+html
+    head
+        title Đăng Nhập
+        link(rel="stylesheet" href="/css/styles.css")
+    body
+        .login-container
+            h1 Đăng Nhập
+            form(action="/login" method="POST")
+                .form-group
+                    label(for="username") Tên tài khoản
+                    input#username(type="text" name="username" placeholder="Nhập tên tài khoản" required)
+                    .form-group
+                        label(for="password") Mật khẩu
+                        input#password(type="password" name="password" placeholder="Nhập mật khẩu" required)
+                        .form-group
+                            button(type="submit") Đăng Nhập
+                            .form-group
+                                a(href="/register") Đăng ký tài khoản mới
