@@ -24,9 +24,10 @@ app.get('/todos', (req, res) => {
     res.render('todos', { todos });
 });
 
-// app.get('/todos', (req, res) => {
-//     res.json(todos); // Send the todos array as JSON
-// });
+// Get all to-do tasks (JSON)
+app.get('/todos/json', (req, res) => {
+    res.json(todos);
+});
 
 // Add a new task
 app.post('/todos', (req, res) => {
