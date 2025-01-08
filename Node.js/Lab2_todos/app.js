@@ -19,9 +19,14 @@ app.set('view engine', 'pug');
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Get all to-do tasks
+
 app.get('/todos', (req, res) => {
     res.render('todos', { todos });
 });
+
+// app.get('/todos', (req, res) => {
+//     res.json(todos); // Send the todos array as JSON
+// });
 
 // Add a new task
 app.post('/todos', (req, res) => {
