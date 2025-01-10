@@ -1,0 +1,29 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1')
+    title Tạo QR code
+    // Link CSS Bootstrap (5.x)
+    link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css')
+
+  body
+    .container.mt-4
+      h1 Tạo Mã QR
+
+      // Form nhập URL
+      form(action='/qrcode' method='POST')
+        .mb-3
+          label(for='urlInput' class='form-label') Nhập URL
+          input#urlInput.form-control(type='text', name='url', placeholder='https://example.com', value= url ? url : '' ,required)
+
+        button.btn.btn-primary(type='submit') Generate
+
+      if error
+        div(class="alert alert-danger mt-3" role="alert")= error
+
+      if qrCode
+        img(src=qrCode, alt="QR Code").mt-3
+
+    // Nếu cần Bootstrap JS
+    script(src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js')
