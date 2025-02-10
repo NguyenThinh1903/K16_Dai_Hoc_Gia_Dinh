@@ -14,3 +14,4 @@ while so_lan_thu < 3:
 
 if so_lan_thu == 3:
   print("Thẻ bị khóa!")
+  
