@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<h1>Process Student Form</h1>
+<p th:text="'Họ tên: ' + ${student.lastName} + ' - ' + ${student.firstName}"></p>
+<p th:text="'Địa phương: ' + ${student.country}"></p>
+<p th:text="'Giới tính: ' + ${student.gender}"></p>
+<p>Ngôn ngữ lập trình:
+    <ul>
+    <li th:each="theLang:${student.language}" th:text="${theLang}"></li>
+</ul>
+</p>
+</body>
+</html>

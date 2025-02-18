@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<h1>Student Form</h1>
+<form th:action="@{/process-student-form}" th:object="${student}" method="post">
+    <p>
+        First name <input type="text" th:field="*{firstName}">
+        <span th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" class="abc"></span>
+    </p>
+    <p>Last name <input type="text" th:field="*{lastName}"></p>
+    <p>Country
+        <select th:field="*{country}">
+            <option th:value="HaNoi">Hà Nội</option>
+            <option th:value="HCM">Hồ Chí Minh</option>
+            <option th:value="CanTho">Cần Thơ</option>
+            <option th:value="DaNang">Đà Nẵng</option>
+            <option th:value="HaiPhong">Hải Phòng</option>
+        </select>
+    </p>
+    <p>Gender
+        <input type="radio" th:field="*{gender}" th:value="Nam" th:selected>Nam
+        <input type="radio" th:field="*{gender}" th:value="Nu">Nữ
+    </p>
+    <p>
+        Language Programming
+        <input type="checkbox" th:field="*{language}" th:value="Java">Java
+        <input type="checkbox" th:field="*{language}" th:value="CSharp">C#
+        <input type="checkbox" th:field="*{language}" th:value="Go">Go
+        <input type="checkbox" th:field="*{language}" th:value="Python">Python
+        <input type="checkbox" th:field="*{language}" th:value="C">C
+    </p>
+    <p><input type="submit" value="Submit"></p>
+</form>
+</body>
+</html>

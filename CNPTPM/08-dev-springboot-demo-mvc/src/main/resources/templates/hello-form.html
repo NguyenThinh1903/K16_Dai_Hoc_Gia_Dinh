@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello Form</title>  <!-- More descriptive title -->
+    <style>
+        .error {
+            color: red; /* Style for error messages */
+        }
+    </style>
+</head>
+<body>
+<h1>Hello Form</h1>
+
+<!-- Use POST for form submission that changes state. GET is for retrieving data. -->
+<form th:action="@{/processHelloForm}" method="post">
+    <!-- Binding to a model object (best practice) -->
+    <p>
+        <label for="theName">Name:</label> <!-- Label for accessibility -->
+        <input type="text" id="theName" name="theName" th:field="${name}"> <!-- Use th:field for two-way binding -->
+        <!-- removed error message -->
+    </p>
+    <p>
+        <label for="age">Age:</label> <!-- Label for accessibility -->
+        <input type="number" id="age" name="age" th:field="${age}">  <!-- Use th:field and type="number" -->
+        <span th:if="${#fields.hasErrors('age')}" th:errors="${age}" class="error"></span> <!-- Corrected error display -->
+    </p>
+    <p>
+        <label for="postCode">Post Code:</label> <!-- Label, consistent naming, and type -->
+        <input type="text" id="postCode" name="postCode" th:field="${postCode}"> <!-- Use th:field -->
+        <span th:if="${#fields.hasErrors('postCode')}" th:errors="${postCode}" class="error"></span> <!-- Corrected error display -->
+    </p>
+    <p><input type="submit" value="Submit"></p>
+</form>
+</body>
+</html>
