@@ -1,19 +1,41 @@
-# Bỏ qua thư mục node_modules
+# Bỏ qua thư mục node_modules (bắt buộc)
 node_modules/
 
 # Bỏ qua các file log
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Bỏ qua file cấu hình môi trường
 .env
+.env.local
+.env.development
+.env.production
+.env.test
+.env.*.local
 
 # Bỏ qua thư mục build (ví dụ)
 dist/
 build/
 
-# Bỏ qua file tạm của hệ điều hành
+# Bỏ qua thư mục tạm của hệ điều hành
 .DS_Store  # macOS
 Thumbs.db  # Windows
 
-# Bỏ qua .env
-.env
+# Bỏ qua file lock của package managers
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Bỏ qua các file cache của VSCode
+.vscode/
+*.code-workspace
+
+# Bỏ qua các thư mục database SQLite (nếu có)
+*.sqlite
+*.sqlite3
+__pycache__/
+
+# Bỏ qua các file tạm khi làm việc với Git
+.gitignore
