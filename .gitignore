@@ -1,13 +1,13 @@
-# Bỏ qua thư mục node_modules (bắt buộc)
+# Skip the node_modules folder (required)
 node_modules/
 
-# Bỏ qua các file log
-*.log
+# Skip log files
+*.Log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Bỏ qua file cấu hình môi trường
+# Ignoring the environment configuration file
 .env
 .env.local
 .env.development
@@ -15,27 +15,27 @@ yarn-error.log*
 .env.test
 .env.*.local
 
-# Bỏ qua thư mục build (ví dụ)
-dist/
+# Ignore the build directory (example)
+Dist/
 build/
 
-# Bỏ qua thư mục tạm của hệ điều hành
-.DS_Store  # macOS
-Thumbs.db  # Windows
+# Bypass the temporary directory of the operating system
+.DS_Store # macOS
+Thumbs.db # Windows
 
-# Bỏ qua file lock của package managers
+# Bypass package manager file lock
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
-# Bỏ qua các file cache của VSCode
+# Bypass VSCode cache files
 .vscode/
 *.code-workspace
 
-# Bỏ qua các thư mục database SQLite (nếu có)
+# Skip SQLite database directories (if applicable)
 *.sqlite
 *.sqlite3
 __pycache__/
 
-# Bỏ qua các file tạm khi làm việc với Git
+# Skip temporary files when working with Git
 .gitignore
