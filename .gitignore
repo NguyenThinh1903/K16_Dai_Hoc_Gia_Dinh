@@ -14,3 +14,6 @@ build/
 # Bỏ qua file tạm của hệ điều hành
 .DS_Store  # macOS
 Thumbs.db  # Windows
+
+# Bỏ qua .env
+.env
