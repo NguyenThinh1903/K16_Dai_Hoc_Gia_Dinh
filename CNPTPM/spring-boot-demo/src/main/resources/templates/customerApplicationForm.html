@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn Đăng Ký Khách Hàng</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<form th:action="@{${formAction}}" method="post" th:object="${customer}">
+    <h1>Đơn Đăng Ký Khách Hàng</h1>
+    <input type="hidden" th:field="*{id}"/>
+
+    <div class="form-group">
+        <label for="nameOfCompany">Tên Công Ty</label>
+        <input type="text" id="nameOfCompany" th:field="*{nameOfCompany}" placeholder="Nhập tên công ty">
+        <span th:if="${#fields.hasErrors('nameOfCompany')}" th:errors="*{nameOfCompany}" class="error"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="streetAddress">Địa Chỉ Đầy Đủ <span style="color: #e74c3c;">*</span></label>
+        <input type="text" id="streetAddress" th:field="*{streetAddress}" placeholder="Địa chỉ đường">
+        <span th:if="${#fields.hasErrors('streetAddress')}" th:errors="*{streetAddress}" class="error"></span>
+
+        <div>
+            <div style="display: flex; gap: 15px;">
+                <input type="text" id="city" th:field="*{city}" placeholder="Thành phố">
+                <input type="text" id="region" th:field="*{region}" placeholder="Vùng/Miền">
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span th:if="${#fields.hasErrors('city')}" th:errors="*{city}" class="error"></span>
+                <span th:if="${#fields.hasErrors('region')}" th:errors="*{region}" class="error"></span>
+            </div>
+        </div>
+
+        <div>
+            <div style="display: flex; gap: 15px;">
+                <input type="text" id="postalCode" th:field="*{postalCode}" placeholder="Mã bưu điện">
+                <select id="country" th:field="*{country}">
+                    <option value="" selected disabled>Chọn quốc gia</option>
+                    <option th:each="country : ${countries}" th:value="${country}" th:text="${country}"></option>
+                </select>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span th:if="${#fields.hasErrors('postalCode')}" th:errors="*{postalCode}" class="error"></span>
+                <span th:if="${#fields.hasErrors('country')}" th:errors="*{country}" class="error"></span>
+            </div>
+        </div>
+    </div>
+
+    <input th:if="${formAction == '/save'}" type="submit" value="Thêm Khách Hàng">
+    <input th:if="${formAction == '/update'}" type="submit" value="Cập Nhật Khách Hàng">
+</form>
+</body>
+</html>
