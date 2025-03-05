@@ -1,12 +1,12 @@
 import tkinter.messagebox as messagebox
 from game import Move, TicTacToeGame, Player
-from board import TicTacToeBoard  # Thêm import này
+from board import TicTacToeBoard
 
 class TicTacToeController:
     def __init__(self, game, board=None):
         """Khởi tạo controller với game và board tùy chọn."""
         self._game = game
-        self._board = board if board else TicTacToeBoard(self)  # Board có thể truyền từ ngoài
+        self._board = board if board else TicTacToeBoard(self)
         self._ai_mode = False
 
     def handle_move(self, row, col):
@@ -36,6 +36,7 @@ class TicTacToeController:
         """Xử lý nước đi của AI."""
         ai_move = self._game.get_ai_move()
         if ai_move:
+            self._board.after(500, lambda: self.handle_move(ai_move.row, ai_move.col))
             self.handle_move(ai_move.row, ai_move.col)
         else:
             messagebox.showwarning("Warning", "AI could not find a valid move!")
@@ -45,6 +46,9 @@ class TicTacToeController:
         self._game.reset_game()
         self._board.reset_board()
         self._board.update_display(f"{self._game.current_player.label}'s turn")
+        # Kích hoạt nước đi của AI nếu là lượt của O sau khi reset
+        if self._ai_mode and self._game.current_player.label == "O" and not self._game.has_winner():
+            self._play_ai_move()
 
     def set_ai_mode(self, enable=True):
         """Bật/tắt chế độ AI."""
@@ -52,6 +56,9 @@ class TicTacToeController:
         if enable:
             messagebox.showinfo("Mode", "Now playing against AI!")
         self.reset_game()
+        # Kích hoạt nước đi của AI nếu là lượt của O ngay sau khi bật chế độ
+        if self._ai_mode and self._game.current_player.label == "O" and not self._game.has_winner():
+            self._play_ai_move()
 
     def back_to_menu(self):
         """Quay lại menu chính."""

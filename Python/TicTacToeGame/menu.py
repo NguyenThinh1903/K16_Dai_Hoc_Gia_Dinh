@@ -55,7 +55,7 @@ class StartMenu(tk.Tk):
 
         pvai_button = tk.Button(
             self,
-            text="Player vs AI",
+            text="Player vs machine",
             font=font.Font(family="Arial", size=14, weight="bold"),
             bg="#4682b4",
             fg="white",
