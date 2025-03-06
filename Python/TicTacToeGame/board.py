@@ -5,24 +5,66 @@ class TicTacToeBoard(tk.Tk):
     def __init__(self, controller):
         super().__init__()
         self.title("Tic-Tac-Toe")
-        self.geometry("500x600")
+        self.geometry("500x650")
         self.configure(bg="#1e1e1e")
         self._cells = {}
         self._controller = controller
         self._game_over_overlay = None
 
-        self.canvas = tk.Canvas(self, width=500, height=600, highlightthickness=0)
+        # Căn giữa cửa sổ
+        self._center_window()
+
+        self.canvas = tk.Canvas(self, width=500, height=650, highlightthickness=0)
         self.canvas.pack(fill="both", expand=True)
         self._create_gradient()
+        self._create_score_display()
         self._create_board_display()
         self._create_board_grid()
 
+    def _center_window(self):
+        """Căn giữa cửa sổ trên màn hình."""
+        self.update_idletasks()
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        window_width = 500
+        window_height = 650
+        x = (screen_width // 2) - (window_width // 2)
+        y = (screen_height // 2) - (window_height // 2)
+        self.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
     def _create_gradient(self):
         """Tạo nền gradient."""
-        for i in range(600):
-            r = int(30 + (i / 600) * 50)
+        for i in range(650):
+            r = int(30 + (i / 650) * 50)
             color = f"#{r:02x}{r:02x}{r:02x}"
             self.canvas.create_line(0, i, 500, i, fill=color)
+
+    def _create_score_display(self):
+        """Tạo khu vực hiển thị điểm số cho X và O."""
+        score_frame = tk.Frame(self.canvas, bg="#2e2e2e", borderwidth=2, relief="groove")
+        self.canvas.create_window(250, 50, window=score_frame)
+
+        self.x_score_label = tk.Label(
+            score_frame,
+            text="X: 0",
+            font=font.Font(family="Arial", size=20, weight="bold"),
+            bg="#2e2e2e",
+            fg="#4682b4",
+            width=6,
+            relief="flat"
+        )
+        self.x_score_label.pack(side="left", padx=20, pady=5)
+
+        self.o_score_label = tk.Label(
+            score_frame,
+            text="O: 0",
+            font=font.Font(family="Arial", size=20, weight="bold"),
+            bg="#2e2e2e",
+            fg="#228b22",
+            width=6,
+            relief="flat"
+        )
+        self.o_score_label.pack(side="right", padx=20, pady=5)
 
     def _create_board_display(self):
         """Tạo khu vực hiển thị thông báo."""
@@ -33,9 +75,9 @@ class TicTacToeBoard(tk.Tk):
             bg="#1e1e1e",
             fg="#ffffff"
         )
-        self.canvas.create_window(250, 50, window=self.display)
+        self.canvas.create_window(250, 120, window=self.display)
         self.shadow_text = self.canvas.create_text(
-            252, 52,
+            252, 122,
             text="Ready?",
             font=font.Font(family="Arial", size=24, weight="bold"),
             fill="#555555"
@@ -44,7 +86,7 @@ class TicTacToeBoard(tk.Tk):
     def _create_board_grid(self):
         """Tạo lưới bàn cờ 3x3."""
         grid_frame = tk.Frame(self.canvas, bg="#1e1e1e")
-        self.canvas.create_window(250, 350, window=grid_frame)
+        self.canvas.create_window(250, 400, window=grid_frame)
         for row in range(3):
             grid_frame.rowconfigure(row, weight=1)
             grid_frame.columnconfigure(row, weight=1)
@@ -82,11 +124,16 @@ class TicTacToeBoard(tk.Tk):
                 break
 
     def update_display(self, msg, color="white"):
-        """Cập nhật thông báo và hiển thị overlay khi game kết thúc."""
+        """Cập nhật thông báo."""
         self.display.config(text=msg, fg=color)
         self.canvas.itemconfig(self.shadow_text, text=msg)
         if "won" in msg.lower() or "tied" in msg.lower():
             self._show_game_over_overlay(msg, color)
+
+    def update_score(self, scores):
+        """Cập nhật điểm số trên giao diện."""
+        self.x_score_label.config(text=f"X: {scores['X']}")
+        self.o_score_label.config(text=f"O: {scores['O']}")
 
     def _show_game_over_overlay(self, msg, color):
         """Hiển thị overlay khi game kết thúc."""

@@ -9,10 +9,25 @@ class StartMenu(tk.Tk):
         self.title("Tic-Tac-Toe")
         self.geometry("400x500")
         self.configure(bg="#1e1e1e")
+
+        # Căn giữa cửa sổ
+        self._center_window()
+
         self.canvas = tk.Canvas(self, width=400, height=500, highlightthickness=0)
         self.canvas.pack(fill="both", expand=True)
         self._create_gradient()
         self._create_menu()
+
+    def _center_window(self):
+        """Căn giữa cửa sổ trên màn hình."""
+        self.update_idletasks()
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        window_width = 400
+        window_height = 500
+        x = (screen_width // 2) - (window_width // 2)
+        y = (screen_height // 2) - (window_height // 2)
+        self.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
     def _create_gradient(self):
         for i in range(500):
@@ -55,7 +70,7 @@ class StartMenu(tk.Tk):
 
         pvai_button = tk.Button(
             self,
-            text="Player vs machine",
+            text="Player vs Machine",
             font=font.Font(family="Arial", size=14, weight="bold"),
             bg="#4682b4",
             fg="white",
