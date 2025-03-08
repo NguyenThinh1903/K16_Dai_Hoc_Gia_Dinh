@@ -11,6 +11,7 @@ class TicTacToeController:
         self._board.update_score(self._scores)
 
     def handle_move(self, row, col):
+        """Xử lý nước đi của người chơi. Kiểm tra hợp lệ, cập nhật bảng, kiểm tra thắng/thua/hòa, đổi lượt chơi, và điều khiển AI nếu bật chế độ AI."""
         try:
             move = Move(row, col, self._game.current_player.label)
             if self._game.is_valid_move(move):
