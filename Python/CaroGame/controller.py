@@ -47,6 +47,7 @@ class CaroController:
 
     def _play_ai_move(self):
         if not self._game.has_winner() and self._is_ai_moving:
+            self._board.update_display(f"AI's turn ({self._ai_label})", "cyan")  # Cập nhật thông báo AI
             ai_move = self._game.get_ai_move(self._ai_label)
             if ai_move is not None:
                 print(f"AI move processed: {ai_move}")
