@@ -11,9 +11,10 @@ class CaroBoard(tk.Tk):
         self._controller = controller
         self._game_over_overlay = None
         
+        # Màu của X và O
         self._colors = {
-            "X": "#4682b4",  
-            "O": "#228b22"   
+            "X": "#ff0000",  # Đỏ
+            "O": "#00ff00"   # Xanh lá neon
         }
         self._center_window()
         self.canvas = tk.Canvas(self, width=800, height=900, highlightthickness=0)
@@ -22,6 +23,10 @@ class CaroBoard(tk.Tk):
         self._create_score_display()
         self._create_board_display()
         self._create_board_grid()
+        self._winning_cells = []  # Lưu các ô chiến thắng để nhấp nháy
+        self._blink_on = False    # Trạng thái nhấp nháy
+        self._blink_count = 0     # Đếm số lần nhấp nháy
+        self._blink_interval = 300  # Thời gian giữa các lần nhấp nháy (ms)
 
     def _center_window(self):
         self.update_idletasks()
@@ -61,7 +66,7 @@ class CaroBoard(tk.Tk):
             grid_frame.rowconfigure(row, weight=1)
             grid_frame.columnconfigure(row, weight=1)
             for col in range(15):
-                button = tk.Button(grid_frame, text="", font=font.Font(family="Arial", size=12), bg="#ffffff", fg="#4682b4", 
+                button = tk.Button(grid_frame, text="", font=font.Font(family="Arial", size=12), bg="#ffffff", fg=self._colors["X"], 
                                    activebackground="#d3d3d3", borderwidth=1, width=2, height=1)
                 self._cells[button] = (row, col)
                 button.bind("<ButtonPress-1>", self._on_button_click)
@@ -76,16 +81,24 @@ class CaroBoard(tk.Tk):
             self._controller.handle_move(row, col)
 
     def update_button(self, row, col, label):
+        print(f"Updating button at [{row}, {col}] with label {label}")
+        found = False
         for button, coords in self._cells.items():
             if coords == (row, col):
+                print(f"Found button at [{row}, {col}] with current text: {button.cget('text')}")
                 button.config(text=label, fg=self._colors[label], state="disabled")
+                button.update()
+                self.update_idletasks()
+                found = True
                 break
+        if not found:
+            print(f"Error: No button found at [{row}, {col}]")
 
     def update_display(self, msg, color="white"):
         self.display.config(text=msg, fg=color)
         self.canvas.itemconfig(self.shadow_text, text=msg)
         if "won" in msg.lower() or "tied" in msg.lower():
-            self._show_game_over_overlay(msg, color)
+            self.after(3000, lambda: self._show_game_over_overlay(msg, color))  # Trì hoãn 3 giây
 
     def update_score(self, scores):
         self.x_score_label.config(text=f"X: {scores['X']}")
@@ -111,18 +124,60 @@ class CaroBoard(tk.Tk):
         back_to_menu_btn.bind("<Enter>", lambda e: back_to_menu_btn.config(bg="#ff6666"))
         back_to_menu_btn.bind("<Leave>", lambda e: back_to_menu_btn.config(bg="#ff4040"))
 
+    def _get_button_position(self, row, col):
+        """Tính tọa độ trung tâm của ô tại (row, col) trên canvas."""
+        cell_width = 40
+        cell_height = 28
+        grid_x = 400 - (15 * cell_width) / 2
+        grid_y = 500 - (15 * cell_height) / 2
+        x = grid_x + col * cell_width + cell_width / 2
+        y = grid_y + row * cell_height + cell_height / 2
+        return x, y
+
     def highlight_cells(self, winning_combo):
-        for button, coordinates in self._cells.items():
-            if coordinates in winning_combo:
-                button.config(bg="#ff4040", fg="white")
+        """Bắt đầu hiệu ứng nhấp nháy cho các ô chiến thắng."""
+        self._winning_cells = [(row, col) for row, col in winning_combo]  # Lưu các ô chiến thắng
+        self._blink_count = 0
+        self._blink_on = True
+        self._blink()  # Bắt đầu nhấp nháy
+
+    def _blink(self):
+        """Hiệu ứng nhấp nháy các ô chiến thắng."""
+        if self._blink_count < 10:  # Nhấp nháy 10 lần (khoảng 3 giây với interval 300ms)
+            self._blink_on = not self._blink_on
+            for row, col in self._winning_cells:
+                for button, coords in self._cells.items():
+                    if coords == (row, col):
+                        if self._blink_on:
+                            button.config(bg=self._colors[self._controller._game._current_moves[row][col].label])  # Màu của người thắng
+                        else:
+                            button.config(bg="#ffffff")  # Trở lại màu trắng
+                        button.update()
+            self._blink_count += 1
+            self.after(self._blink_interval, self._blink)
+        else:
+            # Sau khi nhấp nháy xong, reset màu về trắng
+            for row, col in self._winning_cells:
+                for button, coords in self._cells.items():
+                    if coords == (row, col):
+                        button.config(bg="#ffffff")
+            self._winning_cells = []
+            self._blink_count = 0
+            self._blink_on = False
 
     def reset_board(self):
         self.update_display("Ready?")
         for button in self._cells.keys():
-            button.config(bg="#ffffff", text="", fg="#4682b4", state="normal")
+            button.config(bg="#ffffff", text="", fg=self._colors["X"], state="normal")
         if self._game_over_overlay:
             self._game_over_overlay.destroy()
             self._game_over_overlay = None
+        if self._winning_cells:
+            for row, col in self._winning_cells:
+                for button, coords in self._cells.items():
+                    if coords == (row, col):
+                        button.config(bg="#ffffff")
+            self._winning_cells = []
 
     def mainloop(self):
         super().mainloop()
