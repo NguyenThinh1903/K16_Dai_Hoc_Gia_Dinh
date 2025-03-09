@@ -8,13 +8,13 @@ class CaroAI:
     def __init__(self, game: CaroGame):
         self.game = game
         self.board_size = game.board_size
-        self.max_depth = 4  # Giảm độ sâu để tránh đơ
-        self.time_limit = 1.0  # Giảm thời gian tối đa
-        self.evaluator = BoardEvaluator(game)  # Khởi tạo evaluator
+        self.max_depth = 5  # Tăng độ sâu để dự đoán tốt hơn
+        self.time_limit = 1.5  # Tăng thời gian để tính toán
+        self.evaluator = BoardEvaluator(game)
 
     def minimax(self, depth, alpha, beta, is_maximizing, ai_label, board_state):
         score = self.evaluator.evaluate_board(ai_label, board_state)
-        if depth >= self.max_depth or abs(score) >= 10000 or self.game.is_tied():
+        if depth >= self.max_depth or abs(score) >= 100000 or self.game.is_tied():
             return score - depth if is_maximizing else score + depth
 
         moves = self.game.get_nearby_moves()
@@ -122,4 +122,61 @@ class CaroAI:
             print(f"AI chọn nước đi tốt nhất hiện tại: [{row}, {col}]")
             return Move(row, col, ai_label)
         print("No valid moves available!")
+        return None
+
+    def suggest_move(self, player_label):
+        """
+        Gợi ý nước đi cho người chơi dựa trên thuật toán minimax.
+        Ưu tiên nước thắng hoặc chặn đối thủ trước khi dùng minimax.
+        """
+        board_state = self.game.get_board_state()
+        best_score = float('-inf')
+        best_move = None
+        alpha = float('-inf')
+        beta = float('inf')
+
+        # Ưu tiên nước đi thắng
+        winning_move = self.evaluator.check_winning_move(player_label, board_state)
+        if winning_move:
+            print(f"Gợi ý nước đi thắng cho người chơi: [{winning_move.row}, {winning_move.col}]")
+            return winning_move
+
+        # Ưu tiên chặn đối thủ
+        blocking_move = self.evaluator.check_opponent_winning_move(player_label, board_state)
+        if blocking_move:
+            print(f"Gợi ý nước đi chặn đối thủ: [{blocking_move.row}, {blocking_move.col}]")
+            return blocking_move
+
+        moves = self.game.get_nearby_moves()
+        if not moves:
+            moves = [(r, c) for r in range(self.board_size) for c in range(self.board_size) 
+                     if board_state[r][c] == ""]
+
+        start_time = time.time()
+        for row, col in moves:
+            if time.time() - start_time > self.time_limit:
+                print(f"Gợi ý hết thời gian sau {self.time_limit} giây, chọn nước đi tốt nhất hiện tại.")
+                break
+            if board_state[row][col] == "":
+                temp_board = copy.deepcopy(board_state)
+                temp_board[row][col] = player_label
+                score = self.evaluator.evaluate_board(player_label, temp_board)
+                if score > best_score:
+                    best_score = score
+                    best_move = Move(row, col, player_label)
+                alpha = max(alpha, best_score)
+                # Kiểm tra minimax để cải thiện
+                move_score = self.minimax(0, alpha, beta, False, player_label, temp_board)
+                if move_score > best_score:
+                    best_score = move_score
+                    best_move = Move(row, col, player_label)
+
+        if best_move:
+            print(f"Gợi ý nước đi cho người chơi: [{best_move.row}, {best_move.col}]")
+            return best_move
+        elif moves:
+            row, col = moves[0]  # Chọn nước đi đầu tiên nếu không tìm thấy tối ưu
+            print(f"Gợi ý nước đi mặc định: [{row}, {col}]")
+            return Move(row, col, player_label)
+        print("Không tìm thấy nước đi gợi ý!")
         return None

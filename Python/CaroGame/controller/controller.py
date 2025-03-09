@@ -4,9 +4,10 @@ from model.game import Move, CaroGame, Player
 from model.ai import CaroAI
 
 class CaroController:
-    def __init__(self, game, board):
+    def __init__(self, game, board, menu):
         self._game = game
-        self._board = board  # Nhận board từ bên ngoài
+        self._board = board
+        self._menu = menu
         self._ai = CaroAI(self._game)
         self._ai_mode = False
         self._scores = {"X": 0, "O": 0}
@@ -38,7 +39,15 @@ class CaroController:
                 self._board.highlight_cells(self._game.winner_combo)
                 winner = self._game.current_player.label
                 self._scores[winner] += 1
-                msg = f'Player "{winner}" won!'
+                if self._ai_mode:
+                    # Chế độ Player vs Machine
+                    if winner == self._ai_label:
+                        msg = "AI won!"  # Thông báo khi AI thắng
+                    else:
+                        msg = "You won!"  # Thông báo khi người chơi thắng
+                else:
+                    # Chế độ Player vs Player
+                    msg = f"Player {winner} won!"
                 self._board.update_display(msg, "yellow")
                 self._board.update_score(self._scores)
                 print(f"Game over: {msg}")
@@ -48,9 +57,7 @@ class CaroController:
                 self._board.update_score(self._scores)
                 print(f"Game over: {msg}")
             else:
-                print(f"Before toggle: Current player = {self._game.current_player.label}")
                 self._game.toggle_player()
-                print(f"After toggle: Current player = {self._game.current_player.label}")
                 self._is_ai_moving = False
                 if self._ai_mode:
                     display_msg = "Your turn" if self._game.current_player.label == self._player_label else "AI's turn"
@@ -83,7 +90,15 @@ class CaroController:
                         self._board.highlight_cells(self._game.winner_combo)
                         winner = self._game.current_player.label
                         self._scores[winner] += 1
-                        msg = f'Player "{winner}" won!'
+                        if self._ai_mode:
+                            # Chế độ Player vs Machine
+                            if winner == self._ai_label:
+                                msg = "AI won!"  # Thông báo khi AI thắng
+                            else:
+                                msg = "You won!"  # Thông báo khi người chơi thắng
+                        else:
+                            # Chế độ Player vs Player
+                            msg = f"Player {winner} won!"
                         self._board.update_display(msg, "yellow")
                         self._board.update_score(self._scores)
                         print(f"Game over: {msg}")
@@ -93,9 +108,7 @@ class CaroController:
                         self._board.update_score(self._scores)
                         print(f"Game over: {msg}")
                     else:
-                        print(f"Before toggle in AI move: Current player = {self._game.current_player.label}")
                         self._game.toggle_player()
-                        print(f"After toggle in AI move: Current player = {self._game.current_player.label}")
                         if self._ai_mode:
                             display_msg = "Your turn" if self._game.current_player.label == self._player_label else "AI's turn"
                         else:
@@ -154,12 +167,30 @@ class CaroController:
             print("AI mode disabled")
 
     def back_to_menu(self):
-        self._board.destroy()
-        menu = StartMenu()
-        menu.mainloop()
+        self._board.withdraw()
+        self._menu.deiconify()
 
     def start(self):
         self._board.mainloop()
 
     def get_scores(self):
         return self._scores
+
+    def suggest_move(self):
+        if self._game.has_winner() or self._game.is_tied():
+            messagebox.showinfo("Game Over", "Trò chơi đã kết thúc, không thể gợi ý nước đi!", parent=self._board)
+            return
+        if self._ai_mode and self._game.current_player.label == self._ai_label:
+            messagebox.showinfo("Invalid Request", "Không thể gợi ý nước đi cho AI!", parent=self._board)
+            return
+        if self._is_ai_moving:
+            messagebox.showinfo("Wait", "Đợi AI hoàn thành nước đi trước khi gợi ý!", parent=self._board)
+            return
+
+        player_label = self._game.current_player.label
+        move = self._ai.suggest_move(player_label)
+        if move:
+            self._board.highlight_suggested_move(move.row, move.col)
+            print(f"Suggested move for player {player_label}: [{move.row}, {move.col}]")
+        else:
+            messagebox.showinfo("No Suggestion", "Không tìm thấy nước đi gợi ý!", parent=self._board)
