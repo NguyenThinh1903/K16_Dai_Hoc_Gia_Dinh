@@ -10,11 +10,10 @@ class CaroBoard(tk.Tk):
         self._cells = {}
         self._controller = controller
         self._game_over_overlay = None
-        # Định nghĩa màu sắc
         self._colors = {
-            "X": "#ff0000",        # Đỏ đậm cho X
-            "O": "#008000",        # Xanh lá đậm cho O
-            "highlight": "#ffff00"  # Vàng sáng cho nhấp nháy chiến thắng
+            "X": "#ff0000",
+            "O": "#008000",
+            "highlight": "#ffff00"
         }
         self._center_window()
         self.canvas = tk.Canvas(self, width=800, height=900, highlightthickness=0)
@@ -77,7 +76,7 @@ class CaroBoard(tk.Tk):
                 button.grid(row=row, column=col, padx=0, pady=0, sticky="nsew")
 
     def _on_button_click(self, event):
-        if not self._game_over_overlay:
+        if not self._game_over_overlay and not self._controller._is_ai_moving:
             clicked_btn = event.widget
             row, col = self._cells[clicked_btn]
             if (row, col) not in self._played_cells:
@@ -138,8 +137,11 @@ class CaroBoard(tk.Tk):
             for row, col in self._winning_cells:
                 for button, coords in self._cells.items():
                     if coords == (row, col):
-                        # Dùng màu highlight riêng thay vì màu của X/O
-                        button.config(bg=self._colors["highlight"] if self._blink_on else "#d0d0d0")
+                        current_label = button.cget("text")
+                        button.config(
+                            bg=self._colors["highlight"] if self._blink_on else "#d0d0d0",
+                            fg=self._colors[current_label] if not self._blink_on else self._colors["highlight"]
+                        )
                         button.update()
             self._blink_count += 1
             self.after(self._blink_interval, self._blink)
@@ -147,7 +149,8 @@ class CaroBoard(tk.Tk):
             for row, col in self._winning_cells:
                 for button, coords in self._cells.items():
                     if coords == (row, col):
-                        button.config(bg="#d0d0d0")
+                        current_label = button.cget("text")
+                        button.config(bg="#d0d0d0", fg=self._colors[current_label])
             self._winning_cells = []
             self._blink_count = 0
             self._blink_on = False

@@ -1,6 +1,4 @@
-from itertools import cycle
 from typing import NamedTuple
-import time
 
 class Player(NamedTuple):
     label: str
@@ -20,11 +18,10 @@ DEFAULT_PLAYERS = (
 
 class CaroGame:
     def __init__(self, players=DEFAULT_PLAYERS, board_size=BOARD_SIZE):
-        self._players = cycle(players)
+        self._players = players  # Lưu danh sách người chơi
         self.board_size = board_size
-        self.current_player = next(self._players)
+        self.current_player = self._players[0]  # Người chơi đầu tiên (X)
         self.winner_combo = []
-        self._current_moves = []
         self._has_winner = False
         self._setup_board()
 
@@ -51,16 +48,19 @@ class CaroGame:
                 r, c = row - dr * i, col - dc * i
                 if 0 <= r < self.board_size and 0 <= c < self.board_size and self._current_moves[r][c].label == label:
                     count += 1
-                    winning_cells.append((r, c))
+                    winning_cells.insert(0, (r, c))
                 else:
                     break
             if count >= WIN_LENGTH:
+                winning_cells.sort(key=lambda x: (x[0], x[1]))
                 self.winner_combo = winning_cells[:WIN_LENGTH]
                 return True
         return False
 
     def toggle_player(self):
-        self.current_player = next(self._players)
+        # Chuyển đổi thủ công giữa hai người chơi
+        self.current_player = self._players[1] if self.current_player.label == self._players[0].label else self._players[0]
+        print(f"Toggled player to: {self.current_player.label}")
 
     def is_valid_move(self, move):
         row, col = move.row, move.col
@@ -86,296 +86,21 @@ class CaroGame:
         self._setup_board()
         self._has_winner = False
         self.winner_combo = []
-        self._players = cycle(DEFAULT_PLAYERS)  # Reset chu kỳ người chơi
-        self.current_player = next(self._players)  # Đặt lại người chơi đầu tiên
+        self.current_player = self._players[0]  # Đặt lại người chơi đầu tiên (X)
+        print(f"Game reset, current player = {self.current_player.label}")
 
     def get_board_state(self):
         return [[self._current_moves[row][col].label for col in range(self.board_size)] 
                 for row in range(self.board_size)]
 
-    def evaluate_board(self, ai_label):
-        if self.has_winner():
-            return 10000 if self.current_player.label == ai_label else -10000
-        if self.is_tied():
-            return 0
-        score = 0
-        opponent_label = "O" if ai_label == "X" else "X"
-
-        for row in range(self.board_size):
-            for col in range(self.board_size):
-                if self._current_moves[row][col].label != "":
-                    label = self._current_moves[row][col].label
-                    for dr, dc in [(0, 1), (1, 0), (1, 1), (1, -1)]:
-                        count = 1
-                        open_ends = 0
-                        for i in range(1, WIN_LENGTH):
-                            r, c = row + dr * i, col + dc * i
-                            if 0 <= r < self.board_size and 0 <= c < self.board_size and self._current_moves[r][c].label == label:
-                                count += 1
-                            else:
-                                break
-                        if count < WIN_LENGTH:
-                            r, c = row + dr * count, col + dc * count
-                            if 0 <= r < self.board_size and 0 <= c < self.board_size and self._current_moves[r][c].label == "":
-                                open_ends += 1
-                        for i in range(1, WIN_LENGTH):
-                            r, c = row - dr * i, col - dc * i
-                            if 0 <= r < self.board_size and 0 <= c < self.board_size and self._current_moves[r][c].label == label:
-                                count += 1
-                            else:
-                                break
-                        if count < WIN_LENGTH:
-                            r, c = row - dr * count, col - dc * count
-                            if 0 <= r < self.board_size and 0 <= c < self.board_size and self._current_moves[r][c].label == "":
-                                open_ends += 1
-                        weight = count * count * 10
-                        if count == 2:
-                            weight *= 10  # Chặn sớm hàng 2
-                        if count == 3:
-                            weight *= 50  # Ưu tiên hàng 3
-                        if count == 4:
-                            weight *= 200  # Ưu tiên cao hàng 4
-                        if open_ends > 0:
-                            weight *= 5
-                        if label == ai_label:
-                            score += weight
-                            if count >= 2 and open_ends > 0:
-                                score += 2000
-                        else:
-                            score -= weight * 4  # Tăng trọng số chặn
-                            if count >= 2 and open_ends > 0:
-                                score -= 3000
-        return score
-
-    def get_nearby_moves(self):
+    def get_nearby_moves(self, distance=1):
         moves = set()
         for row in range(self.board_size):
             for col in range(self.board_size):
                 if self._current_moves[row][col].label != "":
-                    for dr in [-1, 0, 1]:
-                        for dc in [-1, 0, 1]:
+                    for dr in range(-distance, distance + 1):
+                        for dc in range(-distance, distance + 1):
                             r, c = row + dr, col + dc
                             if 0 <= r < self.board_size and 0 <= c < self.board_size and self._current_moves[r][c].label == "":
                                 moves.add((r, c))
-        return list(moves) or [(self.board_size // 2, self.board_size // 2)]  # Mặc định giữa bàn nếu trống
-
-    def check_opponent_winning_move(self, ai_label):
-        opponent_label = "O" if ai_label == "X" else "X"
-        moves = self.get_nearby_moves()
-
-        # Kiểm tra thắng ngay
-        for row, col in moves:
-            if self._current_moves[row][col].label == "":
-                self._current_moves[row][col] = Move(row, col, opponent_label)
-                if self._check_winner(row, col):
-                    self._current_moves[row][col] = Move(row, col)
-                    return Move(row, col, ai_label)
-                self._current_moves[row][col] = Move(row, col)
-
-        # Kiểm tra hàng 4 ô
-        for row, col in moves:
-            if self._current_moves[row][col].label == "":
-                self._current_moves[row][col] = Move(row, col, opponent_label)
-                directions = [(0, 1), (1, 0), (1, 1), (1, -1)]
-                for dr, dc in directions:
-                    count = 1
-                    for i in range(1, WIN_LENGTH):
-                        r, c = row + dr * i, col + dc * i
-                        if 0 <= r < self.board_size and 0 <= c < self.board_size and self._current_moves[r][c].label == opponent_label:
-                            count += 1
-                        else:
-                            break
-                    for i in range(1, WIN_LENGTH):
-                        r, c = row - dr * i, col - dc * i
-                        if 0 <= r < self.board_size and 0 <= c < self.board_size and self._current_moves[r][c].label == opponent_label:
-                            count += 1
-                        else:
-                            break
-                    if count == 4:
-                        self._current_moves[row][col] = Move(row, col)
-                        return Move(row, col, ai_label)
-                self._current_moves[row][col] = Move(row, col)
-
-        # Kiểm tra hàng 3 ô mở
-        for row, col in moves:
-            if self._current_moves[row][col].label == "":
-                self._current_moves[row][col] = Move(row, col, opponent_label)
-                directions = [(0, 1), (1, 0), (1, 1), (1, -1)]
-                for dr, dc in directions:
-                    count = 1
-                    open_ends = 0
-                    for i in range(1, WIN_LENGTH - 1):
-                        r, c = row + dr * i, col + dc * i
-                        if 0 <= r < self.board_size and 0 <= c < self.board_size and self._current_moves[r][c].label == opponent_label:
-                            count += 1
-                        else:
-                            break
-                    if count < 4:
-                        r, c = row + dr * count, col + dc * count
-                        if 0 <= r < self.board_size and 0 <= c < self.board_size and self._current_moves[r][c].label == "":
-                            open_ends += 1
-                    for i in range(1, WIN_LENGTH - 1):
-                        r, c = row - dr * i, col - dc * i
-                        if 0 <= r < self.board_size and 0 <= c < self.board_size and self._current_moves[r][c].label == opponent_label:
-                            count += 1
-                        else:
-                            break
-                    if count < 4:
-                        r, c = row - dr * count, col - dc * count
-                        if 0 <= r < self.board_size and 0 <= c < self.board_size and self._current_moves[r][c].label == "":
-                            open_ends += 1
-                    if count == 3 and open_ends > 0:
-                        self._current_moves[row][col] = Move(row, col)
-                        return Move(row, col, ai_label)
-                self._current_moves[row][col] = Move(row, col)
-
-        # Kiểm tra hàng 2 ô mở
-        for row, col in moves:
-            if self._current_moves[row][col].label == "":
-                self._current_moves[row][col] = Move(row, col, opponent_label)
-                directions = [(0, 1), (1, 0), (1, 1), (1, -1)]
-                for dr, dc in directions:
-                    count = 1
-                    open_ends = 0
-                    for i in range(1, 3):
-                        r, c = row + dr * i, col + dc * i
-                        if 0 <= r < self.board_size and 0 <= c < self.board_size and self._current_moves[r][c].label == opponent_label:
-                            count += 1
-                        else:
-                            break
-                    if count < 3:
-                        r, c = row + dr * count, col + dc * count
-                        if 0 <= r < self.board_size and 0 <= c < self.board_size and self._current_moves[r][c].label == "":
-                            open_ends += 1
-                    for i in range(1, 3):
-                        r, c = row - dr * i, col - dc * i
-                        if 0 <= r < self.board_size and 0 <= c < self.board_size and self._current_moves[r][c].label == opponent_label:
-                            count += 1
-                        else:
-                            break
-                    if count < 3:
-                        r, c = row - dr * count, col - dc * count
-                        if 0 <= r < self.board_size and 0 <= c < self.board_size and self._current_moves[r][c].label == "":
-                            open_ends += 1
-                    if count == 2 and open_ends == 2:
-                        self._current_moves[row][col] = Move(row, col)
-                        return Move(row, col, ai_label)
-                self._current_moves[row][col] = Move(row, col)
-        return None
-
-    def check_winning_move(self, ai_label):
-        moves = self.get_nearby_moves()
-        for row, col in moves:
-            if self._current_moves[row][col].label == "":
-                self._current_moves[row][col] = Move(row, col, ai_label)
-                if self._check_winner(row, col):
-                    self._current_moves[row][col] = Move(row, col)
-                    return Move(row, col, ai_label)
-                self._current_moves[row][col] = Move(row, col)
-        return None
-
-    def minimax(self, depth, alpha, beta, is_maximizing, max_depth=4, ai_label=None):
-        score = self.evaluate_board(ai_label)
-        if depth >= max_depth or score in [-10000, 10000] or self.is_tied():
-            return score - depth if is_maximizing else score + depth
-
-        moves = self.get_nearby_moves()
-        start_time = time.time()
-        
-        move_scores = []
-        for row, col in moves:
-            if time.time() - start_time > 2:
-                break
-            self._current_moves[row][col] = Move(row, col, ai_label if is_maximizing else ("O" if ai_label == "X" else "X"))
-            score = self.evaluate_board(ai_label)
-            self._current_moves[row][col] = Move(row, col)
-            move_scores.append((row, col, score))
-        
-        move_scores.sort(key=lambda x: x[2], reverse=is_maximizing)
-        sorted_moves = [(row, col) for row, col, _ in move_scores]
-
-        if is_maximizing:
-            best_score = float('-inf')
-            for row, col in sorted_moves:
-                if time.time() - start_time > 2:
-                    break
-                self._current_moves[row][col] = Move(row, col, ai_label)
-                score = self.minimax(depth + 1, alpha, beta, False, max_depth, ai_label)
-                self._current_moves[row][col] = Move(row, col)
-                best_score = max(best_score, score)
-                alpha = max(alpha, best_score)
-                if beta <= alpha:
-                    break
-            return best_score
-        else:
-            best_score = float('inf')
-            for row, col in sorted_moves:
-                if time.time() - start_time > 2:
-                    break
-                opponent_label = "O" if ai_label == "X" else "X"
-                self._current_moves[row][col] = Move(row, col, opponent_label)
-                score = self.minimax(depth + 1, alpha, beta, True, max_depth, ai_label)
-                self._current_moves[row][col] = Move(row, col)
-                best_score = min(best_score, score)
-                beta = min(beta, best_score)
-                if beta <= alpha:
-                    break
-            return best_score
-
-    def get_ai_move(self, ai_label):
-        winning_move = self.check_winning_move(ai_label)
-        if winning_move:
-            print(f"AI chọn nước đi tấn công: [{winning_move.row}, {winning_move.col}]")
-            return winning_move
-
-        blocking_move = self.check_opponent_winning_move(ai_label)
-        if blocking_move:
-            print(f"AI chọn nước đi chặn: [{blocking_move.row}, {blocking_move.col}]")
-            return blocking_move
-
-        best_score = float('-inf')
-        best_move = None
-        alpha = float('-inf')
-        beta = float('inf')
-        
-        moves = self.get_nearby_moves()
-        if not moves:
-            moves = [(r, c) for r in range(self.board_size) for c in range(self.board_size) 
-                     if self._current_moves[r][c].label == ""]
-
-        start_time = time.time()
-        evaluated_moves = []
-        for row, col in moves:
-            if time.time() - start_time > 2:
-                break
-            self._current_moves[row][col] = Move(row, col, ai_label)
-            score = self.evaluate_board(ai_label)
-            self._current_moves[row][col] = Move(row, col)
-            evaluated_moves.append((score, (row, col)))
-
-        evaluated_moves.sort(reverse=True)
-        for score, (row, col) in evaluated_moves:
-            if time.time() - start_time > 2:
-                break
-            self._current_moves[row][col] = Move(row, col, ai_label)
-            move_score = self.minimax(0, alpha, beta, False, ai_label=ai_label)
-            self._current_moves[row][col] = Move(row, col)
-            if move_score > best_score:
-                best_score = move_score
-                best_move = Move(row, col, ai_label)
-            alpha = max(alpha, best_score)
-
-        if best_move:
-            print(f"AI chọn nước đi: [{best_move.row}, {best_move.col}]")
-            return best_move
-        elif evaluated_moves:
-            import random
-            _, (row, col) = random.choice(evaluated_moves)
-            print(f"AI chọn nước đi ngẫu nhiên do hết thời gian: [{row}, {col}]")
-            return Move(row, col, ai_label)
-        print("No valid moves available!")
-        return None
-
-if __name__ == "__main__":
-    game = CaroGame()
-    print(game.get_board_state())
+        return list(moves) or [(self.board_size // 2, self.board_size // 2)]
