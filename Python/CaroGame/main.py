@@ -1,4 +1,4 @@
-from menu import StartMenu
+from view.menu import StartMenu
 
 def main():
     menu = StartMenu()

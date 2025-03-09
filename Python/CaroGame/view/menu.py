@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import font
-from game import CaroGame  
-from controller import CaroController
+from model.game import CaroGame  
+from controller.controller import CaroController
+from view.board import CaroBoard
 
 class StartMenu(tk.Tk):
     def __init__(self):
@@ -55,13 +56,17 @@ class StartMenu(tk.Tk):
     def start_pvp(self):
         self.destroy()
         game = CaroGame()  
-        controller = CaroController(game)
+        board = CaroBoard(None)  # Tạo board trước
+        controller = CaroController(game, board)  # Truyền board vào controller
+        board._controller = controller  # Gán controller cho board sau khi tạo
         controller.start()
 
     def start_pvai(self):
         self.destroy()
         game = CaroGame()  
-        controller = CaroController(game)
+        board = CaroBoard(None)  # Tạo board trước
+        controller = CaroController(game, board)  # Truyền board vào controller
+        board._controller = controller  # Gán controller cho board sau khi tạo
         controller.set_ai_mode()
         controller.start()
 

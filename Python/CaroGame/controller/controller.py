@@ -1,13 +1,12 @@
 import tkinter.messagebox as messagebox
 import random
-from game import Move, CaroGame, Player
-from board import CaroBoard
-from ai import CaroAI
+from model.game import Move, CaroGame, Player
+from model.ai import CaroAI
 
 class CaroController:
-    def __init__(self, game, board=None):
+    def __init__(self, game, board):
         self._game = game
-        self._board = board if board else CaroBoard(self)
+        self._board = board  # Nhận board từ bên ngoài
         self._ai = CaroAI(self._game)
         self._ai_mode = False
         self._scores = {"X": 0, "O": 0}
@@ -156,7 +155,6 @@ class CaroController:
 
     def back_to_menu(self):
         self._board.destroy()
-        from menu import StartMenu
         menu = StartMenu()
         menu.mainloop()
 
