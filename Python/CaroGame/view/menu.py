@@ -1,3 +1,4 @@
+import sys
 import tkinter as tk
 from tkinter import font
 
@@ -11,6 +12,7 @@ class StartMenu(tk.Tk):
         self.start_pvp_callback = None
         self.start_pvai_callback = None
         self._create_menu()
+        self.protocol("WM_DELETE_WINDOW", self.quit_game)  # Thoát khi nhấn "X"
 
     def _center_window(self):
         self.update_idletasks()
@@ -67,4 +69,4 @@ class StartMenu(tk.Tk):
     def quit_game(self):
         self.quit()  # Thoát Tkinter mainloop
         self.destroy()  # Đóng cửa sổ Tkinter
-        # `sys.exit()` không cần ở đây vì đã có trong main.py
+        sys.exit(0)  # Thoát hoàn toàn chương trình Python
