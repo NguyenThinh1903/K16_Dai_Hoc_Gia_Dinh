@@ -81,7 +81,7 @@ class GameModel extends ChangeNotifier {
   }
 
   void startTimer() {
-    timer?.cancel();
+    timer?.cancel(); // Hủy timer cũ trước khi tạo mới
     timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (timeLeft > 0) {
         timeLeft--;
@@ -152,6 +152,7 @@ class GameModel extends ChangeNotifier {
     timeLeft = 60;
     timer?.cancel();
     initializeGame();
+    startTimer();
     _saveGameState();
     notifyListeners();
   }

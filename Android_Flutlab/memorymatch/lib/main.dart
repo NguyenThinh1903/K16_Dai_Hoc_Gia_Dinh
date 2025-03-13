@@ -11,7 +11,13 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    print('Failed to initialize Firebase: $e');
+  }
   runApp(const MyApp());
 }
 
@@ -22,7 +28,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => GameModel()), // Instance chung
+        ChangeNotifierProvider(create: (_) => GameModel()),
         Provider(create: (_) => GameController()),
       ],
       child: MaterialApp(
@@ -51,7 +57,7 @@ class MyApp extends StatelessWidget {
           '/login': (context) => const LoginScreen(),
           '/home': (context) => const HomeScreen(),
           '/game': (context) => const GameScreen(),
-          '/leaderboard': (context) => LeaderboardScreen(),
+          '/leaderboard': (context) => const LeaderboardScreen(),
         },
         debugShowCheckedModeBanner: false,
       ),

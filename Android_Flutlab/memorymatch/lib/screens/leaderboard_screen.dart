@@ -1,18 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:memorymatch/services/firestore_service.dart';
+import 'package:memorymatch/screens/home_screen.dart';
 
 class LeaderboardScreen extends StatelessWidget {
-  final FirestoreService _firestore = FirestoreService();
-
-  LeaderboardScreen({super.key});
+  const LeaderboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final FirestoreService firestore = FirestoreService();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Leaderboard'),
         backgroundColor: Colors.blue.shade900,
         foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            // Khi nhấn nút back, luôn về HomeScreen
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+              (route) => false,
+            );
+          },
+        ),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -23,7 +35,7 @@ class LeaderboardScreen extends StatelessWidget {
           ),
         ),
         child: FutureBuilder<List<Map<String, dynamic>>>(
-          future: _firestore.getLeaderboard(),
+          future: firestore.getLeaderboard(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());

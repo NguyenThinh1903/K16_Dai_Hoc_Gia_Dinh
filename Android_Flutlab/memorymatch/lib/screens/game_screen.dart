@@ -6,19 +6,28 @@ import 'package:memorymatch/screens/home_screen.dart';
 import 'package:memorymatch/widgets/card_widget.dart';
 import 'package:provider/provider.dart';
 
-class GameScreen extends StatelessWidget {
+class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
+
+  @override
+  _GameScreenState createState() => _GameScreenState();
+}
+
+class _GameScreenState extends State<GameScreen> {
+  bool _dialogShown = false;
 
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<GameController>(context);
     final model = Provider.of<GameModel>(context);
 
-    if (model.timeLeft <= 0) {
+    if (model.timeLeft <= 0 && !_dialogShown) {
+      _dialogShown = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _showGameOverDialog(context, model, controller);
       });
-    } else if (model.pairsFound == model.cards.length ~/ 2) {
+    } else if (model.pairsFound == model.cards.length ~/ 2 && !_dialogShown) {
+      _dialogShown = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _showLevelCompleteDialog(context, model, controller);
       });
@@ -95,22 +104,26 @@ class GameScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.pop(context);
                   model.nextLevel();
+                  setState(() => _dialogShown = false);
                 },
                 child: const Text('Next Level'),
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context);
-                  controller.goToLeaderboard(context).then((_) {
-                    controller.goToHome(context);
-                  });
+                  Navigator.pop(context); // Đóng dialog
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LeaderboardScreen(),
+                    ),
+                  );
                 },
                 child: const Text('View Leaderboard'),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  controller.goToHome(context);
+                  controller.goToHome(context); // Về HomeScreen
                 },
                 child: const Text('Exit'),
               ),
@@ -145,22 +158,26 @@ class GameScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.pop(context);
                   model.resetGame();
+                  setState(() => _dialogShown = false);
                 },
                 child: const Text('Restart'),
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context);
-                  controller.goToLeaderboard(context).then((_) {
-                    controller.goToHome(context);
-                  });
+                  Navigator.pop(context); // Đóng dialog
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LeaderboardScreen(),
+                    ),
+                  );
                 },
                 child: const Text('View Leaderboard'),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  controller.goToHome(context);
+                  controller.goToHome(context); // Về HomeScreen
                 },
                 child: const Text('Exit'),
               ),

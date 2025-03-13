@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memorymatch/models/game_model.dart';
-import 'package:memorymatch/controllers/game_controller.dart'; // Sửa đường dẫn
 import 'package:memorymatch/screens/game_screen.dart';
+import 'package:memorymatch/controllers/game_controller.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -10,6 +10,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<GameController>(context);
+    final gameModel = Provider.of<GameModel>(context, listen: false);
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -58,12 +60,11 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
+                  gameModel.resetGame(); // Reset ngay lập tức
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const GameScreen()),
-                  ).then((_) {
-                    Provider.of<GameModel>(context, listen: false).resetGame();
-                  });
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
