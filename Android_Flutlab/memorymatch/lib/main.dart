@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:memorymatch/screens/login_screen.dart'; // Đảm bảo import đúng
-import 'firebase_options.dart'; // Được tạo bởi `flutterfire configure`
+import 'package:memorymatch/models/game_model.dart';
+import 'package:memorymatch/controllers/game_controller.dart';
+import 'package:memorymatch/screens/game_screen.dart';
+import 'package:memorymatch/screens/home_screen.dart';
+import 'package:memorymatch/screens/leaderboard_screen.dart';
+import 'package:memorymatch/screens/login_screen.dart';
+import 'package:provider/provider.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,36 +20,41 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Memory Match',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.white,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.blue,
-          titleTextStyle: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => GameModel()), // Instance chung
+        Provider(create: (_) => GameController()),
+      ],
+      child: MaterialApp(
+        title: 'Memory Match',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          scaffoldBackgroundColor: Colors.white,
+          appBarTheme: const AppBarTheme(
             backgroundColor: Colors.blue,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-            textStyle: const TextStyle(fontSize: 16),
+            titleTextStyle: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.blue,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            ),
           ),
         ),
-        textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.blue,
-            textStyle: const TextStyle(fontSize: 16),
-          ),
-        ),
+        initialRoute: '/login',
+        routes: {
+          '/login': (context) => const LoginScreen(),
+          '/home': (context) => const HomeScreen(),
+          '/game': (context) => const GameScreen(),
+          '/leaderboard': (context) => LeaderboardScreen(),
+        },
+        debugShowCheckedModeBanner: false,
       ),
-      home: const LoginScreen(), // Sửa từ login_screen thành LoginScreen
-      debugShowCheckedModeBanner: false,
     );
   }
 }

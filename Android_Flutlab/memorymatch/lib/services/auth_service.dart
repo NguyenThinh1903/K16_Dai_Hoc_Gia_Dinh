@@ -10,8 +10,8 @@ class AuthService {
         password: password,
       );
       return result.user;
-    } catch (e) {
-      print(e.toString());
+    } on FirebaseAuthException catch (e) {
+      print('Registration failed: ${e.message}');
       return null;
     }
   }
@@ -23,8 +23,8 @@ class AuthService {
         password: password,
       );
       return result.user;
-    } catch (e) {
-      print(e.toString());
+    } on FirebaseAuthException catch (e) {
+      print('Login failed: ${e.message}');
       return null;
     }
   }

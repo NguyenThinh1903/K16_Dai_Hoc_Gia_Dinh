@@ -7,7 +7,6 @@ class DefaultFirebaseOptions {
     if (kIsWeb) {
       return web;
     }
-    // Thêm cấu hình cho Android/iOS nếu cần
     throw UnsupportedError(
       'DefaultFirebaseOptions are not supported for this platform.',
     );
