@@ -37,5 +37,8 @@ pnpm-lock.yaml
 *.sqlite3
 __pycache__/
 
+firebase_options.dart
+
+
 # Skip temporary files when working with Git
 .gitignore
