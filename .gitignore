@@ -39,6 +39,5 @@ __pycache__/
 
 firebase_options.dart
 
-
 # Skip temporary files when working with Git
 .gitignore
