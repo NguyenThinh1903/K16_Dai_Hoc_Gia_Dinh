@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class CardView extends StatelessWidget {
-  final String displayText; // Nội dung hiển thị (content hoặc "?")
-  final bool isFlipped; // Trạng thái để quyết định mặt trước/mặt sau
-  final VoidCallback onTap; // Sự kiện nhấn
+  final String displayText;
+  final bool isFlipped;
+  final VoidCallback onTap;
 
   const CardView({
     super.key,
@@ -23,7 +23,7 @@ class CardView extends StatelessWidget {
           return AnimatedBuilder(
             animation: rotate,
             builder: (context, child) {
-              final isBack = rotate.value <= 0.5; // Đổi tên để rõ ràng hơn
+              final isBack = rotate.value <= 0.5;
               final angle =
                   isBack ? rotate.value * 3.14 : (1 - rotate.value) * 3.14;
               return Transform(
@@ -44,11 +44,12 @@ class CardView extends StatelessWidget {
     return Container(
       key: const ValueKey(true),
       decoration: BoxDecoration(
-        color: Colors.blue,
+        color: const Color(0xFFE8D5C4), // Kraft Medium
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF3F4238), width: 2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: const Color(0xFF3F4238).withOpacity(0.2),
             blurRadius: 6,
             offset: const Offset(0, 3),
           ),
@@ -57,7 +58,11 @@ class CardView extends StatelessWidget {
       child: Center(
         child: Text(
           displayText,
-          style: const TextStyle(fontSize: 24, color: Colors.white),
+          style: const TextStyle(
+            fontFamily: 'Amatic SC',
+            fontSize: 24,
+            color: Color(0xFF3F4238), // Dark Gray
+          ),
         ),
       ),
     );
@@ -67,18 +72,26 @@ class CardView extends StatelessWidget {
     return Container(
       key: const ValueKey(false),
       decoration: BoxDecoration(
-        color: Colors.grey.shade400,
+        color: const Color(0xFFF5F1E9), // Kraft Light
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF3F4238), width: 2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: const Color(0xFF3F4238).withOpacity(0.2),
             blurRadius: 6,
             offset: const Offset(0, 3),
           ),
         ],
       ),
       child: const Center(
-        child: Text('?', style: TextStyle(fontSize: 24, color: Colors.white)),
+        child: Text(
+          '⭐', // Thay "?" bằng ngôi sao để phù hợp phong cách vẽ tay
+          style: TextStyle(
+            fontFamily: 'Amatic SC',
+            fontSize: 24,
+            color: Color(0xFF3F4238), // Dark Gray
+          ),
+        ),
       ),
     );
   }

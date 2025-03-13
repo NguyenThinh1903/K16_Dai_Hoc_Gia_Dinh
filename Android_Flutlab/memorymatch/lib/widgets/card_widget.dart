@@ -29,7 +29,10 @@ class CardWidget extends StatelessWidget {
               return Transform(
                 transform: Matrix4.rotationY(angle),
                 alignment: Alignment.center,
-                child: isBack ? _buildBack() : _buildFront(),
+                child: ScaleTransition(
+                  scale: Tween<double>(begin: 1.0, end: 1.1).animate(animation),
+                  child: isBack ? _buildBack() : _buildFront(),
+                ),
               );
             },
             child: child,
@@ -44,20 +47,22 @@ class CardWidget extends StatelessWidget {
     return Container(
       key: const ValueKey(true),
       decoration: BoxDecoration(
-        color: Colors.blue,
+        color: Colors.brown[50],
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        border: Border.all(
+          color: Colors.black54,
+          width: 2,
+          style: BorderStyle.solid,
+        ),
       ),
       child: Center(
         child: Text(
           text,
-          style: const TextStyle(fontSize: 24, color: Colors.white),
+          style: const TextStyle(
+            fontFamily: 'Amatic SC',
+            fontSize: 24,
+            color: Colors.black87,
+          ),
         ),
       ),
     );
@@ -67,18 +72,23 @@ class CardWidget extends StatelessWidget {
     return Container(
       key: const ValueKey(false),
       decoration: BoxDecoration(
-        color: Colors.grey.shade400,
+        color: Colors.brown[50],
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        border: Border.all(
+          color: Colors.black54,
+          width: 2,
+          style: BorderStyle.solid,
+        ),
       ),
       child: const Center(
-        child: Text('?', style: TextStyle(fontSize: 24, color: Colors.white)),
+        child: Text(
+          '⭐',
+          style: TextStyle(
+            fontFamily: 'Amatic SC',
+            fontSize: 24,
+            color: Colors.black87,
+          ),
+        ),
       ),
     );
   }

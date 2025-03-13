@@ -24,3 +24,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  fonts:
+    - family: Amatic SC
+      fonts:
+        - asset: fonts/AmaticSC-Regular.ttf
+  assets:
+    - assets/images/  # Dự phòng cho hình ảnh (nếu có)
+    - assets/sounds/  # Dự phòng cho âm thanh (nếu có)

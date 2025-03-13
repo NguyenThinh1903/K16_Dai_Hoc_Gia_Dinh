@@ -14,25 +14,30 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.blue.shade900, Colors.blue.shade300],
+            colors: [Color(0xFFF5F1E9), Color(0xFFE8D5C4)], // Gradient Kraft
           ),
         ),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.memory, size: 100, color: Colors.white),
+              const Icon(
+                Icons.memory,
+                size: 100,
+                color: Color(0xFF3F4238), // Dark Gray
+              ),
               const SizedBox(height: 20),
               const Text(
                 'Memory Match',
                 style: TextStyle(
+                  fontFamily: 'Amatic SC',
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Color(0xFF3F4238), // Dark Gray
                 ),
               ),
               const SizedBox(height: 40),
@@ -44,54 +49,84 @@ class HomeScreen extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF4A261), // Pastel Orange
+                  foregroundColor: const Color(
+                    0xFFE76F51,
+                  ), // Pastel Orange Dark
                   padding: const EdgeInsets.symmetric(
                     horizontal: 40,
                     vertical: 20,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: Color(0xFFE76F51), width: 2),
                   ),
                 ),
                 child: const Text(
                   'Continue Game',
-                  style: TextStyle(fontSize: 20),
+                  style: TextStyle(
+                    fontFamily: 'Amatic SC',
+                    fontSize: 20,
+                    color: Color(0xFF3F4238), // Dark Gray
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  gameModel.resetGame(); // Reset ngay lập tức
+                  gameModel.resetGame();
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const GameScreen()),
                   );
                 },
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF4A261), // Pastel Orange
+                  foregroundColor: const Color(
+                    0xFFE76F51,
+                  ), // Pastel Orange Dark
                   padding: const EdgeInsets.symmetric(
                     horizontal: 40,
                     vertical: 20,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: Color(0xFFE76F51), width: 2),
                   ),
                 ),
-                child: const Text('New Game', style: TextStyle(fontSize: 20)),
+                child: const Text(
+                  'New Game',
+                  style: TextStyle(
+                    fontFamily: 'Amatic SC',
+                    fontSize: 20,
+                    color: Color(0xFF3F4238), // Dark Gray
+                  ),
+                ),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () => controller.goToLeaderboard(context),
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF4A261), // Pastel Orange
+                  foregroundColor: const Color(
+                    0xFFE76F51,
+                  ), // Pastel Orange Dark
                   padding: const EdgeInsets.symmetric(
                     horizontal: 40,
                     vertical: 20,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: Color(0xFFE76F51), width: 2),
                   ),
                 ),
                 child: const Text(
                   'Leaderboard',
-                  style: TextStyle(fontSize: 20),
+                  style: TextStyle(
+                    fontFamily: 'Amatic SC',
+                    fontSize: 20,
+                    color: Color(0xFF3F4238), // Dark Gray
+                  ),
                 ),
               ),
             ],

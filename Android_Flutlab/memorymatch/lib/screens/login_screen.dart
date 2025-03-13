@@ -21,11 +21,11 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Colors.blue.shade900, Colors.blue.shade300],
+            colors: [Color(0xFFF5F1E9), Color(0xFFE8D5C4)], // Gradient Kraft
           ),
         ),
         child: SafeArea(
@@ -35,14 +35,19 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.lock_outline, size: 80, color: Colors.white),
+                  const Icon(
+                    Icons.lock_outline,
+                    size: 80,
+                    color: Color(0xFF3F4238), // Dark Gray
+                  ),
                   const SizedBox(height: 16),
                   const Text(
                     'Welcome Back',
                     style: TextStyle(
+                      fontFamily: 'Amatic SC',
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Color(0xFF3F4238), // Dark Gray
                     ),
                   ),
                   const SizedBox(height: 48),
@@ -52,7 +57,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.9),
                       hintText: 'Email',
-                      prefixIcon: const Icon(Icons.email),
+                      hintStyle: const TextStyle(
+                        fontFamily: 'Amatic SC',
+                        color: Color(0xFF9A9A9A), // Light Gray
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.email,
+                        color: Color(0xFF3F4238), // Dark Gray
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -67,7 +79,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.9),
                       hintText: 'Password',
-                      prefixIcon: const Icon(Icons.lock),
+                      hintStyle: const TextStyle(
+                        fontFamily: 'Amatic SC',
+                        color: Color(0xFF9A9A9A), // Light Gray
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.lock,
+                        color: Color(0xFF3F4238), // Dark Gray
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -102,27 +121,47 @@ class _LoginScreenState extends State<LoginScreen> {
                                           'Exception: ',
                                           '',
                                         ),
+                                        style: const TextStyle(
+                                          fontFamily: 'Amatic SC',
+                                          color: Colors.white,
+                                        ),
                                       ),
-                                      backgroundColor: Colors.red,
+                                      backgroundColor: const Color(
+                                        0xFFE5989B,
+                                      ), // Pastel Red
                                     ),
                                   );
                                 }
                                 setState(() => _isLoading = false);
                               },
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(
+                          0xFFF4A261,
+                        ), // Pastel Orange
+                        foregroundColor: const Color(
+                          0xFFE76F51,
+                        ), // Pastel Orange Dark
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
+                          side: const BorderSide(
+                            color: Color(0xFFE76F51),
+                            width: 2,
+                          ),
                         ),
                       ),
                       child:
                           _isLoading
                               ? const CircularProgressIndicator(
-                                color: Colors.white,
+                                color: Color(0xFFE76F51), // Pastel Orange Dark
                               )
                               : const Text(
                                 'Login',
-                                style: TextStyle(fontSize: 18),
+                                style: TextStyle(
+                                  fontFamily: 'Amatic SC',
+                                  fontSize: 18,
+                                  color: Color(0xFF3F4238), // Dark Gray
+                                ),
                               ),
                     ),
                   ),
@@ -138,7 +177,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     child: const Text(
                       'Don’t have an account? Register',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(
+                        fontFamily: 'Amatic SC',
+                        color: Color(0xFF3F4238), // Dark Gray
+                      ),
                     ),
                   ),
                 ],

@@ -11,9 +11,17 @@ class LeaderboardScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Leaderboard'),
-        backgroundColor: Colors.blue.shade900,
-        foregroundColor: Colors.white,
+        title: const Text(
+          'Leaderboard',
+          style: TextStyle(
+            fontFamily: 'Amatic SC',
+            fontSize: 30,
+            color: Color(0xFF3F4238), // Dark Gray
+          ),
+        ),
+        backgroundColor: const Color(0xFFF5F1E9), // Kraft Light
+        foregroundColor: const Color(0xFF3F4238), // Dark Gray
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -26,11 +34,11 @@ class LeaderboardScreen extends StatelessWidget {
         ),
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.blue.shade100, Colors.white],
+            colors: [Color(0xFFF5F1E9), Color(0xFFE8D5C4)], // Gradient Kraft
           ),
         ),
         child: FutureBuilder<List<Map<String, dynamic>>>(
@@ -46,13 +54,38 @@ class LeaderboardScreen extends StatelessWidget {
                   children: [
                     Text(
                       snapshot.error.toString().replaceFirst('Exception: ', ''),
-                      style: const TextStyle(color: Colors.red, fontSize: 16),
+                      style: const TextStyle(
+                        fontFamily: 'Amatic SC',
+                        color: Color(0xFFE5989B), // Pastel Red
+                        fontSize: 16,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Quay lại'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(
+                          0xFFF4A261,
+                        ), // Pastel Orange
+                        foregroundColor: const Color(
+                          0xFFE76F51,
+                        ), // Pastel Orange Dark
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: const BorderSide(
+                            color: Color(0xFFE76F51),
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                      child: const Text(
+                        'Quay lại',
+                        style: TextStyle(
+                          fontFamily: 'Amatic SC',
+                          color: Color(0xFF3F4238), // Dark Gray
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -60,7 +93,14 @@ class LeaderboardScreen extends StatelessWidget {
             }
             if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return const Center(
-                child: Text('Không có dữ liệu bảng xếp hạng'),
+                child: Text(
+                  'Không có dữ liệu bảng xếp hạng',
+                  style: TextStyle(
+                    fontFamily: 'Amatic SC',
+                    fontSize: 20,
+                    color: Color(0xFF3F4238), // Dark Gray
+                  ),
+                ),
               );
             }
             final leaderboard = snapshot.data!;
@@ -72,16 +112,33 @@ class LeaderboardScreen extends StatelessWidget {
                 return Card(
                   elevation: 4,
                   margin: const EdgeInsets.symmetric(vertical: 8),
+                  color: const Color(0xFFE8D5C4), // Kraft Medium
                   child: ListTile(
                     leading: CircleAvatar(
-                      child: Text('${index + 1}'),
-                      backgroundColor: Colors.blue.shade900,
-                      foregroundColor: Colors.white,
+                      child: Text(
+                        '${index + 1}',
+                        style: const TextStyle(
+                          fontFamily: 'Amatic SC',
+                          color: Color(0xFFF5F1E9), // Kraft Light
+                        ),
+                      ),
+                      backgroundColor: const Color(0xFFF4A261), // Pastel Orange
+                      foregroundColor: const Color(0xFFF5F1E9),
                     ),
-                    title: Text(entry['email'] ?? 'Unknown'),
+                    title: Text(
+                      entry['email'] ?? 'Unknown',
+                      style: const TextStyle(
+                        fontFamily: 'Amatic SC',
+                        color: Color(0xFF3F4238), // Dark Gray
+                      ),
+                    ),
                     trailing: Text(
                       'Score: ${entry['score'] ?? 0}',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontFamily: 'Amatic SC',
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF3F4238), // Dark Gray
+                      ),
                     ),
                   ),
                 );
