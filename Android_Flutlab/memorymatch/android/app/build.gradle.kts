@@ -7,8 +7,8 @@ plugins {
 
 android {
     namespace = "com.example.memorymatch"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    compileSdk = 34 // Sử dụng giá trị cố định thay vì flutter.compileSdkVersion để đảm bảo tương thích
+    ndkVersion = "27.0.12077973" // Cố định NDK phiên bản yêu cầu bởi Firebase
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -24,10 +24,10 @@ android {
         applicationId = "com.example.memorymatch"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        minSdk = 21 // Hoặc flutter.minSdkVersion nếu muốn động
+        targetSdk = 34 // Hoặc flutter.targetSdkVersion nếu muốn động
+        versionCode = 1 // Hoặc flutter.versionCode nếu muốn động
+        versionName = "1.0" // Hoặc flutter.versionName nếu muốn động
     }
 
     buildTypes {

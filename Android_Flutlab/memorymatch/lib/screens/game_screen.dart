@@ -55,29 +55,45 @@ class _GameScreenState extends State<GameScreen> {
             colors: [Colors.blue.shade100, Colors.white],
           ),
         ),
-        child: GridView.builder(
-          padding: const EdgeInsets.all(16),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: model.level == 1 ? 4 : 6,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
+        child: Center(
+          // Thêm Center để căn giữa toàn bộ GridView
+          child: ConstrainedBox(
+            // Giới hạn kích thước GridView
+            constraints: BoxConstraints(
+              maxWidth:
+                  400, // Giới hạn chiều rộng để các thẻ không bị trải rộng
+            ),
+            child: GridView.builder(
+              padding: const EdgeInsets.all(16),
+              shrinkWrap: true, // Đảm bảo GridView không chiếm hết không gian
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount:
+                    model.level <= 2
+                        ? 4
+                        : 6, // 4 cột cho level 1-2, 6 cột cho các level sau
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                childAspectRatio: 1, // Tỷ lệ thẻ (hình vuông)
+              ),
+              itemCount: model.cards.length,
+              itemBuilder: (context, index) {
+                return CardWidget(
+                  text:
+                      model.flipped[index] || model.matched[index]
+                          ? model.cards[index]
+                          : '?',
+                  onTap: () => model.checkMatch(index),
+                  isFlipped: model.flipped[index] || model.matched[index],
+                );
+              },
+            ),
           ),
-          itemCount: model.cards.length,
-          itemBuilder: (context, index) {
-            return CardWidget(
-              text:
-                  model.flipped[index] || model.matched[index]
-                      ? model.cards[index]
-                      : '?',
-              onTap: () => model.checkMatch(index),
-              isFlipped: model.flipped[index] || model.matched[index],
-            );
-          },
         ),
       ),
     );
   }
 
+  // Các phương thức _showLevelCompleteDialog và _showGameOverDialog giữ nguyên, mình sẽ sửa ở phần 2
   void _showLevelCompleteDialog(
     BuildContext context,
     GameModel model,
@@ -87,47 +103,112 @@ class _GameScreenState extends State<GameScreen> {
       context: context,
       barrierDismissible: false,
       builder:
-          (context) => AlertDialog(
+          (context) => Dialog(
+            // Dùng Dialog thay vì AlertDialog để kiểm soát layout tốt hơn
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(color: Colors.green, width: 3),
             ),
-            title: const Text('Level Complete!'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('Score: ${model.score}'),
-                Text('Level: ${model.level}'),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  model.nextLevel();
-                  setState(() => _dialogShown = false);
-                },
-                child: const Text('Next Level'),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 350, // Giới hạn chiều rộng để tránh wrap
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // Đóng dialog
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LeaderboardScreen(),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Tiêu đề và icon
+                    Column(
+                      children: [
+                        const Icon(Icons.star, color: Colors.yellow, size: 50),
+                        const SizedBox(height: 10),
+                        const Text(
+                          'Level Complete!',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
-                  );
-                },
-                child: const Text('View Leaderboard'),
+                    const SizedBox(height: 10),
+                    // Nội dung
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Score: ${model.score}',
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        Text(
+                          'Level: ${model.level}',
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    // Các nút (xếp ngang)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            model.nextLevel();
+                            setState(() => _dialogShown = false);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 15,
+                              vertical: 10,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: const Text(
+                            'Next Level',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                        ),
+                        const SizedBox(width: 8), // Khoảng cách giữa các nút
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LeaderboardScreen(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'Leaderboard',
+                            style: TextStyle(fontSize: 14, color: Colors.blue),
+                          ),
+                        ),
+                        const SizedBox(width: 8), // Khoảng cách giữa các nút
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            controller.goToHome(context);
+                          },
+                          child: const Text(
+                            'Exit',
+                            style: TextStyle(fontSize: 14, color: Colors.grey),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  controller.goToHome(context); // Về HomeScreen
-                },
-                child: const Text('Exit'),
-              ),
-            ],
+            ),
           ),
     );
   }
@@ -141,47 +222,112 @@ class _GameScreenState extends State<GameScreen> {
       context: context,
       barrierDismissible: false,
       builder:
-          (context) => AlertDialog(
+          (context) => Dialog(
+            // Dùng Dialog thay vì AlertDialog
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(color: Colors.red, width: 3),
             ),
-            title: const Text('Game Over'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('Score: ${model.score}'),
-                Text('Level: ${model.level}'),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  model.resetGame();
-                  setState(() => _dialogShown = false);
-                },
-                child: const Text('Restart'),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 350, // Giới hạn chiều rộng để tránh wrap
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // Đóng dialog
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LeaderboardScreen(),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Tiêu đề và icon
+                    Column(
+                      children: [
+                        const Icon(Icons.close, color: Colors.red, size: 50),
+                        const SizedBox(height: 10),
+                        const Text(
+                          'Game Over',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
-                  );
-                },
-                child: const Text('View Leaderboard'),
+                    const SizedBox(height: 10),
+                    // Nội dung
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Score: ${model.score}',
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        Text(
+                          'Level: ${model.level}',
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    // Các nút (xếp ngang)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            model.resetGame();
+                            setState(() => _dialogShown = false);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 15,
+                              vertical: 10,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: const Text(
+                            'Restart',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                        ),
+                        const SizedBox(width: 8), // Khoảng cách giữa các nút
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LeaderboardScreen(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'Leaderboard',
+                            style: TextStyle(fontSize: 14, color: Colors.blue),
+                          ),
+                        ),
+                        const SizedBox(width: 8), // Khoảng cách giữa các nút
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            controller.goToHome(context);
+                          },
+                          child: const Text(
+                            'Exit',
+                            style: TextStyle(fontSize: 14, color: Colors.grey),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  controller.goToHome(context); // Về HomeScreen
-                },
-                child: const Text('Exit'),
-              ),
-            ],
+            ),
           ),
     );
   }

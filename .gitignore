@@ -41,3 +41,4 @@ firebase_options.dart
 
 # Skip temporary files when working with Git
 .gitignore
+Android_Flutlab/memorymatch/android/app/google-services.json
