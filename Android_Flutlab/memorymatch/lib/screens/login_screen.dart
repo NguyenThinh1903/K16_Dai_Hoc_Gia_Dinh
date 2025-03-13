@@ -83,25 +83,31 @@ class _LoginScreenState extends State<LoginScreen> {
                               ? null
                               : () async {
                                 setState(() => _isLoading = true);
-                                User? user = await _auth.login(
-                                  _emailController.text.trim(),
-                                  _passwordController.text.trim(),
-                                );
-                                setState(() => _isLoading = false);
-                                if (user != null && mounted) {
-                                  Navigator.pushReplacementNamed(
-                                    context,
-                                    '/home',
+                                try {
+                                  User? user = await _auth.login(
+                                    _emailController.text.trim(),
+                                    _passwordController.text.trim(),
                                   );
-                                } else {
+                                  if (user != null && mounted) {
+                                    Navigator.pushReplacementNamed(
+                                      context,
+                                      '/home',
+                                    );
+                                  }
+                                } catch (e) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
+                                    SnackBar(
                                       content: Text(
-                                        'Invalid email or password',
+                                        e.toString().replaceFirst(
+                                          'Exception: ',
+                                          '',
+                                        ),
                                       ),
+                                      backgroundColor: Colors.red,
                                     ),
                                   );
                                 }
+                                setState(() => _isLoading = false);
                               },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),

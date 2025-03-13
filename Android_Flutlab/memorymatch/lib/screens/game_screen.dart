@@ -56,24 +56,16 @@ class _GameScreenState extends State<GameScreen> {
           ),
         ),
         child: Center(
-          // Thêm Center để căn giữa toàn bộ GridView
           child: ConstrainedBox(
-            // Giới hạn kích thước GridView
-            constraints: BoxConstraints(
-              maxWidth:
-                  400, // Giới hạn chiều rộng để các thẻ không bị trải rộng
-            ),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: GridView.builder(
               padding: const EdgeInsets.all(16),
-              shrinkWrap: true, // Đảm bảo GridView không chiếm hết không gian
+              shrinkWrap: true,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount:
-                    model.level <= 2
-                        ? 4
-                        : 6, // 4 cột cho level 1-2, 6 cột cho các level sau
+                crossAxisCount: model.level <= 2 ? 4 : 6,
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 10,
-                childAspectRatio: 1, // Tỷ lệ thẻ (hình vuông)
+                childAspectRatio: 1,
               ),
               itemCount: model.cards.length,
               itemBuilder: (context, index) {
@@ -93,7 +85,6 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  // Các phương thức _showLevelCompleteDialog và _showGameOverDialog giữ nguyên, mình sẽ sửa ở phần 2
   void _showLevelCompleteDialog(
     BuildContext context,
     GameModel model,
@@ -103,22 +94,18 @@ class _GameScreenState extends State<GameScreen> {
       context: context,
       barrierDismissible: false,
       builder:
-          (context) => Dialog(
-            // Dùng Dialog thay vì AlertDialog để kiểm soát layout tốt hơn
+          (dialogContext) => Dialog(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
               side: const BorderSide(color: Colors.green, width: 3),
             ),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: 350, // Giới hạn chiều rộng để tránh wrap
-              ),
+              constraints: const BoxConstraints(maxWidth: 350),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Tiêu đề và icon
                     Column(
                       children: [
                         const Icon(Icons.star, color: Colors.yellow, size: 50),
@@ -135,7 +122,6 @@ class _GameScreenState extends State<GameScreen> {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    // Nội dung
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -150,13 +136,12 @@ class _GameScreenState extends State<GameScreen> {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    // Các nút (xếp ngang)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton(
                           onPressed: () {
-                            Navigator.pop(context);
+                            Navigator.pop(dialogContext); // Đóng dialog trước
                             model.nextLevel();
                             setState(() => _dialogShown = false);
                           },
@@ -176,27 +161,34 @@ class _GameScreenState extends State<GameScreen> {
                             style: TextStyle(fontSize: 14),
                           ),
                         ),
-                        const SizedBox(width: 8), // Khoảng cách giữa các nút
+                        const SizedBox(width: 8),
                         TextButton(
                           onPressed: () {
-                            Navigator.pop(context);
+                            Navigator.pop(dialogContext); // Đóng dialog trước
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => const LeaderboardScreen(),
                               ),
-                            );
+                            ).then((_) {
+                              // Đảm bảo cập nhật trạng thái sau khi điều hướng
+                              if (mounted) {
+                                setState(() => _dialogShown = false);
+                              }
+                            });
                           },
                           child: const Text(
                             'Leaderboard',
                             style: TextStyle(fontSize: 14, color: Colors.blue),
                           ),
                         ),
-                        const SizedBox(width: 8), // Khoảng cách giữa các nút
+                        const SizedBox(width: 8),
                         TextButton(
                           onPressed: () {
-                            Navigator.pop(context);
+                            model.timer?.cancel(); // Hủy timer khi thoát
+                            Navigator.pop(dialogContext); // Đóng dialog trước
                             controller.goToHome(context);
+                            setState(() => _dialogShown = false);
                           },
                           child: const Text(
                             'Exit',
@@ -222,22 +214,18 @@ class _GameScreenState extends State<GameScreen> {
       context: context,
       barrierDismissible: false,
       builder:
-          (context) => Dialog(
-            // Dùng Dialog thay vì AlertDialog
+          (dialogContext) => Dialog(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
               side: const BorderSide(color: Colors.red, width: 3),
             ),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: 350, // Giới hạn chiều rộng để tránh wrap
-              ),
+              constraints: const BoxConstraints(maxWidth: 350),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Tiêu đề và icon
                     Column(
                       children: [
                         const Icon(Icons.close, color: Colors.red, size: 50),
@@ -254,7 +242,6 @@ class _GameScreenState extends State<GameScreen> {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    // Nội dung
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -269,13 +256,12 @@ class _GameScreenState extends State<GameScreen> {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    // Các nút (xếp ngang)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton(
                           onPressed: () {
-                            Navigator.pop(context);
+                            Navigator.pop(dialogContext); // Đóng dialog trước
                             model.resetGame();
                             setState(() => _dialogShown = false);
                           },
@@ -295,27 +281,34 @@ class _GameScreenState extends State<GameScreen> {
                             style: TextStyle(fontSize: 14),
                           ),
                         ),
-                        const SizedBox(width: 8), // Khoảng cách giữa các nút
+                        const SizedBox(width: 8),
                         TextButton(
                           onPressed: () {
-                            Navigator.pop(context);
+                            Navigator.pop(dialogContext); // Đóng dialog trước
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => const LeaderboardScreen(),
                               ),
-                            );
+                            ).then((_) {
+                              // Đảm bảo cập nhật trạng thái sau khi điều hướng
+                              if (mounted) {
+                                setState(() => _dialogShown = false);
+                              }
+                            });
                           },
                           child: const Text(
                             'Leaderboard',
                             style: TextStyle(fontSize: 14, color: Colors.blue),
                           ),
                         ),
-                        const SizedBox(width: 8), // Khoảng cách giữa các nút
+                        const SizedBox(width: 8),
                         TextButton(
                           onPressed: () {
-                            Navigator.pop(context);
+                            model.timer?.cancel(); // Hủy timer khi thoát
+                            Navigator.pop(dialogContext); // Đóng dialog trước
                             controller.goToHome(context);
+                            setState(() => _dialogShown = false);
                           },
                           child: const Text(
                             'Exit',

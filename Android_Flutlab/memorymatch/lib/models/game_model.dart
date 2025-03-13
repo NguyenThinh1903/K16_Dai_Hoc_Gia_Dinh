@@ -28,6 +28,7 @@ class GameModel extends ChangeNotifier {
       } else if (user == null) {
         resetGame();
         currentUserId = null;
+        notifyListeners(); // Cập nhật UI khi đăng xuất
       }
     });
   }
@@ -81,7 +82,7 @@ class GameModel extends ChangeNotifier {
   }
 
   void startTimer() {
-    timer?.cancel(); // Hủy timer cũ trước khi tạo mới
+    timer?.cancel(); // Hủy timer cũ
     timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (timeLeft > 0) {
         timeLeft--;
@@ -114,8 +115,7 @@ class GameModel extends ChangeNotifier {
         pairsFound++;
         matched[firstCardIndex!] = true;
         matched[index] = true;
-        await _firestore.updateScore(score);
-        await _saveGameState();
+        await _saveGameState(); // Gộp updateScore vào đây
         if (pairsFound == cards.length ~/ 2) {
           timer?.cancel();
         }
@@ -133,16 +133,20 @@ class GameModel extends ChangeNotifier {
 
   Future<void> _saveGameState() async {
     if (currentUserId == null) return;
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUserId)
-        .set({
-          'score': score,
-          'level': level,
-          'timeLeft': timeLeft,
-          'lastUpdated': FieldValue.serverTimestamp(),
-          'email': FirebaseAuth.instance.currentUser?.email ?? 'Anonymous',
-        }, SetOptions(merge: true));
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUserId)
+          .set({
+            'score': score,
+            'level': level,
+            'timeLeft': timeLeft,
+            'lastUpdated': FieldValue.serverTimestamp(),
+            'email': FirebaseAuth.instance.currentUser?.email ?? 'Anonymous',
+          }, SetOptions(merge: true));
+    } catch (e) {
+      throw Exception('Không thể lưu trạng thái trò chơi: $e');
+    }
   }
 
   void resetGame() {
@@ -150,7 +154,7 @@ class GameModel extends ChangeNotifier {
     score = 0;
     combo = 0;
     timeLeft = 60;
-    timer?.cancel();
+    timer?.cancel(); // Hủy timer khi reset
     initializeGame();
     startTimer();
     _saveGameState();
@@ -168,7 +172,7 @@ class GameModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    timer?.cancel();
+    timer?.cancel(); // Hủy timer khi dispose
     super.dispose();
   }
 }

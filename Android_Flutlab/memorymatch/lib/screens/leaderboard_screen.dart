@@ -17,7 +17,6 @@ class LeaderboardScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            // Khi nhấn nút back, luôn về HomeScreen
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -41,10 +40,28 @@ class LeaderboardScreen extends StatelessWidget {
               return const Center(child: CircularProgressIndicator());
             }
             if (snapshot.hasError) {
-              return const Center(child: Text('Error loading leaderboard'));
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      snapshot.error.toString().replaceFirst('Exception: ', ''),
+                      style: const TextStyle(color: Colors.red, fontSize: 16),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Quay lại'),
+                    ),
+                  ],
+                ),
+              );
             }
             if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(child: Text('No leaderboard data available'));
+              return const Center(
+                child: Text('Không có dữ liệu bảng xếp hạng'),
+              );
             }
             final leaderboard = snapshot.data!;
             return ListView.builder(

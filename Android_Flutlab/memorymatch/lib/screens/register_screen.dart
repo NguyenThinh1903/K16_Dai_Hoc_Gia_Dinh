@@ -34,7 +34,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo hoặc tiêu đề
                   const Icon(Icons.person_add, size: 80, color: Colors.white),
                   const SizedBox(height: 16),
                   const Text(
@@ -46,7 +45,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 48),
-                  // Email field
                   TextField(
                     controller: _emailController,
                     decoration: InputDecoration(
@@ -61,7 +59,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Password field
                   TextField(
                     controller: _passwordController,
                     obscureText: true,
@@ -77,7 +74,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  // Register button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -86,25 +82,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ? null
                               : () async {
                                 setState(() => _isLoading = true);
-                                User? user = await _auth.register(
-                                  _emailController.text.trim(),
-                                  _passwordController.text.trim(),
-                                );
-                                setState(() => _isLoading = false);
-                                if (user != null && mounted) {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const HomeScreen(),
-                                    ),
+                                try {
+                                  User? user = await _auth.register(
+                                    _emailController.text.trim(),
+                                    _passwordController.text.trim(),
                                   );
-                                } else {
+                                  if (user != null && mounted) {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => const HomeScreen(),
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Registration failed'),
+                                    SnackBar(
+                                      content: Text(
+                                        e.toString().replaceFirst(
+                                          'Exception: ',
+                                          '',
+                                        ),
+                                      ),
+                                      backgroundColor: Colors.red,
                                     ),
                                   );
                                 }
+                                setState(() => _isLoading = false);
                               },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -124,7 +129,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Back to login link
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     child: const Text(

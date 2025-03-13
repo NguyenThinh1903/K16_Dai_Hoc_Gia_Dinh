@@ -15,12 +15,11 @@ class FirestoreService {
           'lastUpdated': FieldValue.serverTimestamp(),
           'email': user.email ?? 'Anonymous',
         }, SetOptions(merge: true));
-        print('Score updated for ${user.email}: $score'); // Log để kiểm tra
       } catch (e) {
-        print('Error updating score: $e');
+        throw Exception('Không thể cập nhật điểm số: $e');
       }
     } else {
-      print('No user logged in');
+      throw Exception('Vui lòng đăng nhập để cập nhật điểm số.');
     }
   }
 
@@ -32,11 +31,9 @@ class FirestoreService {
           snapshot.docs
               .map((doc) => doc.data() as Map<String, dynamic>)
               .toList();
-      print('Leaderboard data: $data'); // Log để kiểm tra
       return data;
     } catch (e) {
-      print('Error fetching leaderboard: $e');
-      return [];
+      throw Exception('Không thể tải bảng xếp hạng: $e');
     }
   }
 }

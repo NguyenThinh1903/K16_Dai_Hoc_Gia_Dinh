@@ -23,11 +23,11 @@ class CardWidget extends StatelessWidget {
           return AnimatedBuilder(
             animation: rotate,
             builder: (context, child) {
-              final isBack = rotate.value <= 0.5; // Đổi tên cho rõ ràng
+              final isBack = rotate.value <= 0.5;
               final angle =
                   isBack ? rotate.value * 3.14 : (1 - rotate.value) * 3.14;
               return Transform(
-                transform: Matrix4.rotationY(angle), // Loại bỏ ..rotateY(0)
+                transform: Matrix4.rotationY(angle),
                 alignment: Alignment.center,
                 child: isBack ? _buildBack() : _buildFront(),
               );
