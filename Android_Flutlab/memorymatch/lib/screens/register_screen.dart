@@ -95,76 +95,87 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed:
-                          _isLoading
-                              ? null
-                              : () async {
-                                setState(() => _isLoading = true);
-                                try {
-                                  User? user = await _auth.register(
-                                    _emailController.text.trim(),
-                                    _passwordController.text.trim(),
-                                  );
-                                  if (user != null && mounted) {
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => const HomeScreen(),
+                    child: AnimatedScale(
+                      scale: _isLoading ? 1.0 : 1.0,
+                      duration: const Duration(milliseconds: 100),
+                      child: ElevatedButton(
+                        onPressed:
+                            _isLoading
+                                ? null
+                                : () async {
+                                  setState(() => _isLoading = true);
+                                  try {
+                                    User? user = await _auth.register(
+                                      _emailController.text.trim(),
+                                      _passwordController.text.trim(),
+                                    );
+                                    if (user != null && mounted) {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => const HomeScreen(),
+                                        ),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          e.toString().replaceFirst(
+                                            'Exception: ',
+                                            '',
+                                          ),
+                                          style: const TextStyle(
+                                            fontFamily: 'Amatic SC',
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        backgroundColor: const Color(
+                                          0xFFE5989B,
+                                        ), // Pastel Red
                                       ),
                                     );
                                   }
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        e.toString().replaceFirst(
-                                          'Exception: ',
-                                          '',
-                                        ),
-                                        style: const TextStyle(
-                                          fontFamily: 'Amatic SC',
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      backgroundColor: const Color(
-                                        0xFFE5989B,
-                                      ), // Pastel Red
-                                    ),
-                                  );
-                                }
-                                setState(() => _isLoading = false);
-                              },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(
-                          0xFFF4A261,
-                        ), // Pastel Orange
-                        foregroundColor: const Color(
-                          0xFFE76F51,
-                        ), // Pastel Orange Dark
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: const BorderSide(
-                            color: Color(0xFFE76F51),
-                            width: 2,
+                                  setState(() => _isLoading = false);
+                                },
+                        onHover: (_) {
+                          if (!_isLoading) {
+                            setState(() {});
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                            0xFFF4A261,
+                          ), // Pastel Orange
+                          foregroundColor: const Color(
+                            0xFFE76F51,
+                          ), // Pastel Orange Dark
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: const BorderSide(
+                              color: Color(0xFFE76F51),
+                              width: 2,
+                            ),
                           ),
                         ),
-                      ),
-                      child:
-                          _isLoading
-                              ? const CircularProgressIndicator(
-                                color: Color(0xFFE76F51), // Pastel Orange Dark
-                              )
-                              : const Text(
-                                'Register',
-                                style: TextStyle(
-                                  fontFamily: 'Amatic SC',
-                                  fontSize: 18,
-                                  color: Color(0xFF3F4238), // Dark Gray
+                        child:
+                            _isLoading
+                                ? const CircularProgressIndicator(
+                                  color: Color(
+                                    0xFFE76F51,
+                                  ), // Pastel Orange Dark
+                                )
+                                : const Text(
+                                  'Register',
+                                  style: TextStyle(
+                                    fontFamily: 'Amatic SC',
+                                    fontSize: 18,
+                                    color: Color(0xFF3F4238), // Dark Gray
+                                  ),
                                 ),
-                              ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),

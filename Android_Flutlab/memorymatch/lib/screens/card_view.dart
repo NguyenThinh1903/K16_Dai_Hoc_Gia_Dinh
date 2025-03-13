@@ -20,8 +20,11 @@ class CardView extends StatelessWidget {
         duration: const Duration(milliseconds: 400),
         transitionBuilder: (child, animation) {
           final rotate = Tween<double>(begin: 0, end: 1).animate(animation);
+          final scale = Tween<double>(begin: 1.0, end: 1.1).animate(
+            CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+          );
           return AnimatedBuilder(
-            animation: rotate,
+            animation: animation,
             builder: (context, child) {
               final isBack = rotate.value <= 0.5;
               final angle =
@@ -29,7 +32,10 @@ class CardView extends StatelessWidget {
               return Transform(
                 transform: Matrix4.rotationY(angle),
                 alignment: Alignment.center,
-                child: isBack ? _buildBack() : _buildFront(),
+                child: ScaleTransition(
+                  scale: scale,
+                  child: isBack ? _buildBack() : _buildFront(),
+                ),
               );
             },
             child: child,
@@ -85,7 +91,7 @@ class CardView extends StatelessWidget {
       ),
       child: const Center(
         child: Text(
-          '⭐', // Thay "?" bằng ngôi sao để phù hợp phong cách vẽ tay
+          '⭐',
           style: TextStyle(
             fontFamily: 'Amatic SC',
             fontSize: 24,

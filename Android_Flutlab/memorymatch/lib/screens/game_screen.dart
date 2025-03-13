@@ -210,37 +210,44 @@ class _GameScreenState extends State<GameScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(dialogContext);
-                            model.nextLevel();
-                            setState(() => _dialogShown = false);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(
-                              0xFFA9C5A0,
-                            ), // Pastel Green
-                            foregroundColor: const Color(
-                              0xFF829B7A,
-                            ), // Pastel Green Dark
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 15,
-                              vertical: 10,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              side: const BorderSide(
-                                color: Color(0xFF829B7A),
-                                width: 2,
+                        AnimatedScale(
+                          scale: 1.0,
+                          duration: const Duration(milliseconds: 100),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(dialogContext);
+                              model.nextLevel();
+                              setState(() => _dialogShown = false);
+                            },
+                            onHover: (_) {
+                              setState(() {});
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(
+                                0xFFA9C5A0,
+                              ), // Pastel Green
+                              foregroundColor: const Color(
+                                0xFF829B7A,
+                              ), // Pastel Green Dark
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 15,
+                                vertical: 10,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                side: const BorderSide(
+                                  color: Color(0xFF829B7A),
+                                  width: 2,
+                                ),
                               ),
                             ),
-                          ),
-                          child: const Text(
-                            'Next Level',
-                            style: TextStyle(
-                              fontFamily: 'Amatic SC',
-                              fontSize: 20,
-                              color: Color(0xFF3F4238), // Dark Gray
+                            child: const Text(
+                              'Next Level',
+                              style: TextStyle(
+                                fontFamily: 'Amatic SC',
+                                fontSize: 20,
+                                color: Color(0xFF3F4238), // Dark Gray
+                              ),
                             ),
                           ),
                         ),
@@ -367,37 +374,44 @@ class _GameScreenState extends State<GameScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(dialogContext);
-                            model.resetGame();
-                            setState(() => _dialogShown = false);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(
-                              0xFFE5989B,
-                            ), // Pastel Red
-                            foregroundColor: const Color(
-                              0xFFC9787A,
-                            ), // Pastel Red Dark
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 15,
-                              vertical: 10,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              side: const BorderSide(
-                                color: Color(0xFFC9787A),
-                                width: 2,
+                        AnimatedScale(
+                          scale: 1.0,
+                          duration: const Duration(milliseconds: 100),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(dialogContext);
+                              model.resetGame();
+                              setState(() => _dialogShown = false);
+                            },
+                            onHover: (_) {
+                              setState(() {});
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(
+                                0xFFE5989B,
+                              ), // Pastel Red
+                              foregroundColor: const Color(
+                                0xFFC9787A,
+                              ), // Pastel Red Dark
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 15,
+                                vertical: 10,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                side: const BorderSide(
+                                  color: Color(0xFFC9787A),
+                                  width: 2,
+                                ),
                               ),
                             ),
-                          ),
-                          child: const Text(
-                            'Restart',
-                            style: TextStyle(
-                              fontFamily: 'Amatic SC',
-                              fontSize: 20,
-                              color: Color(0xFF3F4238), // Dark Gray
+                            child: const Text(
+                              'Restart',
+                              style: TextStyle(
+                                fontFamily: 'Amatic SC',
+                                fontSize: 20,
+                                color: Color(0xFF3F4238), // Dark Gray
+                              ),
                             ),
                           ),
                         ),
