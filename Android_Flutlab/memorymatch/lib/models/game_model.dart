@@ -18,6 +18,7 @@ class GameModel extends ChangeNotifier {
   int pairsFound = 0;
   bool isProcessing = false;
   String? currentUserId;
+  bool isNewGame = true; // Thêm trạng thái để theo dõi trò chơi mới
 
   GameModel() {
     _initializeWithAuthState();
@@ -28,7 +29,7 @@ class GameModel extends ChangeNotifier {
       } else if (user == null) {
         resetGame();
         currentUserId = null;
-        notifyListeners(); // Cập nhật UI khi đăng xuất
+        notifyListeners();
       }
     });
   }
@@ -55,34 +56,43 @@ class GameModel extends ChangeNotifier {
       level = data['level'] ?? 1;
       score = data['score'] ?? 0;
       timeLeft = data['timeLeft'] ?? 60;
+      cards = List<String>.from(data['cards'] ?? []);
+      flipped = List<bool>.from(data['flipped'] ?? []);
+      matched = List<bool>.from(data['matched'] ?? []);
+      pairsFound = data['pairsFound'] ?? 0;
+      firstCardIndex = data['firstCardIndex'];
+      combo = data['combo'] ?? 0;
+      isNewGame = false; // Khi load từ Firestore, không phải trò chơi mới
     } else {
       level = 1;
       score = 0;
       timeLeft = 60;
+      isNewGame = true;
+      initializeGame();
     }
-    initializeGame();
     startTimer();
     notifyListeners();
   }
 
   void initializeGame() {
-    int cardCount = level * 4;
-    cards =
-        List.generate(cardCount ~/ 2, (i) => String.fromCharCode(65 + i))
-          ..addAll(
-            List.generate(cardCount ~/ 2, (i) => String.fromCharCode(65 + i)),
-          )
-          ..shuffle();
+    int gridSize = level + 1; // Level 1 -> 2x2, Level 2 -> 3x3, Level 3 -> 4x4
+    int cardCount = gridSize * gridSize;
+    List<String> cardPairs = List.generate(
+      cardCount ~/ 2,
+      (i) => String.fromCharCode(65 + i),
+    );
+    cards = [...cardPairs, ...cardPairs]..shuffle();
     flipped = List.filled(cardCount, false);
     matched = List.filled(cardCount, false);
     pairsFound = 0;
     firstCardIndex = null;
+    combo = 0;
     isProcessing = false;
     notifyListeners();
   }
 
   void startTimer() {
-    timer?.cancel(); // Hủy timer cũ
+    timer?.cancel();
     timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (timeLeft > 0) {
         timeLeft--;
@@ -92,6 +102,17 @@ class GameModel extends ChangeNotifier {
         notifyListeners();
       }
     });
+  }
+
+  void pauseGame() {
+    timer?.cancel();
+    isNewGame = false; // Đánh dấu không phải trò chơi mới khi tạm dừng
+    notifyListeners();
+  }
+
+  void resumeGame() {
+    startTimer();
+    notifyListeners();
   }
 
   void checkMatch(int index) async {
@@ -115,7 +136,7 @@ class GameModel extends ChangeNotifier {
         pairsFound++;
         matched[firstCardIndex!] = true;
         matched[index] = true;
-        await _saveGameState(); // Gộp updateScore vào đây
+        await saveGameState();
         if (pairsFound == cards.length ~/ 2) {
           timer?.cancel();
         }
@@ -131,7 +152,7 @@ class GameModel extends ChangeNotifier {
     }
   }
 
-  Future<void> _saveGameState() async {
+  Future<void> saveGameState() async {
     if (currentUserId == null) return;
     try {
       await FirebaseFirestore.instance
@@ -141,6 +162,13 @@ class GameModel extends ChangeNotifier {
             'score': score,
             'level': level,
             'timeLeft': timeLeft,
+            'cards': cards,
+            'flipped': flipped,
+            'matched': matched,
+            'pairsFound': pairsFound,
+            'firstCardIndex': firstCardIndex,
+            'combo': combo,
+            'isNewGame': isNewGame, // Lưu trạng thái isNewGame
             'lastUpdated': FieldValue.serverTimestamp(),
             'email': FirebaseAuth.instance.currentUser?.email ?? 'Anonymous',
           }, SetOptions(merge: true));
@@ -154,10 +182,11 @@ class GameModel extends ChangeNotifier {
     score = 0;
     combo = 0;
     timeLeft = 60;
-    timer?.cancel(); // Hủy timer khi reset
+    timer?.cancel();
+    isNewGame = true; // Đánh dấu là trò chơi mới
     initializeGame();
     startTimer();
-    _saveGameState();
+    saveGameState();
     notifyListeners();
   }
 
@@ -165,6 +194,7 @@ class GameModel extends ChangeNotifier {
     level++;
     timeLeft = 60;
     timer?.cancel();
+    isNewGame = false; // Khi chuyển level, không phải trò chơi mới
     initializeGame();
     startTimer();
     notifyListeners();
@@ -172,7 +202,7 @@ class GameModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    timer?.cancel(); // Hủy timer khi dispose
+    timer?.cancel();
     super.dispose();
   }
 }

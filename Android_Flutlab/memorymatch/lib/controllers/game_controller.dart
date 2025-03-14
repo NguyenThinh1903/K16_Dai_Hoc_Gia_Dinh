@@ -10,11 +10,10 @@ class GameController {
     );
   }
 
-  void goToHome(BuildContext context) {
-    Navigator.pushAndRemoveUntil(
+  Future<void> goToHome(BuildContext context) async {
+    await Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const HomeScreen()),
-      (route) => false,
     );
   }
 }
