@@ -1,112 +1,82 @@
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:memorymatch/services/firestore_service.dart';
 
 class GameModel extends ChangeNotifier {
-  final FirestoreService _firestore = FirestoreService();
-  int level = 1;
   List<String> cards = [];
   List<bool> flipped = [];
   List<bool> matched = [];
-  int? firstCardIndex;
+  int pairsFound = 0;
   int score = 0;
-  int combo = 0;
+  int level = 1;
   int timeLeft = 60;
   Timer? timer;
-  int pairsFound = 0;
-  bool isProcessing = false;
-  String? currentUserId;
-  bool isNewGame = true; // Thêm trạng thái để theo dõi trò chơi mới
+  bool isNewGame = true;
+  bool justCompletedLevel = false;
+
+  final FirestoreService _firestoreService = FirestoreService();
 
   GameModel() {
-    _initializeWithAuthState();
-    FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (user != null && user.uid != currentUserId) {
-        currentUserId = user.uid;
-        _loadGameState();
-      } else if (user == null) {
-        resetGame();
-        currentUserId = null;
-        notifyListeners();
-      }
-    });
+    _initializeGame();
   }
 
-  void _initializeWithAuthState() {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      currentUserId = user.uid;
-      _loadGameState();
-    } else {
-      initializeGame();
-    }
+  void _initializeGame() {
+    level = 1;
+    score = 0;
+    timeLeft = _calculateTimeForLevel(level);
+    pairsFound = 0;
+    isNewGame = true;
+    justCompletedLevel = false;
+    _generateCards();
   }
 
-  Future<void> _loadGameState() async {
-    if (currentUserId == null) return;
-    DocumentSnapshot doc =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(currentUserId)
-            .get();
-    if (doc.exists) {
-      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      level = data['level'] ?? 1;
-      score = data['score'] ?? 0;
-      timeLeft = data['timeLeft'] ?? 60;
-      cards = List<String>.from(data['cards'] ?? []);
-      flipped = List<bool>.from(data['flipped'] ?? []);
-      matched = List<bool>.from(data['matched'] ?? []);
-      pairsFound = data['pairsFound'] ?? 0;
-      firstCardIndex = data['firstCardIndex'];
-      combo = data['combo'] ?? 0;
-      isNewGame = false; // Khi load từ Firestore, không phải trò chơi mới
-    } else {
-      level = 1;
-      score = 0;
-      timeLeft = 60;
-      isNewGame = true;
-      initializeGame();
-    }
-    startTimer();
+  int _calculateTimeForLevel(int level) {
+    int baseTime = 60;
+    int additionalTime = (level - 1) * 15;
+    int maxTime = 120;
+    return (baseTime + additionalTime).clamp(60, maxTime);
+  }
+
+  void _generateCards() {
+    cards.clear();
+    flipped.clear();
+    matched.clear();
+
+    int gridSize = (level + 1) * level;
+    int pairs = gridSize ~/ 2;
+    List<String> letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+    List<String> selectedLetters = letters.take(pairs).toList();
+
+    cards = [...selectedLetters, ...selectedLetters]..shuffle();
+
+    flipped = List.generate(gridSize, (index) => false);
+    matched = List.generate(gridSize, (index) => false);
     notifyListeners();
   }
 
-  void initializeGame() {
-    int gridSize = level + 1; // Level 1 -> 2x2, Level 2 -> 3x3, Level 3 -> 4x4
-    int cardCount = gridSize * gridSize;
-    List<String> cardPairs = List.generate(
-      cardCount ~/ 2,
-      (i) => String.fromCharCode(65 + i),
-    );
-    cards = [...cardPairs, ...cardPairs]..shuffle();
-    flipped = List.filled(cardCount, false);
-    matched = List.filled(cardCount, false);
+  void resetCurrentLevel() {
+    timer?.cancel();
     pairsFound = 0;
-    firstCardIndex = null;
-    combo = 0;
-    isProcessing = false;
+    timeLeft = _calculateTimeForLevel(level);
+    _generateCards();
+    startTimer();
     notifyListeners();
   }
 
   void startTimer() {
     timer?.cancel();
-    timer = Timer.periodic(const Duration(seconds: 1), (t) {
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (timeLeft > 0) {
         timeLeft--;
         notifyListeners();
       } else {
-        timer?.cancel();
-        notifyListeners();
+        timer.cancel();
       }
     });
   }
 
   void pauseGame() {
     timer?.cancel();
-    isNewGame = false; // Đánh dấu không phải trò chơi mới khi tạm dừng
     notifyListeners();
   }
 
@@ -115,89 +85,97 @@ class GameModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void checkMatch(int index) async {
-    if (isProcessing ||
-        flipped[index] ||
-        matched[index] ||
-        firstCardIndex == index)
-      return;
-
-    flipped[index] = true;
-    notifyListeners();
-
-    if (firstCardIndex == null) {
-      firstCardIndex = index;
-    } else {
-      isProcessing = true;
-      notifyListeners();
-      if (cards[firstCardIndex!] == cards[index]) {
-        combo++;
-        score += 10 + (combo * 5);
-        pairsFound++;
-        matched[firstCardIndex!] = true;
-        matched[index] = true;
-        await saveGameState();
-        if (pairsFound == cards.length ~/ 2) {
-          timer?.cancel();
-        }
-      } else {
-        combo = 0;
-        await Future.delayed(const Duration(seconds: 1));
-        flipped[firstCardIndex!] = false;
-        flipped[index] = false;
-      }
-      firstCardIndex = null;
-      isProcessing = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> saveGameState() async {
-    if (currentUserId == null) return;
-    try {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUserId)
-          .set({
-            'score': score,
-            'level': level,
-            'timeLeft': timeLeft,
-            'cards': cards,
-            'flipped': flipped,
-            'matched': matched,
-            'pairsFound': pairsFound,
-            'firstCardIndex': firstCardIndex,
-            'combo': combo,
-            'isNewGame': isNewGame, // Lưu trạng thái isNewGame
-            'lastUpdated': FieldValue.serverTimestamp(),
-            'email': FirebaseAuth.instance.currentUser?.email ?? 'Anonymous',
-          }, SetOptions(merge: true));
-    } catch (e) {
-      throw Exception('Không thể lưu trạng thái trò chơi: $e');
-    }
-  }
-
   void resetGame() {
-    level = 1;
-    score = 0;
-    combo = 0;
-    timeLeft = 60;
     timer?.cancel();
-    isNewGame = true; // Đánh dấu là trò chơi mới
-    initializeGame();
-    startTimer();
-    saveGameState();
+    _initializeGame();
     notifyListeners();
   }
 
   void nextLevel() {
-    level++;
-    timeLeft = 60;
     timer?.cancel();
-    isNewGame = false; // Khi chuyển level, không phải trò chơi mới
-    initializeGame();
+    level++;
+    score += 10 * level;
+    timeLeft = _calculateTimeForLevel(level);
+    pairsFound = 0;
+    isNewGame = false;
+    justCompletedLevel = true;
+    _generateCards();
     startTimer();
     notifyListeners();
+  }
+
+  void checkMatch(int index) {
+    if (flipped[index] || matched[index]) return;
+
+    flipped[index] = true;
+    notifyListeners();
+
+    List<int> flippedIndices = [];
+    for (int i = 0; i < flipped.length; i++) {
+      if (flipped[i] && !matched[i]) {
+        flippedIndices.add(i);
+      }
+    }
+
+    if (flippedIndices.length == 2) {
+      int firstIndex = flippedIndices[0];
+      int secondIndex = flippedIndices[1];
+
+      if (cards[firstIndex] == cards[secondIndex] &&
+          cards[firstIndex].isNotEmpty) {
+        matched[firstIndex] = true;
+        matched[secondIndex] = true;
+        pairsFound++;
+        score += 10;
+        notifyListeners();
+      } else {
+        Future.delayed(const Duration(milliseconds: 1000), () {
+          flipped[firstIndex] = false;
+          flipped[secondIndex] = false;
+          notifyListeners();
+        });
+      }
+    }
+  }
+
+  Future<void> saveGameState() async {
+    try {
+      await _firestoreService.saveGameState({
+        'level': level,
+        'score': score,
+        'timeLeft': timeLeft,
+        'cards': cards,
+        'flipped': flipped,
+        'matched': matched,
+        'pairsFound': pairsFound,
+      });
+      await _firestoreService.updateUserScore(score);
+    } catch (e) {
+      debugPrint('Error saving game state: $e');
+    }
+  }
+
+  Future<void> loadGameState() async {
+    try {
+      final data = await _firestoreService.loadGameState();
+      if (data != null) {
+        level = data['level'] ?? 1;
+        score = data['score'] ?? 0;
+        timeLeft = data['timeLeft'] ?? _calculateTimeForLevel(level);
+        cards = List<String>.from(data['cards'] ?? []);
+        flipped = List<bool>.from(data['flipped'] ?? []);
+        matched = List<bool>.from(data['matched'] ?? []);
+        pairsFound = data['pairsFound'] ?? 0;
+        isNewGame = false;
+        justCompletedLevel = false;
+        notifyListeners();
+      } else {
+        _initializeGame();
+      }
+    } catch (e) {
+      debugPrint('Error loading game state: $e');
+      _initializeGame();
+    }
   }
 
   @override

@@ -1,4 +1,3 @@
-// lib/widgets/dialogs_widgets.dart
 import 'package:flutter/material.dart';
 import 'package:memorymatch/controllers/game_controller.dart';
 import 'package:memorymatch/models/game_model.dart';
@@ -29,7 +28,7 @@ class LevelCompleteDialog extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: const BorderSide(
-              color: Color(0xFFA9C5A0), // Pastel Green
+              color: Color(0xFFA9C5A0),
               width: 2,
               style: BorderStyle.solid,
             ),
@@ -46,7 +45,7 @@ class LevelCompleteDialog extends StatelessWidget {
                     children: [
                       const Icon(
                         Icons.star,
-                        color: Color(0xFFF4A261), // Pastel Orange
+                        color: Color(0xFFF4A261),
                         size: 50,
                       ),
                       const SizedBox(height: 10),
@@ -56,7 +55,7 @@ class LevelCompleteDialog extends StatelessWidget {
                           fontFamily: 'Amatic SC',
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFFA9C5A0), // Pastel Green
+                          color: Color(0xFFA9C5A0),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -71,7 +70,7 @@ class LevelCompleteDialog extends StatelessWidget {
                         style: const TextStyle(
                           fontFamily: 'Amatic SC',
                           fontSize: 24,
-                          color: Color(0xFF3F4238), // Dark Gray
+                          color: Color(0xFF3F4238),
                         ),
                       ),
                       Text(
@@ -79,7 +78,7 @@ class LevelCompleteDialog extends StatelessWidget {
                         style: const TextStyle(
                           fontFamily: 'Amatic SC',
                           fontSize: 24,
-                          color: Color(0xFF3F4238), // Dark Gray
+                          color: Color(0xFF3F4238),
                         ),
                       ),
                     ],
@@ -103,12 +102,8 @@ class LevelCompleteDialog extends StatelessWidget {
                             });
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(
-                              0xFFA9C5A0,
-                            ), // Pastel Green
-                            foregroundColor: const Color(
-                              0xFF829B7A,
-                            ), // Pastel Green Dark
+                            backgroundColor: const Color(0xFFA9C5A0),
+                            foregroundColor: const Color(0xFF829B7A),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 15,
                               vertical: 10,
@@ -126,7 +121,7 @@ class LevelCompleteDialog extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'Amatic SC',
                               fontSize: 20,
-                              color: Color(0xFF3F4238), // Dark Gray
+                              color: Color(0xFF3F4238),
                             ),
                           ),
                         ),
@@ -137,10 +132,8 @@ class LevelCompleteDialog extends StatelessWidget {
                         duration: const Duration(milliseconds: 100),
                         child: TextButton(
                           onPressed: () async {
-                            Navigator.pop(dialogContext); // Đóng dialog trước
-                            await controller.goToLeaderboard(
-                              parentContext,
-                            ); // Chờ điều hướng
+                            Navigator.pop(dialogContext);
+                            await controller.goToLeaderboard(parentContext);
                             onDialogClosed();
                           },
                           onHover: (hovered) {
@@ -153,7 +146,7 @@ class LevelCompleteDialog extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'Amatic SC',
                               fontSize: 20,
-                              color: Color(0xFFF4A261), // Pastel Orange
+                              color: Color(0xFFF4A261),
                             ),
                           ),
                         ),
@@ -164,11 +157,9 @@ class LevelCompleteDialog extends StatelessWidget {
                         duration: const Duration(milliseconds: 100),
                         child: TextButton(
                           onPressed: () async {
-                            model.timer?.cancel();
-                            Navigator.pop(dialogContext); // Đóng dialog trước
-                            await controller.goToHome(
-                              parentContext,
-                            ); // Chờ điều hướng
+                            model.nextLevel();
+                            Navigator.pop(dialogContext);
+                            await controller.goToHome(parentContext);
                             onDialogClosed();
                           },
                           onHover: (hovered) {
@@ -181,7 +172,7 @@ class LevelCompleteDialog extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'Amatic SC',
                               fontSize: 20,
-                              color: Color(0xFF9A9A9A), // Light Gray
+                              color: Color(0xFF9A9A9A),
                             ),
                           ),
                         ),
@@ -224,7 +215,7 @@ class GameOverDialog extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: const BorderSide(
-              color: Color(0xFFE5989B), // Pastel Red
+              color: Color(0xFFE5989B),
               width: 2,
               style: BorderStyle.solid,
             ),
@@ -241,7 +232,7 @@ class GameOverDialog extends StatelessWidget {
                     children: [
                       const Icon(
                         Icons.close,
-                        color: Color(0xFFE5989B), // Pastel Red
+                        color: Color(0xFFE5989B),
                         size: 50,
                       ),
                       const SizedBox(height: 10),
@@ -251,7 +242,7 @@ class GameOverDialog extends StatelessWidget {
                           fontFamily: 'Amatic SC',
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFFE5989B), // Pastel Red
+                          color: Color(0xFFE5989B),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -266,7 +257,7 @@ class GameOverDialog extends StatelessWidget {
                         style: const TextStyle(
                           fontFamily: 'Amatic SC',
                           fontSize: 24,
-                          color: Color(0xFF3F4238), // Dark Gray
+                          color: Color(0xFF3F4238),
                         ),
                       ),
                       Text(
@@ -274,7 +265,7 @@ class GameOverDialog extends StatelessWidget {
                         style: const TextStyle(
                           fontFamily: 'Amatic SC',
                           fontSize: 24,
-                          color: Color(0xFF3F4238), // Dark Gray
+                          color: Color(0xFF3F4238),
                         ),
                       ),
                     ],
@@ -298,12 +289,8 @@ class GameOverDialog extends StatelessWidget {
                             });
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(
-                              0xFFE5989B,
-                            ), // Pastel Red
-                            foregroundColor: const Color(
-                              0xFFC9787A,
-                            ), // Pastel Red Dark
+                            backgroundColor: const Color(0xFFE5989B),
+                            foregroundColor: const Color(0xFFC9787A),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 15,
                               vertical: 10,
@@ -321,7 +308,7 @@ class GameOverDialog extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'Amatic SC',
                               fontSize: 20,
-                              color: Color(0xFF3F4238), // Dark Gray
+                              color: Color(0xFF3F4238),
                             ),
                           ),
                         ),
@@ -332,10 +319,8 @@ class GameOverDialog extends StatelessWidget {
                         duration: const Duration(milliseconds: 100),
                         child: TextButton(
                           onPressed: () async {
-                            Navigator.pop(dialogContext); // Đóng dialog trước
-                            await controller.goToLeaderboard(
-                              parentContext,
-                            ); // Chờ điều hướng
+                            Navigator.pop(dialogContext);
+                            await controller.goToLeaderboard(parentContext);
                             onDialogClosed();
                           },
                           onHover: (hovered) {
@@ -348,7 +333,7 @@ class GameOverDialog extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'Amatic SC',
                               fontSize: 20,
-                              color: Color(0xFFF4A261), // Pastel Orange
+                              color: Color(0xFFF4A261),
                             ),
                           ),
                         ),
@@ -360,10 +345,8 @@ class GameOverDialog extends StatelessWidget {
                         child: TextButton(
                           onPressed: () async {
                             model.timer?.cancel();
-                            Navigator.pop(dialogContext); // Đóng dialog trước
-                            await controller.goToHome(
-                              parentContext,
-                            ); // Chờ điều hướng
+                            Navigator.pop(dialogContext);
+                            await controller.goToHome(parentContext);
                             onDialogClosed();
                           },
                           onHover: (hovered) {
@@ -376,7 +359,7 @@ class GameOverDialog extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'Amatic SC',
                               fontSize: 20,
-                              color: Color(0xFF9A9A9A), // Light Gray
+                              color: Color(0xFF9A9A9A),
                             ),
                           ),
                         ),
@@ -393,7 +376,6 @@ class GameOverDialog extends StatelessWidget {
   }
 }
 
-// Dialog mới: ResumeGameDialog
 class ResumeGameDialog extends StatelessWidget {
   final BuildContext parentContext;
   final GameModel model;
@@ -419,7 +401,7 @@ class ResumeGameDialog extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: const BorderSide(
-              color: Color(0xFFF4A261), // Pastel Orange
+              color: Color(0xFFF4A261),
               width: 2,
               style: BorderStyle.solid,
             ),
@@ -436,7 +418,7 @@ class ResumeGameDialog extends StatelessWidget {
                     children: [
                       const Icon(
                         Icons.pause,
-                        color: Color(0xFFF4A261), // Pastel Orange
+                        color: Color(0xFFF4A261),
                         size: 50,
                       ),
                       const SizedBox(height: 10),
@@ -446,7 +428,7 @@ class ResumeGameDialog extends StatelessWidget {
                           fontFamily: 'Amatic SC',
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFFF4A261), // Pastel Orange
+                          color: Color(0xFFF4A261),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -461,7 +443,7 @@ class ResumeGameDialog extends StatelessWidget {
                         style: const TextStyle(
                           fontFamily: 'Amatic SC',
                           fontSize: 24,
-                          color: Color(0xFF3F4238), // Dark Gray
+                          color: Color(0xFF3F4238),
                         ),
                       ),
                       Text(
@@ -469,7 +451,7 @@ class ResumeGameDialog extends StatelessWidget {
                         style: const TextStyle(
                           fontFamily: 'Amatic SC',
                           fontSize: 24,
-                          color: Color(0xFF3F4238), // Dark Gray
+                          color: Color(0xFF3F4238),
                         ),
                       ),
                     ],
@@ -492,12 +474,8 @@ class ResumeGameDialog extends StatelessWidget {
                             });
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(
-                              0xFFA9C5A0,
-                            ), // Pastel Green
-                            foregroundColor: const Color(
-                              0xFF829B7A,
-                            ), // Pastel Green Dark
+                            backgroundColor: const Color(0xFFA9C5A0),
+                            foregroundColor: const Color(0xFF829B7A),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 15,
                               vertical: 10,
@@ -515,7 +493,7 @@ class ResumeGameDialog extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'Amatic SC',
                               fontSize: 20,
-                              color: Color(0xFF3F4238), // Dark Gray
+                              color: Color(0xFF3F4238),
                             ),
                           ),
                         ),
@@ -527,6 +505,7 @@ class ResumeGameDialog extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: () {
                             Navigator.pop(dialogContext);
+                            model.resetCurrentLevel(); // Gọi reset màn hiện tại
                             onReset();
                           },
                           onHover: (hovered) {
@@ -535,12 +514,8 @@ class ResumeGameDialog extends StatelessWidget {
                             });
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(
-                              0xFFE5989B,
-                            ), // Pastel Red
-                            foregroundColor: const Color(
-                              0xFFC9787A,
-                            ), // Pastel Red Dark
+                            backgroundColor: const Color(0xFFE5989B),
+                            foregroundColor: const Color(0xFFC9787A),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 15,
                               vertical: 10,
@@ -558,7 +533,7 @@ class ResumeGameDialog extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'Amatic SC',
                               fontSize: 20,
-                              color: Color(0xFF3F4238), // Dark Gray
+                              color: Color(0xFF3F4238),
                             ),
                           ),
                         ),

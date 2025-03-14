@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:memorymatch/models/game_model.dart';
 import 'package:memorymatch/controllers/game_controller.dart';
 import 'package:memorymatch/widgets/card_widget.dart';
-import 'package:memorymatch/widgets/dialogs_widgets.dart';
+import 'package:memorymatch/widgets/level_complete_dialog.dart';
+import 'package:memorymatch/widgets/game_over_dialog.dart';
+import 'package:memorymatch/widgets/resume_game_dialog.dart';
 import 'package:provider/provider.dart';
 
 class GameScreen extends StatefulWidget {
@@ -23,7 +25,10 @@ class GameScreenState extends State<GameScreen> {
 
   Future<void> _checkForGameState() async {
     final model = Provider.of<GameModel>(context, listen: false);
-    if (model.timeLeft > 0 && !_dialogShown) {
+    bool isGameCompleted = model.pairsFound == model.cards.length ~/ 2;
+
+    // Luôn cho phép hiển thị ResumeGameDialog khi quay lại
+    if (!model.isNewGame && model.timeLeft > 0 && !_dialogShown) {
       _dialogShown = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showDialog(
@@ -38,8 +43,63 @@ class GameScreenState extends State<GameScreen> {
                   setState(() => _dialogShown = false);
                 },
                 onReset: () {
-                  model.resetGame();
                   setState(() => _dialogShown = false);
+                },
+              ),
+        ).then((_) {
+          // Đảm bảo timer chạy lại sau khi đóng dialog
+          if (model.timer == null || !model.timer!.isActive) {
+            model.startTimer();
+          }
+        });
+      });
+    } else {
+      // Khởi động timer nếu chưa chạy
+      if (model.timer == null || !model.timer!.isActive) {
+        model.startTimer();
+      }
+      model.isNewGame = false;
+    }
+
+    // Kiểm tra hoàn thành level hoặc hết thời gian
+    if (model.timeLeft <= 0 && !_dialogShown) {
+      model.pauseGame(); // Tạm dừng timer khi game over
+      _dialogShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder:
+              (dialogContext) => GameOverDialog(
+                parentContext: context,
+                model: model,
+                controller: Provider.of<GameController>(context, listen: false),
+                onDialogClosed: () {
+                  if (mounted) {
+                    setState(() => _dialogShown = false);
+                    _checkForGameState(); // Kiểm tra lại trạng thái sau khi đóng dialog
+                  }
+                },
+              ),
+        );
+      });
+    } else if (isGameCompleted && !_dialogShown) {
+      model.pauseGame(); // Tạm dừng timer khi hoàn thành level
+      _dialogShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder:
+              (dialogContext) => LevelCompleteDialog(
+                parentContext: context,
+                model: model,
+                controller: Provider.of<GameController>(context, listen: false),
+                onDialogClosed: () {
+                  if (mounted) {
+                    setState(() => _dialogShown = false);
+                    _checkForGameState(); // Kiểm tra lại trạng thái sau khi đóng dialog
+                  }
                 },
               ),
         );
@@ -63,46 +123,6 @@ class GameScreenState extends State<GameScreen> {
   Widget build(BuildContext context) {
     final controller = Provider.of<GameController>(context);
     final model = Provider.of<GameModel>(context);
-
-    if (model.timeLeft <= 0 && !_dialogShown) {
-      _dialogShown = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder:
-              (dialogContext) => GameOverDialog(
-                parentContext: context,
-                model: model,
-                controller: controller,
-                onDialogClosed: () {
-                  if (mounted) {
-                    setState(() => _dialogShown = false);
-                  }
-                },
-              ),
-        );
-      });
-    } else if (model.pairsFound == model.cards.length ~/ 2 && !_dialogShown) {
-      _dialogShown = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder:
-              (dialogContext) => LevelCompleteDialog(
-                parentContext: context,
-                model: model,
-                controller: controller,
-                onDialogClosed: () {
-                  if (mounted) {
-                    setState(() => _dialogShown = false);
-                  }
-                },
-              ),
-        );
-      });
-    }
 
     return PopScope(
       canPop: false,
@@ -200,11 +220,10 @@ class GameScreenState extends State<GameScreen> {
                       padding: const EdgeInsets.all(16),
                       shrinkWrap: true,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount:
-                            model.level + 1, // Số cột dựa trên level
+                        crossAxisCount: model.level + 1,
                         crossAxisSpacing: 10,
                         mainAxisSpacing: 10,
-                        childAspectRatio: 1, // Giữ tỷ lệ 1:1 cho các ô
+                        childAspectRatio: 1,
                       ),
                       itemCount: model.cards.length,
                       itemBuilder: (context, index) {
