@@ -8,7 +8,7 @@ class CaroAI:
     def __init__(self, game: CaroGame):
         self.game = game
         self.board_size = game.board_size
-        self.max_depth = 5  # Tăng độ sâu để dự đoán tốt hơn
+        self.max_depth = 6  # Tăng độ sâu để dự đoán tốt hơn
         self.time_limit = 1.5  # Tăng thời gian để tính toán
         self.evaluator = BoardEvaluator(game)
 
