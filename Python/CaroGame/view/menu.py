@@ -1,72 +1,87 @@
-import sys
 import tkinter as tk
 from tkinter import font
+import sys
 
 class StartMenu(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Caro")
-        self.geometry("400x500")
-        self.configure(bg="#f0f0f0")
+        self.configure(bg="#EDE4D8")  # Warm beige, classic yet soft
         self._center_window()
         self.start_pvp_callback = None
         self.start_pvai_callback = None
+        self.host_game_callback = None
+        self.join_game_callback = None
         self._create_menu()
-        self.protocol("WM_DELETE_WINDOW", self.quit_game)  # Thoát khi nhấn "X"
+        self.protocol("WM_DELETE_WINDOW", self.quit_game)
 
     def _center_window(self):
         self.update_idletasks()
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
-        window_width = 400
-        window_height = 500
+        window_width = min(400, screen_width - 100)
+        window_height = min(500, screen_height - 100)
         x = (screen_width // 2) - (window_width // 2)
         y = (screen_height // 2) - (window_height // 2)
         self.geometry(f"{window_width}x{window_height}+{x}+{y}")
+        self.resizable(True, True)
+
+    def _create_rounded_button(self, x, y, text, command, bg_color="#D9C2A7", active_bg="#C4A78F"):
+        # Use Canvas directly for button background
+        btn_canvas = tk.Canvas(self, width=300, height=50, highlightthickness=0, bg=self["bg"])
+        btn_canvas.place(x=x, y=y)
+        btn_canvas.create_rectangle(10, 10, 290, 40, fill=bg_color, outline=bg_color, tags="btn_bg")
+        
+        # Button text with shadow effect
+        btn = tk.Button(btn_canvas, text=text, font=font.Font(family="Arial", size=14, weight="bold"),
+                        fg="#3C2F2F", bg=bg_color, bd=0, relief="flat", command=command)
+        btn.place(relwidth=1, relheight=1)
+        
+        # Hover effects
+        btn.bind("<Enter>", lambda e: [btn.config(bg=active_bg), btn_canvas.itemconfig("btn_bg", fill=active_bg)])
+        btn.bind("<Leave>", lambda e: [btn.config(bg=bg_color), btn_canvas.itemconfig("btn_bg", fill=bg_color)])
+        return btn
 
     def _create_menu(self):
-        title_label = tk.Label(self, text="Caro", font=font.Font(family="Arial", size=36, weight="bold"), 
-                               bg="#f0f0f0", fg="#000000")
-        title_label.pack(pady=50)
+        # Title with classic yet modern touch
+        title_label = tk.Label(self, text="Caro", font=font.Font(family="Arial", size=36, weight="bold"),
+                               bg="#EDE4D8", fg="#3C2F2F")  # Dark brown for classic warmth
+        title_label.place(x=150, y=50)
 
-        pvp_button = tk.Button(self, text="Player vs Player", font=font.Font(family="Arial", size=14), 
-                               bg="#add8e6", fg="#000000", activebackground="#87ceeb", borderwidth=1, relief="flat", 
-                               command=self.start_pvp)
-        pvp_button.pack(pady=20, padx=50, fill="x")
-        pvp_button.bind("<Enter>", lambda e: pvp_button.config(bg="#87ceeb"))
-        pvp_button.bind("<Leave>", lambda e: pvp_button.config(bg="#add8e6"))
+        # Buttons with subtle, classic-modern design
+        self._create_rounded_button(50, 150, "Player vs Player", self.start_pvp)
+        self._create_rounded_button(50, 220, "Player vs Machine", self.start_pvai)
+        self._create_rounded_button(50, 290, "Host Online Game", self.host_game)
+        self._create_rounded_button(50, 360, "Join Online Game", self.join_game)
+        self._create_rounded_button(50, 430, "Quit", self.quit_game, "#D99B9B", "#C48787")  # Softer red for Quit
 
-        pvai_button = tk.Button(self, text="Player vs Machine", font=font.Font(family="Arial", size=14), 
-                                bg="#add8e6", fg="#000000", activebackground="#87ceeb", borderwidth=1, relief="flat", 
-                                command=self.start_pvai)
-        pvai_button.pack(pady=20, padx=50, fill="x")
-        pvai_button.bind("<Enter>", lambda e: pvai_button.config(bg="#87ceeb"))
-        pvai_button.bind("<Leave>", lambda e: pvai_button.config(bg="#add8e6"))
-
-        quit_button = tk.Button(self, text="Quit", font=font.Font(family="Arial", size=14), 
-                                bg="#ff9999", fg="#000000", activebackground="#ff6666", borderwidth=1, relief="flat", 
-                                command=self.quit_game)
-        quit_button.pack(pady=20, padx=50, fill="x")
-        quit_button.bind("<Enter>", lambda e: quit_button.config(bg="#ff6666"))
-        quit_button.bind("<Leave>", lambda e: quit_button.config(bg="#ff9999"))
-
-    def set_callbacks(self, start_pvp_callback, start_pvai_callback):
+    def set_callbacks(self, start_pvp_callback, start_pvai_callback, host_game_callback, join_game_callback):
         self.start_pvp_callback = start_pvp_callback
         self.start_pvai_callback = start_pvai_callback
+        self.host_game_callback = host_game_callback
+        self.join_game_callback = join_game_callback
 
     def start_pvp(self):
         if self.start_pvp_callback:
             self.start_pvp_callback()
-        else:
-            print("start_pvp_callback not set!")
 
     def start_pvai(self):
         if self.start_pvai_callback:
             self.start_pvai_callback()
-        else:
-            print("start_pvai_callback not set!")
+
+    def host_game(self):
+        if self.host_game_callback:
+            self.host_game_callback()
+
+    def join_game(self):
+        if self.join_game_callback:
+            self.join_game_callback()
 
     def quit_game(self):
-        self.quit()  # Thoát Tkinter mainloop
-        self.destroy()  # Đóng cửa sổ Tkinter
-        sys.exit(0)  # Thoát hoàn toàn chương trình Python
+        self.quit()
+        self.destroy()
+        sys.exit(0)
+
+if __name__ == "__main__":
+    app = StartMenu()
+    app.mainloop()

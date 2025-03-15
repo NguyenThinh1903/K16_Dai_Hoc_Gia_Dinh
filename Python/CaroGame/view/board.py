@@ -1,15 +1,14 @@
 import tkinter as tk
 from tkinter import font
-import sys  # Thêm import sys để sử dụng sys.exit()
+import sys
 
 class CaroBoard(tk.Tk):
     def __init__(self, controller):
         super().__init__()
         self.title("Caro")
-        self.geometry("600x700")
         self.configure(bg="#f0f0f0")
         self._cells = {}
-        self._controller = controller  # Có thể là None ban đầu, sẽ được gán sau
+        self._controller = controller
         self._game_over_overlay = None
         self._colors = {
             "X": "#ff0000",
@@ -24,18 +23,18 @@ class CaroBoard(tk.Tk):
         self._winning_cells = []
         self._played_cells = set()
         self._suggested_cell = None
-        # Thoát chương trình khi nhấn "X"
         self.protocol("WM_DELETE_WINDOW", lambda: sys.exit(0))
 
     def _center_window(self):
         self.update_idletasks()
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
-        window_width = 600
-        window_height = 700
+        window_width = min(600, screen_width - 100)  # Dynamic width
+        window_height = min(700, screen_height - 100)  # Dynamic height
         x = (screen_width // 2) - (window_width // 2)
         y = (screen_height // 2) - (window_height // 2)
         self.geometry(f"{window_width}x{window_height}+{x}+{y}")
+        self.resizable(True, True)  # Allow resizing
 
     def _create_score_display(self):
         score_frame = tk.Frame(self, bg="#f0f0f0", borderwidth=0)
@@ -52,14 +51,14 @@ class CaroBoard(tk.Tk):
         self.display.pack(pady=10)
         suggest_button = tk.Button(self, text="Suggest Move", font=font.Font(family="Arial", size=12),
                                    bg="#add8e6", fg="#000000", activebackground="#87ceeb", borderwidth=1, relief="flat",
-                                   command=self._suggest_move_click)
+                                   command=self._suggest_move_click, padx=10, pady=5)
         suggest_button.pack(pady=5)
         suggest_button.bind("<Enter>", lambda e: suggest_button.config(bg="#87ceeb"))
         suggest_button.bind("<Leave>", lambda e: suggest_button.config(bg="#add8e6"))
 
     def _create_board_grid(self):
         grid_frame = tk.Frame(self, bg="#f0f0f0")
-        grid_frame.pack(pady=20)
+        grid_frame.pack(pady=20, expand=True, fill="both")
         for row in range(15):
             grid_frame.rowconfigure(row, weight=1, minsize=30)
             grid_frame.columnconfigure(row, weight=1, minsize=30)
@@ -74,8 +73,10 @@ class CaroBoard(tk.Tk):
                 button.grid(row=row, column=col, padx=0, pady=0, sticky="nsew")
 
     def _on_button_click(self, event):
-        if self._controller and not self._game_over_overlay and not self._controller._is_ai_moving:
-            # Chỉ xử lý nếu controller tồn tại và không có overlay hoặc AI đang di chuyển
+        if self._controller and not self._game_over_overlay:
+            if hasattr(self._controller, '_is_ai_moving'):
+                if self._controller._is_ai_moving:
+                    return
             clicked_btn = event.widget
             row, col = self._cells[clicked_btn]
             if (row, col) not in self._played_cells:
@@ -107,24 +108,32 @@ class CaroBoard(tk.Tk):
     def _show_game_over_overlay(self, msg, color):
         if self._game_over_overlay:
             self._game_over_overlay.destroy()
-        self._game_over_overlay = tk.Frame(self, bg="#f0f0f0")
+        self._game_over_overlay = tk.Frame(self, bg="#00000080")  # Semi-transparent background
         self._game_over_overlay.place(relwidth=1, relheight=1)
         content_frame = tk.Frame(self._game_over_overlay, bg="#ffffff", borderwidth=1, relief="solid")
         content_frame.place(relx=0.5, rely=0.5, anchor="center", width=250, height=200)
+        content_frame.attributes('-alpha', 0.0)  # Start fully transparent
         result_label = tk.Label(content_frame, text=msg, font=font.Font(family="Arial", size=16), bg="#ffffff", fg="#000000")
         result_label.pack(pady=20)
         play_again_btn = tk.Button(content_frame, text="Play Again", font=font.Font(family="Arial", size=12), 
                                    bg="#add8e6", fg="#000000", activebackground="#87ceeb", borderwidth=1, relief="flat",
-                                   command=self._controller.reset_game if self._controller else lambda: None)
+                                   command=self._controller.reset_game if self._controller else lambda: None, padx=10, pady=5)
         play_again_btn.pack(pady=10, padx=20, fill="x")
         play_again_btn.bind("<Enter>", lambda e: play_again_btn.config(bg="#87ceeb"))
         play_again_btn.bind("<Leave>", lambda e: play_again_btn.config(bg="#add8e6"))
         back_to_menu_btn = tk.Button(content_frame, text="Back to Menu", font=font.Font(family="Arial", size=12), 
                                      bg="#ff9999", fg="#000000", activebackground="#ff6666", borderwidth=1, relief="flat",
-                                     command=self._controller.back_to_menu if self._controller else lambda: None)
+                                     command=self._controller.back_to_menu if self._controller else lambda: None, padx=10, pady=5)
         back_to_menu_btn.pack(pady=10, padx=20, fill="x")
         back_to_menu_btn.bind("<Enter>", lambda e: back_to_menu_btn.config(bg="#ff6666"))
         back_to_menu_btn.bind("<Leave>", lambda e: back_to_menu_btn.config(bg="#ff9999"))
+        self._fade_in(content_frame)  # Fade-in animation
+
+    def _fade_in(self, widget, alpha=0.0):
+        alpha += 0.1
+        if alpha <= 1.0:
+            widget.attributes('-alpha', alpha)
+            self.after(50, lambda: self._fade_in(widget, alpha))
 
     def highlight_cells(self, winning_combo):
         self._winning_cells = [(row, col) for row, col in winning_combo]
