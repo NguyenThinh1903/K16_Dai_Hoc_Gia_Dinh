@@ -1,73 +1,67 @@
 # model/network.py
 import socket
-import threading
 import json
-import queue
+import threading
 
 class NetworkManager:
     def __init__(self):
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.conn = None
-        self.is_host = False
-        self.move_queue = queue.Queue()
+        self.server_socket = None
+        self.client_socket = None
         self.running = False
-        self.connected_callback = None
+        self.connection = None
 
-    def host(self, port=5555, callback=None):
-        """Khởi động server cho host trong thread riêng."""
-        self.is_host = True
-        self.connected_callback = callback
-        self.sock.bind(('0.0.0.0', port))
-        self.sock.listen(1)
-        print("Waiting for a connection...")
-        threading.Thread(target=self._accept_connection, daemon=True).start()
-
-    def _accept_connection(self):
-        """Chấp nhận kết nối trong thread riêng."""
-        self.conn, addr = self.sock.accept()
+    def host(self, port, on_connected):
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.server_socket.bind(('0.0.0.0', port))
+        self.server_socket.listen(1)
+        print(f"Waiting for a connection...")
+        self.connection, addr = self.server_socket.accept()
         print(f"Connected to {addr}")
-        self.running = True
-        if self.connected_callback:
-            self.connected_callback()  # Gọi callback khi kết nối thành công
-        threading.Thread(target=self._listen, daemon=True).start()
+        on_connected()
 
-    def join(self, host_ip, port=5555):
-        """Kết nối đến host với tư cách client."""
-        self.sock.connect((host_ip, port))
-        self.conn = self.sock
-        print(f"Connected to {host_ip}:{port}")
-        self.running = True
-        threading.Thread(target=self._listen, daemon=True).start()
+    def join(self, host_ip, port):
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client_socket.connect((host_ip, port))
 
-    def send_move(self, row, col):
-        """Gửi nước đi đến đối thủ."""
-        if self.conn:
-            move = {"row": row, "col": col}
-            self.conn.send(json.dumps(move).encode())
+    def send_message(self, message):
+        if self.connection:
+            self.connection.sendall(message.encode())
+        elif self.client_socket:
+            self.client_socket.sendall(message.encode())
 
-    def get_move(self):
-        """Lấy nước đi từ queue (không chặn)."""
+    def receive_message(self, timeout=None):
+        if timeout is not None:
+            if self.connection:
+                self.connection.settimeout(timeout)
+            elif self.client_socket:
+                self.client_socket.settimeout(timeout)
+
         try:
-            return self.move_queue.get_nowait()
-        except queue.Empty:
-            return None
+            if self.connection:
+                data = self.connection.recv(1024).decode()
+            elif self.client_socket:
+                data = self.client_socket.recv(1024).decode()
+            else:
+                return None
 
-    def _listen(self):
-        """Lắng nghe nước đi từ đối thủ."""
-        while self.running:
-            try:
-                data = self.conn.recv(1024).decode()
-                if data:
-                    move = json.loads(data)
-                    self.move_queue.put((move["row"], move["col"]))
-            except Exception as e:
-                print(f"Network error: {e}")
-                self.running = False
-                break
+            if not data:
+                return None
+            return json.loads(data)
+        except (socket.timeout, json.JSONDecodeError):
+            return None
+        finally:
+            if timeout is not None:
+                if self.connection:
+                    self.connection.settimeout(None)
+                elif self.client_socket:
+                    self.client_socket.settimeout(None)
 
     def close(self):
-        """Đóng kết nối mạng."""
         self.running = False
-        if self.conn:
-            self.conn.close()
-        self.sock.close()
+        if self.connection:
+            self.connection.close()
+        if self.client_socket:
+            self.client_socket.close()
+        if self.server_socket:
+            self.server_socket.close()

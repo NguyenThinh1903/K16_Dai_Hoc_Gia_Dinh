@@ -1,72 +1,75 @@
 import tkinter as tk
 from tkinter import messagebox, font
-from model.game import Move, CaroGame, Player
-from model.network import NetworkManager
+from model.game import Move
+from model.network_service import NetworkService
+from model.online_game_manager import OnlineGameManager
+from controller.online_rematch_handler import OnlineRematchHandler
 from view.host_view import HostView
 from view.join_view import JoinView
 import socket
+import threading
 
 class OnlineCaroController:
     def __init__(self, game, board, menu):
-        self._game = game
+        print("Initializing OnlineCaroController...")  # Debug
         self._board = board
         self._menu = menu
-        self._network = None
+        self._network_service = None
         self._is_host = False
         self._my_label = None
         self._opponent_label = None
-        self._scores = {"X": 0, "O": 0}
-        self._board.update_score(self._scores)
         self._notification = None
+        self._rematch_button = None
+
+        self.game_manager = OnlineGameManager(game, board, is_host=self._is_host)
+        self.rematch_handler = OnlineRematchHandler(self, self.game_manager)
+        self._board.protocol("WM_DELETE_WINDOW", self.handle_window_close)
 
     def handle_move(self, row, col):
-        if self._game.current_player.label != self._my_label:
+        if self.game_manager.current_player_label != self._my_label:
             messagebox.showinfo("Wait", "Not your turn!", parent=self._board)
             return
-        move = Move(row, col, self._my_label)
-        if not self._game.is_valid_move(move):
-            messagebox.showinfo("Invalid Move", "Position taken or game over!", parent=self._board)
-            return
-        self._game.process_move(move)
-        self._board.update_button(row, col, self._my_label)
-        self._network.send_move(row, col)
-        self._check_game_state()
-        self._game.toggle_player()
-        self._board.update_display(f"Opponent's turn ({self._opponent_label})")
 
-    def _check_game_state(self):
-        if self._game.has_winner():
-            self._board.highlight_cells(self._game.winner_combo)
-            winner = self._game.current_player.label
-            self._scores[winner] += 1
-            self._board.update_display(f"{winner} won!", "yellow")
-            self._board.update_score(self._scores)
-        elif self._game.is_tied():
-            self._board.update_display("Tied game!", "red")
-            self._board.update_score(self._scores)
+        if self.game_manager.game.has_winner() or self.game_manager.game.is_tied():
+            messagebox.showinfo("Game Over", "The game is already over!", parent=self._board)
+            return
+
+        if self.game_manager.handle_move(row, col, self._my_label):
+            self._network_service.send_message("move", row=row, col=col, player=self._my_label, next_player=self.game_manager.current_player_label)
 
     def set_online_mode(self, is_host=True, host_ip=None):
+        print(f"Setting online mode, is_host={is_host}, host_ip={host_ip}")  # Debug
         self._is_host = is_host
-        self._network = NetworkManager()
+        self.game_manager.is_host = is_host
+        self._network_service = NetworkService(is_host, self)
         if is_host:
             local_ip = self._get_local_ip()
             self._notification = HostView(self._board, local_ip, self._copy_ip, self._close_notification)
             self._board.update_display("Waiting for opponent to connect...")
-            self._network.host(callback=self._on_host_connected)
+            threading.Thread(target=self._network_service.host, daemon=True).start()
         else:
             self._notification = JoinView(self._board, self._try_connect, self._cancel_join)
             self._board.update_display("Enter IP to join...")
 
-    def _on_host_connected(self):
+    def connection_established(self):
+        print("Connection established!")  # Debug
         if self._notification:
             self._notification.update_status("Connected!", "green")
             self._notification.after(1000, self._notification.destroy)
             self._notification = None
-        self._my_label = "X"
-        self._opponent_label = "O"
-        self._game.current_player = Player(label="X", color="")
-        self._board.update_display("Your turn (X)")
-        self._board.after(100, self._check_opponent_move)
+        if self._is_host:
+            self._my_label = "X"
+            self._opponent_label = "O"
+            self.game_manager.set_players(self._my_label, self._opponent_label)
+            self._network_service.send_message("start_game", my_label="O", opponent_label="X")
+            self._board.update_display("Your turn (X)")
+        else:
+            self._board.update_display("Waiting for game to start...")
+
+    def connection_failed(self, error_message):
+        print(f"Connection failed: {error_message}")  # Debug
+        if self._notification:
+            self._notification.update_status(f"Failed: {error_message}", "red")
 
     def _copy_ip(self):
         ip = self._get_local_ip()
@@ -85,22 +88,11 @@ class OnlineCaroController:
             self._notification.update_status("Please enter an IP!", "red")
             return
         self._notification.update_status("Connecting...", "cyan")
-        try:
-            self._network.join(host_ip)
-            self._notification.update_status("Connected!", "green")
-            self._notification.after(1000, self._notification.destroy)
-            self._notification = None
-            self._my_label = "O"
-            self._opponent_label = "X"
-            self._game.current_player = Player(label="X", color="")
-            self._board.update_display("Opponent's turn (X)")
-            self._board.after(100, self._check_opponent_move)
-        except Exception as e:
-            self._notification.update_status(f"Failed: {str(e)}", "red")
+        self._network_service.join(host_ip)
 
     def _cancel_join(self):
-        if self._network:
-            self._network.close()
+        if self._network_service:
+            self._network_service.close()
         if self._notification:
             self._notification.destroy()
             self._notification = None
@@ -117,29 +109,53 @@ class OnlineCaroController:
             s.close()
         return ip
 
-    def _check_opponent_move(self):
-        if self._network:
-            move = self._network.get_move()
-            if move:
-                row, col = move
-                move_obj = Move(row, col, self._opponent_label)
-                self._game.process_move(move_obj)
-                self._board.update_button(row, col, self._opponent_label)
-                self._check_game_state()
-                if not self._game.has_winner() and not self._game.is_tied():
-                    self._game.toggle_player()
-                    self._board.update_display(f"Your turn ({self._my_label})")
-        self._board.after(100, self._check_opponent_move)
+    def opponent_moved(self, row, col, player):
+        self.game_manager.process_opponent_move(row, col, player)
+
+    def opponent_disconnected(self):
+        messagebox.showinfo("Disconnected", "Opponent has disconnected.", parent=self._board)
+        self.show_back_to_menu_button()
+
+    def show_back_to_menu_button(self):
+        back_to_menu_btn = tk.Button(self._board, text="Back to Menu",
+                                     font=font.Font(family="Arial", size=12),
+                                     bg="#ff9999", fg="#000000",
+                                     activebackground="#ff6666",
+                                     borderwidth=1, relief="flat",
+                                     command=self.back_to_menu)
+        back_to_menu_btn.place(relx=0.5, rely=0.8, anchor="center")
+
+    def show_rematch_button(self):
+        if self._rematch_button:
+            self._rematch_button.destroy()
+        rematch_btn = tk.Button(self._board, text="Request Rematch",
+                                font=font.Font(family="Arial", size=12),
+                                bg="#aaddff", fg="#000000",
+                                activebackground="#88ccff",
+                                borderwidth=1, relief="flat",
+                                command=self.request_rematch)
+        rematch_btn.place(relx=0.5, rely=0.7, anchor="center")
+        self._rematch_button = rematch_btn
+
+    def request_rematch(self):
+        self.rematch_handler.request_rematch()
+
+    def handle_rematch_request(self):
+        self.rematch_handler.handle_rematch_request()
+
+    def handle_rematch_accepted(self):
+        self.rematch_handler.handle_rematch_accepted()
 
     def reset_game(self):
-        self._game.reset_game()
-        self._board.reset_board()
-        self._board.update_display(f"Your turn ({self._my_label})" if self._is_host else f"Opponent's turn ({self._opponent_label})")
-        self._board.update_score(self._scores)
+        print("Reset game called...")  # Debug
+        self.request_rematch()
 
     def back_to_menu(self):
-        if self._network:
-            self._network.close()
+        if self._network_service:
+            self._network_service.close()
+        if self._rematch_button:
+            self._rematch_button.destroy()
+            self._rematch_button = None
         self._board.withdraw()
         self._menu.deiconify()
 
@@ -148,3 +164,38 @@ class OnlineCaroController:
 
     def suggest_move(self):
         messagebox.showinfo("Invalid", "Suggest move not available in online mode!", parent=self._board)
+
+    def send_message(self, message_type, **kwargs):
+        self._network_service.send_message(message_type, **kwargs)
+
+    def get_my_label(self):
+        return self._my_label
+
+    def send_chat_message(self, message):
+        if self._my_label:
+            self._network_service.send_message("chat", player=self._my_label, message=message)
+            self.display_chat_message(self._my_label, message)
+
+    def display_chat_message(self, player, message):
+        formatted_message = f"{player}: {message}\n"
+        self._board.chat_display.configure(state='normal')
+        self._board.chat_display.insert(tk.END, formatted_message)
+        self._board.chat_display.see(tk.END)
+        self._board.chat_display.configure(state='disabled')
+
+    def handle_window_close(self):
+        if self._network_service:
+            self._network_service.close()
+        self.back_to_menu()
+
+    def start_game(self, my_label, opponent_label):
+        if not self._is_host:
+            self._my_label = my_label
+            self._opponent_label = opponent_label
+            self.game_manager.set_players(self._my_label, self._opponent_label)
+            self.game_manager.update_turn("X")
+            self._board.reset_board()
+            self._board.update_display("Opponent's turn (X)")
+
+    def update_score(self, scores):
+        self.game_manager.update_score_from_host(scores)
