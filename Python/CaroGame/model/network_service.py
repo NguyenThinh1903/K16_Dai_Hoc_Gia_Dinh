@@ -20,6 +20,7 @@ class NetworkService:
             "disconnect": self.handle_disconnect,
             "start_game": self.handle_start_game,
             "update_score": self.handle_update_score,
+            "game_over": self.handle_game_over,  # Thêm handler cho game_over
         }
         self.send_queue = []
 
@@ -43,24 +44,22 @@ class NetworkService:
     def listen(self):
         while self.network_manager.running:
             try:
-                message = self.network_manager.receive_message(timeout=1.0)  # Timeout 1 giây
+                message = self.network_manager.receive_message(timeout=1.0)
                 if message:
                     self.process_message(message)
                 else:
-                    time.sleep(0.1)  # Giảm tải CPU nếu không có tin nhắn
+                    time.sleep(0.1)
             except socket.error as e:
                 print(f"Socket error: {e}")
                 if self.connected and not self.opponent_disconnected:
-                    # Kiểm tra xem socket có thực sự bị đóng không
                     if self.is_connection_lost():
                         self.handle_disconnect()
                         break
             except Exception as e:
                 print(f"Unexpected error in listen: {e}")
-                time.sleep(1)  # Đợi trước khi thử lại
+                time.sleep(1)
 
     def is_connection_lost(self):
-        # Kiểm tra xem kết nối có thực sự bị mất không
         try:
             if self.network_manager.connection:
                 self.network_manager.connection.send(b"")
@@ -75,7 +74,7 @@ class NetworkService:
         if self.connected:
             try:
                 self.network_manager.send_message(json.dumps(message))
-                print(f"Sent message: {message_type}")  # Debug
+                print(f"Sent message: {message_type}")
             except socket.error as e:
                 print(f"Failed to send message: {e}")
                 if self.connected:
@@ -94,7 +93,7 @@ class NetworkService:
         self.send_queue = []
 
     def process_message(self, message):
-        print(f"Received message: {message}")  # Debug
+        print(f"Received message: {message}")
         handler = self.message_handlers.get(message["type"])
         if handler:
             handler(message)
@@ -119,16 +118,21 @@ class NetworkService:
             self.connected = False
             self.network_manager.close()
             self.controller.opponent_disconnected()
-            print("Disconnected from opponent")  # Debug
+            print("Disconnected from opponent")
 
     def handle_start_game(self, message):
         if not self.is_host:
             self.controller.start_game(message["my_label"], message["opponent_label"])
-            print("Client received start_game")  # Debug
+            print("Client received start_game")
 
     def handle_update_score(self, message):
         if not self.is_host:
             self.controller.update_score(message["scores"])
+
+    def handle_game_over(self, message):
+        winner = message.get("winner")  # None nếu hòa
+        scores = message["scores"]
+        self.controller.handle_game_over(winner, scores)
 
     def close(self):
         if self.connected:

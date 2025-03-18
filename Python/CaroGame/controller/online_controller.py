@@ -1,3 +1,4 @@
+# controller/online_controller.py
 import tkinter as tk
 from tkinter import messagebox, font
 from model.game import Move
@@ -8,10 +9,11 @@ from view.host_view import HostView
 from view.join_view import JoinView
 import socket
 import threading
+from controller.online_ai_controller import OnlineAIController
 
 class OnlineCaroController:
     def __init__(self, game, board, menu):
-        print("Initializing OnlineCaroController...")  # Debug
+        print("Initializing OnlineCaroController...")
         self._board = board
         self._menu = menu
         self._network_service = None
@@ -24,6 +26,8 @@ class OnlineCaroController:
         self.game_manager = OnlineGameManager(game, board, is_host=self._is_host)
         self.rematch_handler = OnlineRematchHandler(self, self.game_manager)
         self._board.protocol("WM_DELETE_WINDOW", self.handle_window_close)
+
+        self.online_ai_controller = OnlineAIController(self._network_service, self.game_manager, self._board)
 
     def handle_move(self, row, col):
         if self.game_manager.current_player_label != self._my_label:
@@ -38,10 +42,12 @@ class OnlineCaroController:
             self._network_service.send_message("move", row=row, col=col, player=self._my_label, next_player=self.game_manager.current_player_label)
 
     def set_online_mode(self, is_host=True, host_ip=None):
-        print(f"Setting online mode, is_host={is_host}, host_ip={host_ip}")  # Debug
+        print(f"Setting online mode, is_host={is_host}, host_ip={host_ip}")
         self._is_host = is_host
         self.game_manager.is_host = is_host
         self._network_service = NetworkService(is_host, self)
+        self.online_ai_controller.network_service = self._network_service
+
         if is_host:
             local_ip = self._get_local_ip()
             self._notification = HostView(self._board, local_ip, self._copy_ip, self._close_notification)
@@ -52,7 +58,7 @@ class OnlineCaroController:
             self._board.update_display("Enter IP to join...")
 
     def connection_established(self):
-        print("Connection established!")  # Debug
+        print("Connection established!")
         if self._notification:
             self._notification.update_status("Connected!", "green")
             self._notification.after(1000, self._notification.destroy)
@@ -67,7 +73,7 @@ class OnlineCaroController:
             self._board.update_display("Waiting for game to start...")
 
     def connection_failed(self, error_message):
-        print(f"Connection failed: {error_message}")  # Debug
+        print(f"Connection failed: {error_message}")
         if self._notification:
             self._notification.update_status(f"Failed: {error_message}", "red")
 
@@ -147,7 +153,7 @@ class OnlineCaroController:
         self.rematch_handler.handle_rematch_accepted()
 
     def reset_game(self):
-        print("Reset game called...")  # Debug
+        print("Reset game called...")
         self.request_rematch()
 
     def back_to_menu(self):
@@ -163,7 +169,7 @@ class OnlineCaroController:
         pass
 
     def suggest_move(self):
-        messagebox.showinfo("Invalid", "Suggest move not available in online mode!", parent=self._board)
+        self.online_ai_controller.request_suggestion()
 
     def send_message(self, message_type, **kwargs):
         self._network_service.send_message(message_type, **kwargs)
@@ -199,3 +205,14 @@ class OnlineCaroController:
 
     def update_score(self, scores):
         self.game_manager.update_score_from_host(scores)
+
+    def handle_game_over(self, winner, scores):
+        print(f"Game over received: winner={winner}, scores={scores}")
+        self.game_manager.scores = scores
+        self.game_manager._game_ended = True
+        self._board.update_score(scores)
+        if winner:
+            self._board.highlight_cells(self.game_manager.game.winner_combo)
+            self._board.update_display(f"{winner} won!", "yellow")
+        else:
+            self._board.update_display("Tied game!", "red")

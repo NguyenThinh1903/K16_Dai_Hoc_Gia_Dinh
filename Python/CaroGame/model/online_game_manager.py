@@ -1,3 +1,4 @@
+# model/online_game_manager.py
 from model.game import CaroGame, Player, Move
 
 class OnlineGameManager:
@@ -8,7 +9,7 @@ class OnlineGameManager:
         self.current_player_label = None
         self.is_host = is_host
         self.board.update_score(self.scores)
-        self._game_ended = False  # Thêm cờ để kiểm soát trạng thái game
+        self._game_ended = False
 
     def set_players(self, my_label, opponent_label):
         self.my_label = my_label
@@ -45,7 +46,7 @@ class OnlineGameManager:
             self.board.update_display(f"{'Your' if self.current_player_label == self.my_label else 'Opponent\'s'} turn ({self.current_player_label})")
 
     def _check_game_state(self):
-        if self._game_ended:  # Nếu game đã kết thúc, không kiểm tra lại
+        if self._game_ended:
             return "game_over"
 
         if self.game.has_winner():
@@ -55,14 +56,22 @@ class OnlineGameManager:
             if self.is_host:
                 self.scores[winner] += 1
                 self.board.update_score(self.scores)
-                self.board._controller.send_message("update_score", scores=self.scores)
+                self.board._controller.send_message(
+                    "game_over",
+                    winner=winner,
+                    scores=self.scores
+                )
             self.board.update_display(f"{winner} won!", "yellow")
             return "game_over"
         elif self.game.is_tied():
             self._game_ended = True
             if self.is_host:
                 self.board.update_score(self.scores)
-                self.board._controller.send_message("update_score", scores=self.scores)
+                self.board._controller.send_message(
+                    "game_over",
+                    winner=None,
+                    scores=self.scores
+                )
             self.board.update_display("Tied game!", "red")
             return "game_over"
         return "continue"
@@ -76,7 +85,7 @@ class OnlineGameManager:
         self.board.reset_board()
         self.current_player_label = "X"
         self.game.current_player = Player(label=self.current_player_label, color="")
-        self._game_ended = False  # Reset trạng thái game
+        self._game_ended = False
         self.board.update_display(f"{'Your' if self.current_player_label == self.my_label else 'Opponent\'s'} turn ({self.current_player_label})")
         self.board.update_score(self.scores)
 
