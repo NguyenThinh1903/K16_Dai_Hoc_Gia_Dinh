@@ -20,92 +20,42 @@ class GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
-    _checkForGameState();
+    _checkForInitialGameState();
   }
 
-  Future<void> _checkForGameState() async {
+  Future<void> _checkForInitialGameState() async {
     final model = Provider.of<GameModel>(context, listen: false);
-    bool isGameCompleted = model.pairsFound == model.cards.length ~/ 2;
-
-    // Luôn cho phép hiển thị ResumeGameDialog khi quay lại
     if (!model.isNewGame && model.timeLeft > 0 && !_dialogShown) {
-      _dialogShown = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder:
-              (dialogContext) => ResumeGameDialog(
-                parentContext: context,
-                model: model,
-                onResume: () {
-                  model.resumeGame();
-                  setState(() => _dialogShown = false);
-                },
-                onReset: () {
-                  setState(() => _dialogShown = false);
-                },
-              ),
-        ).then((_) {
-          // Đảm bảo timer chạy lại sau khi đóng dialog
-          if (model.timer == null || !model.timer!.isActive) {
-            model.startTimer();
-          }
-        });
-      });
+          _dialogShown = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (dialogContext) => ResumeGameDialog(
+                    parentContext: context,
+                    model: model,
+                    onResume: (){
+                        model.resumeGame();
+                        setState(()=> _dialogShown = false);
+                    },
+                    onReset: (){
+                         setState(()=> _dialogShown = false);
+                    }
+                )
+              ).then((value) {
+                 if (model.timer == null || !model.timer!.isActive) {
+                    model.startTimer();
+                  }
+              });
+          });
     } else {
-      // Khởi động timer nếu chưa chạy
-      if (model.timer == null || !model.timer!.isActive) {
-        model.startTimer();
-      }
+      //model.startTimer(); //Start the timer if it a new game
+      //Avoid start multiple times
       model.isNewGame = false;
     }
-
-    // Kiểm tra hoàn thành level hoặc hết thời gian
-    if (model.timeLeft <= 0 && !_dialogShown) {
-      model.pauseGame(); // Tạm dừng timer khi game over
-      _dialogShown = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder:
-              (dialogContext) => GameOverDialog(
-                parentContext: context,
-                model: model,
-                controller: Provider.of<GameController>(context, listen: false),
-                onDialogClosed: () {
-                  if (mounted) {
-                    setState(() => _dialogShown = false);
-                    _checkForGameState(); // Kiểm tra lại trạng thái sau khi đóng dialog
-                  }
-                },
-              ),
-        );
-      });
-    } else if (isGameCompleted && !_dialogShown) {
-      model.pauseGame(); // Tạm dừng timer khi hoàn thành level
-      _dialogShown = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder:
-              (dialogContext) => LevelCompleteDialog(
-                parentContext: context,
-                model: model,
-                controller: Provider.of<GameController>(context, listen: false),
-                onDialogClosed: () {
-                  if (mounted) {
-                    setState(() => _dialogShown = false);
-                    _checkForGameState(); // Kiểm tra lại trạng thái sau khi đóng dialog
-                  }
-                },
-              ),
-        );
-      });
-    }
   }
+
+
 
   Future<bool> _onWillPop() async {
     final model = Provider.of<GameModel>(context, listen: false);
@@ -123,6 +73,56 @@ class GameScreenState extends State<GameScreen> {
   Widget build(BuildContext context) {
     final controller = Provider.of<GameController>(context);
     final model = Provider.of<GameModel>(context);
+
+    // Start or resume timer if not active
+    if (model.timer == null || !model.timer!.isActive) {
+        model.startTimer();
+    }
+
+      // Check for game completion or game over *within the build method*
+    if (model.timeLeft <= 0 && !_dialogShown) {
+      model.pauseGame();
+      _dialogShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (dialogContext) => GameOverDialog(
+            parentContext: context,
+            model: model,
+            controller: controller,
+            onDialogClosed: () {
+               if (mounted) {
+                    setState(() => _dialogShown = false);
+                  }
+            },
+          ),
+        );
+      });
+    } else if (model.pairsFound == model.cards.length ~/ 2 &&
+        !_dialogShown) {
+      model.pauseGame();
+      _dialogShown = true;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (dialogContext) => LevelCompleteDialog(
+            parentContext: context,
+            model: model,
+            controller: controller,
+             onDialogClosed: () {
+               if (mounted) {
+                    setState(() => _dialogShown = false);
+                  }
+            },
+          ),
+        );
+      });
+    }
+
+
 
     return PopScope(
       canPop: false,
@@ -228,10 +228,9 @@ class GameScreenState extends State<GameScreen> {
                       itemCount: model.cards.length,
                       itemBuilder: (context, index) {
                         return CardWidget(
-                          text:
-                              model.flipped[index] || model.matched[index]
-                                  ? model.cards[index]
-                                  : '⭐',
+                          text: model.flipped[index] || model.matched[index]
+                              ? (model.cards[index] ?? '⭐')
+                              : '⭐',
                           onTap: () => model.checkMatch(index),
                           isFlipped:
                               model.flipped[index] || model.matched[index],

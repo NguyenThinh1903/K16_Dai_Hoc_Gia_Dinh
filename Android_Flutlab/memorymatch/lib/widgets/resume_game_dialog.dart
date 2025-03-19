@@ -8,12 +8,12 @@ class ResumeGameDialog extends StatelessWidget {
   final VoidCallback onReset;
 
   const ResumeGameDialog({
-    Key? key,
+    super.key,
     required this.parentContext,
     required this.model,
     required this.onResume,
     required this.onReset,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +130,7 @@ class ResumeGameDialog extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: () {
                             Navigator.pop(dialogContext);
-                            model.resetCurrentLevel();
+                            model.resetCurrentLevel(); // Call resetCurrentLevel
                             onReset();
                           },
                           onHover: (hovered) {

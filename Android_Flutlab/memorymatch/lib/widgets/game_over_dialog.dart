@@ -9,12 +9,12 @@ class GameOverDialog extends StatelessWidget {
   final VoidCallback onDialogClosed;
 
   const GameOverDialog({
-    Key? key,
+    super.key,
     required this.parentContext,
     required this.model,
     required this.controller,
     required this.onDialogClosed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +95,7 @@ class GameOverDialog extends StatelessWidget {
                             Navigator.pop(dialogContext);
                             model.resetGame();
                             onDialogClosed();
+
                           },
                           onHover: (hovered) {
                             setDialogState(() {
@@ -157,11 +158,11 @@ class GameOverDialog extends StatelessWidget {
                         duration: const Duration(milliseconds: 100),
                         child: TextButton(
                           onPressed: () async {
-                            model.timer
-                                ?.cancel(); // Đảm bảo dừng timer khi exit
+                            model.timer?.cancel(); // Ensure timer is stopped
                             Navigator.pop(dialogContext);
                             await controller.goToHome(parentContext);
                             onDialogClosed();
+
                           },
                           onHover: (hovered) {
                             setDialogState(() {

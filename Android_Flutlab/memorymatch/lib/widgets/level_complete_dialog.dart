@@ -9,12 +9,12 @@ class LevelCompleteDialog extends StatelessWidget {
   final VoidCallback onDialogClosed;
 
   const LevelCompleteDialog({
-    Key? key,
+    super.key,
     required this.parentContext,
     required this.model,
     required this.controller,
     required this.onDialogClosed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
