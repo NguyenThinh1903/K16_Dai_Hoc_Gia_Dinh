@@ -5,9 +5,9 @@ class Dog {
         const RANDOM_DOG_URL = 'https://dog.ceo/api/breeds/image/random';
         try {
             const response = await axios.get(RANDOM_DOG_URL);
-            return response.data.message; // Trả về URL ảnh
+            return response.data.message; 
         } catch (error) {
-            throw error; // Ném lỗi nếu có vấn đề
+            throw error; 
         }
     }
 }
