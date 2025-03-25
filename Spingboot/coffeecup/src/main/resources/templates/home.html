@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoffeeCup</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- Thêm font từ Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+<!-- Hero Section (bao gồm cả header) -->
+<section class="hero" th:style="'background-image: url(/images/background.jpg)'">
+    <!-- Header -->
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/" class="active">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/menu">Menu</a></li>
+                <li><a href="/blog">Blog</a></li>
+                <li><a href="/shop">Shop</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+            <div class="logo">
+                <img th:src="@{/images/logo.png}" alt="CoffeeCup Logo">
+                <span class="logo-text">CoffeeCup</span> <!-- Thêm dòng chữ CoffeeCup -->
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Content -->
+    <div class="hero-content">
+        <h1>Coffee</h1>
+        <h2>Everything You Love About Coffee</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        <a href="/order" class="btn">Order Now</a>
+    </div>
+</section>
+</body>
+</html>

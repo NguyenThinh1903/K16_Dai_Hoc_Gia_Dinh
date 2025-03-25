@@ -1,0 +1,122 @@
+/* Reset mặc định */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+
+/* Hero Section */
+.hero {
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    position: relative; /* Để header và hero-content định vị chính xác */
+}
+
+/* Header */
+header {
+    position: absolute; /* Đặt header lên trên hình nền */
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 100px 50px; /* Giữ padding-top 100px như bạn đã chỉnh */
+    background: transparent; /* Làm header trong suốt */
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+}
+
+nav ul li {
+    margin-right: 100px; /* Khoảng cách giữa các mục trong toolbar */
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #000b2c; /* Màu chữ xanh đậm */
+    font-size: 22px; /* Kích thước chữ */
+    font-weight: 700; /* In đậm chữ */
+    padding-bottom: 5px; /* Thêm padding-bottom để tạo khoảng cách cho border-bottom */
+    transition: border-bottom 0.3s ease; /* Hiệu ứng chuyển đổi mượt mà cho border-bottom */
+}
+
+nav ul li a:hover {
+    border-bottom: 2px solid #ff4b00; /* Hiển thị border-bottom khi hover */
+}
+
+nav ul li a.active {
+    border-bottom: 2px solid #ff4b00; /* Border-bottom cho mục active */
+}
+
+/* Logo và dòng chữ CoffeeCup */
+.logo {
+    display: flex;
+    align-items: center;
+    padding-right: 130px; /* Tăng từ 40px lên 60px để xích logo và dòng chữ sang trái thêm - Điều chỉnh giá trị này để thay đổi vị trí */
+}
+
+.logo img {
+    height: 40px;
+    margin-right: 10px; /* Khoảng cách giữa logo và dòng chữ CoffeeCup */
+    filter: brightness(0) invert(1); /* Làm logo có màu trắng */
+}
+
+.logo .logo-text {
+    color: #FFFFFF; /* Màu trắng cho dòng chữ CoffeeCup */
+    font-size: 35px;
+    font-weight: 200; /* Giảm từ 700 xuống 200 để làm nét chữ mỏng hơn */
+    font-family: 'Open Sans', sans-serif;
+}
+
+/* Hero Content */
+.hero-content {
+    max-width: 500px;
+    padding-left: 50px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%); /* Căn giữa theo chiều dọc */
+}
+
+.hero-content h1 {
+    font-family: 'Dancing Script', cursive;
+    font-size: 130px;
+    color: #000b2c;
+}
+
+.hero-content h2 {
+    color: #ff4b00;
+    font-size: 24px;
+    margin: 10px 0;
+}
+
+.hero-content p {
+    color: #000b2c;
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.btn {
+    display: inline-block;
+    background-color: #ff4b00;
+    color: white;
+    padding: 20px 30px;
+    text-decoration: none;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 25px;
+}
+
+.btn:hover {
+    background-color: #e69520;
+}
