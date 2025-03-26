@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - CoffeeCup</title>
+    <link href="https://fonts.googleapis.com/css2?family=Proza+Libre&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/contact.css}">
+</head>
+<body>
+<header>
+    <div class="container">
+        <!-- Logo bên trái -->
+        <div class="logo">
+            <img th:src="@{/images/logo.png}" alt="CoffeeCup Logo">
+            <span class="logo-text">CoffeeCup</span>
+        </div>
+
+        <!-- **** CHUYỂN info-and-contact LÊN ĐÂY **** -->
+        <!-- Khối Info/Contact bên phải -->
+        <div class="info-and-contact">
+            <div class="info">
+                <h3>Information.</h3>
+                <ul>
+                    <li><a href="#">About us</a></li>
+                    <li><a href="#">Branches</a></li>
+                    <li><a href="#">Menu</a></li>
+                    <li><a th:href="@{/contact}" class="active">Contact</a></li>
+                    <li><a href="#">Map</a></li>
+                </ul>
+            </div>
+            <div class="contact">
+                <h3>Contact Us.</h3>
+                <p>Support</p>
+                <p>your_id@gmail.com</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main giờ chỉ còn là khoảng trống -->
+<main>
+    <!-- Có thể để trống hoặc bỏ container nếu không cần -->
+    <!-- <div class="container"> -->
+    <!-- Nội dung chính (nếu có) sẽ vào đây -->
+    <!-- </div> -->
+</main>
+
+<footer>
+    <div class="container">
+        <!-- Nav links bên trái -->
+        <div class="nav-links">
+            <a th:href="@{/}">Home</a>
+            <a href="#">About</a>
+            <a href="#">Menu</a>
+            <a href="#">Blog</a>
+            <a href="#">Shop</a>
+            <a th:href="@{/contact}" class="active">Contact</a>
+        </div>
+        <!-- Social icons bên phải -->
+        <div class="social-icons">
+            <a href="#"><img th:src="@{/images/facebook.png}" alt="Facebook"></a>
+            <a href="#"><img th:src="@{/images/instagram.png}" alt="Instagram"></a>
+            <a href="#"><img th:src="@{/images/twitter.png}" alt="Twitter"></a>
+            <a href="#"><img th:src="@{/images/youtube.png}" alt="YouTube"></a>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

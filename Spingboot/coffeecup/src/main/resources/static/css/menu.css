@@ -1,0 +1,215 @@
+/* --- CSS Dành Riêng Cho Trang Menu --- */
+
+body.menu-page-body {
+    /* Áp dụng nền đen chỉ khi body có class này */
+    background-color: #000000; /* Nền đen cho trang menu */
+    color: #ffffff; /* Màu chữ trắng mặc định cho trang menu */
+}
+
+.menu-page {
+    padding-top: 100px; /* Thêm khoảng đệm trên cùng để tránh bị che bởi header cố định (nếu có) */
+    /* Đảm bảo nó chiếm ít nhất chiều cao còn lại nếu nội dung ít */
+    min-height: calc(100vh - 100px); /* 100px là chiều cao header giả định */
+}
+
+.menu-item {
+    min-height: 80vh; /* Chiều cao tối thiểu cho mỗi mục menu */
+    display: flex;
+    align-items: center; /* Căn giữa các item theo chiều dọc */
+    justify-content: center; /* Căn giữa nội dung chính theo chiều ngang */
+    position: relative; /* Cần thiết cho định vị của pseudo-element ::before */
+    overflow: hidden; /* Ẩn phần thừa của hình nền cong */
+    padding: 60px 0; /* Khoảng đệm trên và dưới cho mỗi mục */
+    background-color: #000000; /* Đảm bảo nền đen nhất quán */
+}
+
+/* Hình nền cong màu xanh đậm sử dụng pseudo-element */
+.menu-item::before {
+    content: '';
+    position: absolute;
+    width: 150%; /* Rộng hơn container để tạo độ cong */
+    height: 150%; /* Cao hơn container */
+    border-radius: 50%; /* Tạo hình tròn */
+    background-color: #000b2c; /* Màu xanh đậm */
+    top: 50%; /* Căn giữa theo chiều dọc */
+    transform: translateY(-50%); /* Tinh chỉnh căn giữa dọc */
+    z-index: 1; /* Nằm dưới nội dung nhưng trên nền đen */
+}
+
+/* Định vị hình cong cho bố cục mặc định (chữ trái, ảnh phải) */
+.menu-item:not(.reverse)::before {
+    /* Đẩy hình tròn lệch sang phải, tạo đường cong từ phải vào */
+    right: -75%;
+}
+
+/* Định vị hình cong cho bố cục đảo ngược (chữ phải, ảnh trái) */
+.menu-item.reverse::before {
+    /* Đẩy hình tròn lệch sang trái, tạo đường cong từ trái vào */
+    left: -75%;
+}
+
+/* Container chứa nội dung chính (text và image) */
+.menu-content {
+    display: flex;
+    width: 100%;
+    max-width: 1200px; /* Giới hạn chiều rộng tối đa */
+    align-items: center; /* Căn các phần tử con (text, image) thẳng hàng */
+    position: relative; /* Đảm bảo nội dung nằm trên ::before */
+    z-index: 2;
+    padding: 0 5%; /* Khoảng đệm trái phải */
+}
+
+/* Đảo ngược thứ tự flex item cho bố cục .reverse */
+.menu-item.reverse .menu-content {
+    flex-direction: row-reverse; /* Đảo thứ tự ảnh và chữ */
+}
+
+/* Khối chứa văn bản */
+.menu-text {
+    flex: 1; /* Chiếm không gian còn lại */
+    padding: 30px;
+    position: relative;
+    z-index: 3; /* Đảm bảo text nằm trên cùng */
+}
+
+/* Tiêu đề (Dark Coffees, Cold Coffees, ...) */
+.menu-text h2 {
+    font-family: 'Dancing Script', cursive; /* Font chữ nghệ thuật */
+    font-size: 70px; /* Kích thước lớn */
+    color: #cccccc; /* Màu xanh đậm giống hình nền cong */
+    margin-bottom: 25px;
+}
+
+/* Căn lề tiêu đề */
+.menu-item:not(.reverse) .menu-text h2 {
+    text-align: left; /* Căn trái mặc định */
+}
+.menu-item.reverse .menu-text h2 {
+    text-align: right; /* Căn phải khi đảo ngược */
+}
+
+/* Đoạn mô tả */
+.menu-text p {
+    font-size: 16px;
+    line-height: 1.7; /* Tăng giãn dòng cho dễ đọc */
+    color: #cccccc; /* Màu xám nhạt dễ đọc trên nền tối */
+    margin-bottom: 30px;
+    max-width: 500px; /* Giới hạn chiều rộng để tránh quá dài */
+}
+
+/* Căn lề đoạn mô tả và nút dựa trên bố cục */
+.menu-item:not(.reverse) .menu-text p,
+.menu-item:not(.reverse) .menu-text .btn {
+    margin-left: 0; /* Đẩy về bên trái */
+    margin-right: auto;
+    text-align: left;
+}
+
+.menu-item.reverse .menu-text p,
+.menu-item.reverse .menu-text .btn {
+    margin-left: auto; /* Đẩy về bên phải */
+    margin-right: 0;
+    text-align: right; /* Căn phải text và nút */
+}
+
+/* Nút Order Now (margin riêng cho menu) */
+.menu-text .btn {
+    margin-top: 20px; /* Khoảng cách trên so với đoạn mô tả */
+    /* Các style khác của .btn sẽ lấy từ style.css */
+}
+
+
+/* Khối chứa ảnh */
+.menu-image-container {
+    flex: 1; /* Chiếm không gian */
+    display: flex;
+    justify-content: center; /* Căn giữa ảnh theo chiều ngang */
+    align-items: center; /* Căn giữa ảnh theo chiều dọc */
+    padding: 30px;
+    position: relative;
+    z-index: 3; /* Đảm bảo ảnh nằm trên cùng */
+}
+
+/* Lớp bọc ngoài ảnh để tạo viền tròn */
+.image-wrapper {
+    border: 5px solid #ff4b00; /* Viền màu cam */
+    border-radius: 50%; /* Bo tròn hoàn hảo */
+    padding: 10px; /* Khoảng cách giữa viền và ảnh */
+    background-color: #ffffff; /* Nền trắng bên trong viền */
+    display: inline-block; /* Chỉ chiếm không gian của nội dung */
+    box-shadow: 0 0 25px rgba(255, 75, 0, 0.4); /* Đổ bóng nhẹ màu cam */
+    max-width: 300px; /* Kích thước tối đa của viền */
+    width: 90%; /* Chiếm 90% container ảnh, giúp responsive */
+}
+
+/* Thẻ ảnh bên trong */
+.image-wrapper img {
+    display: block; /* Loại bỏ khoảng trắng thừa dưới ảnh */
+    width: 100%; /* Lấp đầy lớp bọc */
+    height: auto; /* Giữ tỷ lệ khung hình */
+    border-radius: 50%; /* Bo tròn ảnh */
+}
+
+/* --- Responsive cho màn hình nhỏ --- */
+@media (max-width: 768px) {
+    .menu-page {
+        padding-top: 80px; /* Giảm padding nếu header thu nhỏ */
+    }
+
+    .menu-item {
+        min-height: auto; /* Bỏ chiều cao tối thiểu */
+        padding: 40px 0;
+    }
+
+    /* Xếp chồng text và image theo chiều dọc */
+    .menu-content,
+    .menu-item.reverse .menu-content {
+        flex-direction: column;
+        text-align: center; /* Căn giữa text khi xếp dọc */
+    }
+
+    /* Điều chỉnh hình nền cong cho bố cục dọc */
+    .menu-item::before {
+        width: 200%; /* Có thể cần điều chỉnh khác */
+        height: 100%;
+        top: auto;
+        bottom: -50%; /* Đẩy xuống dưới */
+        left: -50%;
+        right: auto;
+        transform: translateY(0);
+    }
+    .menu-item.reverse::before {
+        left: -50%; /* Giữ nguyên vị trí trái */
+    }
+
+    .menu-text h2,
+    .menu-item.reverse .menu-text h2 {
+        font-size: 50px; /* Giảm cỡ chữ tiêu đề */
+        text-align: center; /* Luôn căn giữa */
+    }
+
+    .menu-text p,
+    .menu-item.reverse .menu-text p {
+        max-width: 90%; /* Cho phép rộng hơn trên mobile */
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center; /* Luôn căn giữa */
+    }
+
+    /* Căn giữa nút */
+    .menu-text .btn,
+    .menu-item.reverse .menu-text .btn {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Đưa ảnh lên trên text trên mobile */
+    .menu-image-container {
+        order: -1;
+        padding-bottom: 40px; /* Khoảng cách dưới ảnh */
+        width: 100%; /* Chiếm toàn bộ chiều rộng */
+    }
+    .image-wrapper {
+        max-width: 200px; /* Giảm kích thước ảnh */
+    }
+}

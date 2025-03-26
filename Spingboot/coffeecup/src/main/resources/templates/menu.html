@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoffeeCup - Menu</title>
+    <!-- Link CSS chung -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- Link CSS dành riêng cho trang Menu (phải đặt SAU style.css) -->
+    <link rel="stylesheet" th:href="@{/css/menu.css}">
+    <!-- Thêm font từ Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- CSS THÊM VÀO --- */
+        /* (Tốt nhất nên chuyển vào menu.css) */
+
+        /* Style cho thanh toolbar phụ */
+        .secondary-toolbar {
+            background-color: #f8f8f8; /* Màu nền nhẹ cho toolbar */
+            padding: 8px 20px;       /* Padding bên trong toolbar */
+            text-align: center;      /* Căn giữa nội dung toolbar */
+            border-bottom: 1px solid #eee; /* Đường kẻ mỏng phân cách */
+            /* Quan trọng: Đảm bảo nó nằm dưới header cố định */
+            /* Nếu header có position: fixed, toolbar này sẽ tự động nằm dưới nếu đặt sau header trong HTML */
+            /* Nếu bạn muốn toolbar này cũng *dính* (sticky) dưới header: */
+            /* position: sticky; */
+            /* top: 80px; /* Giả sử chiều cao header là 80px, điều chỉnh nếu cần */
+            /* z-index: 999; /* Đảm bảo nó dưới header chính (nếu header có z-index 1000) */
+        }
+
+        .secondary-toolbar span {
+            margin-right: 10px;
+            font-weight: 500; /* Hơi đậm hơn */
+            color: #f8f8f8;
+        }
+
+        .secondary-toolbar a {
+            text-decoration: none;
+            color: #007bff; /* Màu link xanh */
+            margin: 0 8px;  /* Khoảng cách giữa các link */
+            font-size: 0.9em; /* Kích thước chữ nhỏ hơn chút */
+        }
+
+        .secondary-toolbar a:hover {
+            text-decoration: underline;
+        }
+
+        /* Điều chỉnh cho Header cố định và liên kết neo (#) */
+        /* Đảm bảo body có đủ padding-top cho header */
+        body {
+            /* Giá trị padding-top này nên được định nghĩa trong style.css */
+            /* Nó cần bằng hoặc lớn hơn chiều cao của header cố định */
+            padding-top: 80px; /* Ví dụ: Nếu header cao 80px */
+            /* Nếu bạn làm secondary-toolbar sticky, bạn cần tăng padding-top này lên
+               để chứa cả header và secondary-toolbar */
+            /* padding-top: 120px; /* Ví dụ: 80px header + 40px toolbar */
+        }
+
+        /* Điều chỉnh vị trí cuộn cho các section khi dùng link neo (#) */
+        .menu-item {
+            scroll-margin-top: 90px; /* Quan trọng: Đặt khoảng cách từ đỉnh viewport khi cuộn tới */
+            /* Giá trị này nên lớn hơn chiều cao header một chút */
+            /* Nếu secondary-toolbar là sticky, giá trị này phải lớn hơn tổng chiều cao của cả header và toolbar */
+        }
+
+        /* Style cho body trang menu (ví dụ: nền tối) - nên ở menu.css */
+        .menu-page-body {
+            /* background-color: #1a1a1a; */ /* Ví dụ nền tối */
+            /* color: #fff; */ /* Chữ trắng trên nền tối */
+        }
+        /* --- KẾT THÚC CSS THÊM VÀO --- */
+
+    </style>
+</head>
+<body class="menu-page-body"> <!-- Thêm class để áp dụng nền đen -->
+
+<!-- Header (Reused from home.html, changed active link) -->
+<header class="header-fixed"> <!-- Sử dụng header cố định -->
+    <nav>
+        <ul>
+            <!-- Sử dụng th:href nếu dùng Thymeleaf -->
+            <li><a th:href="@{/}">Home</a></li>
+            <li><a th:href="@{/about}">About</a></li>
+            <li><a th:href="@{/menu}" class="active">Menu</a></li> <!-- Đặt Menu là active -->
+            <li><a th:href="@{/blog}">Blog</a></li>
+            <li><a th:href="@{/shop}">Shop</a></li>
+            <li><a th:href="@{/contact}">Contact</a></li>
+        </ul>
+        <div class="logo">
+            <img th:src="@{/images/logo.png}" alt="CoffeeCup Logo">
+            <span class="logo-text">CoffeeCup</span>
+        </div>
+    </nav>
+</header>
+
+<main class="menu-page">
+    <!-- Dark Coffees Section - Thêm ID -->
+    <section id="dark-coffee-section" class="menu-item dark-coffee">
+        <div class="menu-content">
+            <div class="menu-text">
+                <h2>Dark Coffees</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ea commodo consequat. Duis aut dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <a th:href="@{/order}" class="btn">Order Now</a>
+            </div>
+            <div class="menu-image-container">
+                <div class="image-wrapper">
+                    <img th:src="@{/images/dark_coffees.png}" alt="Dark Coffee">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cold Coffees Section - Thêm ID -->
+    <section id="cold-coffee-section" class="menu-item cold-coffee reverse"> <!-- Thêm class reverse -->
+        <div class="menu-content">
+            <div class="menu-image-container"> <!-- Ảnh đến trước trong HTML nhưng CSS sẽ đảo lại -->
+                <div class="image-wrapper">
+                    <img th:src="@{/images/cold_coffees.png}" alt="Cold Coffee">
+                </div>
+            </div>
+            <div class="menu-text">
+                <h2>Cold Coffees</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ea commodo consequat. Duis aut dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <a th:href="@{/order}" class="btn">Order Now</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hot Coffees Section - Thêm ID -->
+    <section id="hot-coffee-section" class="menu-item hot-coffee">
+        <div class="menu-content">
+            <div class="menu-text">
+                <h2>Hot Coffees</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ea commodo consequat. Duis aut dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <a th:href="@{/order}" class="btn">Order Now</a>
+            </div>
+            <div class="menu-image-container">
+                <div class="image-wrapper">
+                    <img th:src="@{/images/hot_coffees.png}" alt="Hot Coffee">
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+</body>
+</html>
