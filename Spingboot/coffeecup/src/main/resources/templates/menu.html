@@ -33,6 +33,7 @@
 
 <main>
     <!-- Dark Coffees Section -->
+    <!-- Dark Coffees Section -->
     <section id="dark-coffee-section" class="menu-item">
         <div class="menu-content">
             <!-- Phần nền trắng -->
@@ -42,11 +43,11 @@
             </div>
             <!-- Phần ảnh nền xanh -->
             <div class="menu-image-side blue-side-right">
-                <!-- Ảnh nền xanh sẽ được đặt bằng background-image của div này -->
-                <div class="image-wrapper"> <!-- Ly cafe chồng lên -->
-                    <img th:src="@{/images/dark_coffees.png}" alt="Dark Coffee">
-                </div>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ea commodo consequat. Duis aut dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <p>Lorem ipsum dolor sit amet...</p>
+            </div>
+            <!-- Đưa image-wrapper ra ngoài -->
+            <div class="image-wrapper">
+                <img th:src="@{/images/dark_coffees.png}" alt="Dark Coffee">
             </div>
         </div>
     </section>
@@ -54,18 +55,15 @@
     <!-- Cold Coffees Section -->
     <section id="cold-coffee-section" class="menu-item reverse">
         <div class="menu-content">
-            <!-- Phần ảnh nền xanh (đến trước trong flex reverse) -->
             <div class="menu-image-side blue-side-left">
-                <!-- Ảnh nền xanh cong trái -->
-                <div class="image-wrapper"> <!-- Ly cafe chồng lên -->
-                    <img th:src="@{/images/cold_coffees.png}" alt="Cold Coffee">
-                </div>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ea commodo consequat. Duis aut dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <p>Lorem ipsum dolor sit amet...</p>
             </div>
-            <!-- Phần nền trắng -->
             <div class="menu-text white-side">
                 <h2>Cold<br>Coffees</h2>
                 <a th:href="@{/order}" class="btn">Order Now</a>
+            </div>
+            <div class="image-wrapper">
+                <img th:src="@{/images/cold_coffees.png}" alt="Cold Coffee">
             </div>
         </div>
     </section>
@@ -73,18 +71,15 @@
     <!-- Hot Coffees Section -->
     <section id="hot-coffee-section" class="menu-item">
         <div class="menu-content">
-            <!-- Phần nền trắng -->
             <div class="menu-text white-side">
                 <h2>Hot<br>Coffees</h2>
                 <a th:href="@{/order}" class="btn">Order Now</a>
             </div>
-            <!-- Phần ảnh nền xanh -->
             <div class="menu-image-side blue-side-right">
-                <!-- Ảnh nền xanh cong phải -->
-                <div class="image-wrapper"> <!-- Ly cafe chồng lên -->
-                    <img th:src="@{/images/hot_coffees.png}" alt="Hot Coffee">
-                </div>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ea commodo consequat. Duis aut dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <p>Lorem ipsum dolor sit amet...</p>
+            </div>
+            <div class="image-wrapper">
+                <img th:src="@{/images/hot_coffees.png}" alt="Hot Coffee">
             </div>
         </div>
     </section>

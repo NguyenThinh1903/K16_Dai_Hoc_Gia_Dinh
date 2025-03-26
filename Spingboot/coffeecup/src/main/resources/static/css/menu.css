@@ -1,136 +1,140 @@
 /* --- CSS Dành Riêng Cho Trang Menu (Hoàn Chỉnh) --- */
 
 /* --- Header & Body Setup --- */
-
-/* QUAN TRỌNG: Giả sử header cao 80px. Điều chỉnh nếu cần. */
 :root {
     --header-height: 80px;
-    --image-max-width: 320px;
+    --image-max-width: 280px;
     --image-overlap-compensation: calc(var(--image-max-width) / 2 + 40px);
     --base-padding-percent: 6%;
-    --boundary-adjustment: calc(var(--image-overlap-compensation) * 2); /* Tăng từ / 2 lên * 0.75 */
+    --boundary-adjustment: calc(var(--image-overlap-compensation) * 0.1);
+    --header-offset: 80px; /* Giữ biến nhưng không dùng nữa */
 }
 
-/* Đảm bảo bạn có CSS cho header cố định trong style.css! */
-/* Ví dụ tối thiểu trong style.css:
+/* Tinh chỉnh header */
 header.header-fixed {
-    position: fixed; top: 0; left: 0; width: 100%;
+    position: relative; /* Đổi từ fixed sang relative để header cuộn cùng nội dung */
+    left: 0;
+    width: 100%;
     height: var(--header-height);
-    background-color: #fff; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    display: flex; align-items: center; padding: 0 50px; box-sizing: border-box;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 20px 50px;
+    box-sizing: border-box;
 }
-*/
+
+/* Đảm bảo nav căn giữa nội dung */
+header.header-fixed nav {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
 body {
-    /* Đẩy nội dung xuống dưới header cố định */
-    padding-top: var(--header-height); /* Dùng biến CSS */
+    padding-top: var(--header-height); /* Giảm padding-top vì header không còn cố định */
     margin: 0;
-    background-color: #fff; /* Nền trắng mặc định */
-    overflow-x: hidden; /* Tránh thanh cuộn ngang */
+    background-color: #fff;
+    overflow-x: hidden;
 }
 
 /* --- Styling cho từng mục menu --- */
 .menu-item {
-    display: flex; /* Chỉ để chứa .menu-content */
+    display: flex;
     width: 100%;
-    position: relative; /* Cho phép định vị tuyệt đối image-wrapper */
-    min-height: 85vh; /* Chiều cao tối thiểu */
-    overflow: hidden; /* Cắt bỏ phần thừa nếu cần */
+    position: relative;
+    min-height: 85vh;
+    overflow: visible;
 }
 
 /* --- Nội dung bên trong section --- */
 .menu-content {
     display: flex;
     width: 100%;
-    position: relative; /* Mốc định vị chính cho ly cà phê */
+    position: relative;
 }
 
 /* --- Các cột nội dung --- */
 .menu-text,
 .menu-image-side {
-    flex-basis: 50%; /* Mỗi cột chiếm 50% */
+    flex-basis: 50%;
     padding-top: 60px;
     padding-bottom: 60px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-height: calc(85vh - 120px); /* Đảm bảo cột đủ cao */
-    position: relative; /* Cho z-index */
-    z-index: 1; /* Nằm dưới ly cà phê */
+    min-height: calc(85vh - 120px);
+    position: relative;
+    z-index: 1;
 }
 
 /* --- Cột nền trắng --- */
 .white-side {
     background-color: #fff;
 }
-.menu-item:not(.reverse) .white-side { /* Layout chuẩn: trắng bên TRÁI */
+.menu-item:not(.reverse) .white-side {
     align-items: flex-start;
     text-align: left;
     padding-left: var(--base-padding-percent);
-    /* Padding lớn bên PHẢI để chừa chỗ */
     padding-right: calc(var(--image-overlap-compensation) + var(--base-padding-percent));
 }
-.menu-item.reverse .white-side { /* Layout đảo: trắng bên PHẢI */
+.menu-item.reverse .white-side {
     align-items: flex-end;
     text-align: right;
     padding-right: var(--base-padding-percent);
-    /* Padding lớn bên TRÁI */
     padding-left: calc(var(--image-overlap-compensation) + var(--base-padding-percent));
 }
 
 /* --- Cột có ảnh nền xanh --- */
 .menu-image-side {
     background-repeat: no-repeat;
-    background-size: cover; /* Phủ kín div */
-    position: relative; /* Cần để chứa text */
-    z-index: 0; /* Nằm dưới white-side nếu ảnh nền hơi tràn */
+    background-size: cover;
+    position: relative;
+    z-index: 0;
+    overflow: visible;
 }
-/* Ảnh nền và căn chỉnh text P */
-.menu-item:not(.reverse) .menu-image-side { /* Layout chuẩn: xanh bên PHẢI */
-    background-image: url('/images/background-wave-right.png'); /* THAY TÊN FILE */
+.menu-item:not(.reverse) .menu-image-side {
+    background-image: url('/images/background-wave-right.png');
     background-position: left center;
-    /* Padding lớn bên TRÁI */
     padding-left: calc(var(--image-overlap-compensation) + var(--base-padding-percent));
     padding-right: var(--base-padding-percent);
-    align-items: flex-start; /* Căn trái text P */
+    align-items: flex-start;
 }
-.menu-item.reverse .menu-image-side { /* Layout đảo: xanh bên TRÁI */
-    background-image: url('/images/background-wave-left.png'); /* THAY TÊN FILE */
+.menu-item.reverse .menu-image-side {
+    background-image: url('/images/background-wave-left.png');
     background-position: right center;
-    /* Padding lớn bên PHẢI */
     padding-right: calc(var(--image-overlap-compensation) + var(--base-padding-percent));
     padding-left: var(--base-padding-percent);
-    align-items: flex-end; /* Căn phải text P */
+    align-items: flex-end;
 }
 
 /* --- Định dạng chữ --- */
 .white-side h2 {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 75px;
+    font-size: 100px;
     font-weight: 700;
     line-height: 1.1;
-    margin: 0; /* Reset margin */
+    margin: 0;
     color: #000b2c;
     position: relative;
-    z-index: 2; /* Đảm bảo trên các yếu tố khác nếu cần */
+    z-index: 2;
 }
 
 .menu-image-side p {
     font-family: 'Open Sans', sans-serif;
-    font-size: 15px;
+    font-size: 20px;
     line-height: 1.7;
     color: #ccc;
-    max-width: 350px; /* Giảm max-width */
-    width: 100%; /* Cho phép co giãn */
-    margin: 0; /* Reset margin */
+    max-width: 350px;
+    width: 100%;
+    margin: 0;
     position: relative;
-    z-index: 2; /* Đảm bảo trên ảnh nền */
+    z-index: 2;
 }
 .menu-item.reverse .menu-image-side p { text-align: right; }
 .menu-item:not(.reverse) .menu-image-side p { text-align: left; }
 
-/* --- Nút Order Now (Chỉ ở cột trắng) --- */
+/* --- Nút Order Now --- */
 .white-side .btn {
     padding: 15px 35px;
     font-size: 18px;
@@ -142,75 +146,69 @@ body {
     margin-top: 40px;
     position: relative;
     z-index: 2;
-    transition: background-color 0.3s ease; /* Hiệu ứng hover */
+    transition: background-color 0.3s ease;
 }
-
 .white-side .btn:hover {
-    background-color: #e43a00; /* Màu tối hơn khi hover */
+    background-color: #e43a00;
 }
 
-/* --- Ảnh ly cà phê (Định vị tuyệt đối) --- */
+/* --- Ảnh ly cà phê --- */
 .image-wrapper {
     position: absolute;
     top: 50%;
-    left: calc(50% - var(--boundary-adjustment)); /* Dịch chuyển để nằm đúng giao thoa */
+    left: calc(50% - var(--boundary-adjustment));
     transform: translate(-50%, -50%);
-    z-index: 3; /* Nổi lên trên cùng */
-
+    z-index: 10;
     border: 6px solid #ff4b00;
     border-radius: 50%;
     padding: 12px;
     background-color: #ffffff;
     box-shadow: 0 5px 20px rgba(255, 75, 0, 0.3);
     width: var(--image-max-width);
-    max-width: 90%; /* Giới hạn để không quá lớn trên màn hình hẹp */
+    max-width: 90%;
     box-sizing: border-box;
-    transition: transform 0.3s ease; /* Hiệu ứng hover */
+    transition: transform 0.3s ease;
+    display: block;
 }
-
 .menu-item.reverse .image-wrapper {
-    left: calc(50% + var(--boundary-adjustment)); /* Dịch chuyển ngược lại cho layout đảo */
+    left: calc(50% + var(--boundary-adjustment));
 }
-
 .image-wrapper:hover {
-    transform: translate(-50%, -50%) scale(1.05); /* Phóng to nhẹ khi hover */
+    transform: translate(-50%, -50%) scale(1.05);
 }
-
 .image-wrapper img {
     display: block;
     width: 100%;
     height: auto;
     border-radius: 50%;
+    object-fit: cover;
 }
 
 /* --- Responsive --- */
-@media (max-width: 1100px) { /* Điều chỉnh điểm breakpoint nếu cần */
-    /* Giảm kích thước ảnh và khoảng đệm tương ứng khi màn hình hẹp hơn */
+@media (max-width: 1100px) {
     :root {
-        --image-max-width: 280px;
+        --image-max-width: 240px;
         --image-overlap-compensation: calc(var(--image-max-width) / 2 + 30px);
-        --boundary-adjustment: calc(var(--image-overlap-compensation) / 2);
+        --boundary-adjustment: calc(var(--image-overlap-compensation) * 2);
     }
-    .white-side h2 { font-size: 60px; }
+    .white-side h2 { font-size: 50px; }
     .menu-text, .menu-image-side { padding-top: 40px; padding-bottom: 40px; }
 }
 
 @media (max-width: 768px) {
-    /* Reset biến trên mobile nếu cần */
     :root {
-        --header-height: 60px; /* Giảm chiều cao header giả định */
-        --image-max-width: 200px; /* Ảnh nhỏ hơn nữa */
-        --image-overlap-compensation: 0; /* Không cần overlap trên mobile */
-        --boundary-adjustment: 0; /* Không cần điều chỉnh trên mobile */
+        --header-height: 60px;
+        --image-max-width: 180px;
+        --image-overlap-compensation: 0;
+        --boundary-adjustment: 0;
     }
-    body { padding-top: var(--header-height); } /* Cập nhật padding body */
+    body { padding-top: var(--header-height); } /* Điều chỉnh padding-top */
     .menu-item { min-height: auto; }
     .menu-content { flex-direction: column !important; }
-
     .menu-text, .menu-image-side {
         flex-basis: auto;
         width: 100%;
-        padding: 40px 8% !important; /* Reset padding */
+        padding: 40px 8% !important;
         min-height: auto;
         align-items: center;
         text-align: center;
@@ -219,36 +217,30 @@ body {
         z-index: auto;
     }
     .white-side { background-color: #fff; padding-bottom: 20px; }
-    .menu-image-side { background-color: #000b2c; padding-top: 40px; } /* Tăng padding top cho phần xanh */
-
-    .white-side h2 { font-size: 50px; text-align: center !important; color: #000b2c; margin-bottom: 20px; }
-    .menu-image-side p { text-align: center !important; max-width: 90%; color: #ccc; margin-top: 0; } /* Bỏ margin-top vì ảnh giờ dùng margin-bottom */
-
+    .menu-image-side { background-color: #000b2c; padding-top: 40px; }
+    .white-side h2 { font-size: 40px; }
+    .menu-image-side p { text-align: center !important; max-width: 90%; color: #ccc; margin-top: 0; }
     .white-side .btn { margin-top: 30px; }
-
-    /* Ly cà phê trở lại bình thường */
     .image-wrapper {
         position: static;
         transform: none;
-        margin: 0 auto 30px auto; /* Căn giữa, margin dưới */
-        width: var(--image-max-width); /* Dùng biến */
-        max-width: 60%; /* Giới hạn tương đối */
+        margin: 0 auto 30px auto;
+        width: var(--image-max-width);
+        max-width: 60%;
+        display: block;
     }
-
-    /* Reset thứ tự */
     .menu-item:not(.reverse) .menu-text,
     .menu-item.reverse .menu-image-side { order: 1; }
     .menu-item:not(.reverse) .menu-image-side,
     .menu-item.reverse .menu-text { order: 2; }
 }
 
-/* --- Điều chỉnh cho màn hình rất nhỏ (dưới 480px) --- */
 @media (max-width: 480px) {
     :root {
-        --image-max-width: 180px; /* Ảnh nhỏ hơn nữa */
+        --image-max-width: 160px;
     }
-    .white-side h2 { font-size: 40px; }
-    .menu-image-side p { font-size: 14px; }
+    .white-side h2 { font-size: 36px; }
+    .menu-image-side p { font-size: 15px; }
     .white-side .btn {
         padding: 12px 30px;
         font-size: 16px;
