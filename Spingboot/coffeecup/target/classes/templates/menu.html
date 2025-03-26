@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoffeeCup - Menu</title>
+    <!-- Link CSS chung -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- Link CSS dành riêng cho trang Menu -->
+    <link rel="stylesheet" th:href="@{/css/menu.css}">
+    <!-- Thêm font từ Google Fonts (Cần Cormorant Garamond và Open Sans) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;700&family=Open+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Header (Đảm bảo có class header-fixed nếu muốn cố định) -->
+<header class="header-fixed">
+    <nav>
+        <ul>
+            <li><a th:href="@{/}">Home</a></li>
+            <li><a th:href="@{/about}">About</a></li>
+            <li><a th:href="@{/menu}" class="active">Menu</a></li>
+            <li><a th:href="@{/blog}">Blog</a></li>
+            <li><a th:href="@{/shop}">Shop</a></li>
+            <li><a th:href="@{/contact}">Contact</a></li>
+        </ul>
+        <div class="logo">
+            <img th:src="@{/images/logo.png}" alt="CoffeeCup Logo">
+            <span class="logo-text">CoffeeCup</span>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <!-- Dark Coffees Section -->
+    <section id="dark-coffee-section" class="menu-item">
+        <div class="menu-content">
+            <!-- Phần nền trắng -->
+            <div class="menu-text white-side">
+                <h2>Dark<br>Coffees</h2>
+                <a th:href="@{/order}" class="btn">Order Now</a>
+            </div>
+            <!-- Phần ảnh nền xanh -->
+            <div class="menu-image-side blue-side-right">
+                <!-- Ảnh nền xanh sẽ được đặt bằng background-image của div này -->
+                <div class="image-wrapper"> <!-- Ly cafe chồng lên -->
+                    <img th:src="@{/images/dark_coffees.png}" alt="Dark Coffee">
+                </div>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ea commodo consequat. Duis aut dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cold Coffees Section -->
+    <section id="cold-coffee-section" class="menu-item reverse">
+        <div class="menu-content">
+            <!-- Phần ảnh nền xanh (đến trước trong flex reverse) -->
+            <div class="menu-image-side blue-side-left">
+                <!-- Ảnh nền xanh cong trái -->
+                <div class="image-wrapper"> <!-- Ly cafe chồng lên -->
+                    <img th:src="@{/images/cold_coffees.png}" alt="Cold Coffee">
+                </div>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ea commodo consequat. Duis aut dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            </div>
+            <!-- Phần nền trắng -->
+            <div class="menu-text white-side">
+                <h2>Cold<br>Coffees</h2>
+                <a th:href="@{/order}" class="btn">Order Now</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hot Coffees Section -->
+    <section id="hot-coffee-section" class="menu-item">
+        <div class="menu-content">
+            <!-- Phần nền trắng -->
+            <div class="menu-text white-side">
+                <h2>Hot<br>Coffees</h2>
+                <a th:href="@{/order}" class="btn">Order Now</a>
+            </div>
+            <!-- Phần ảnh nền xanh -->
+            <div class="menu-image-side blue-side-right">
+                <!-- Ảnh nền xanh cong phải -->
+                <div class="image-wrapper"> <!-- Ly cafe chồng lên -->
+                    <img th:src="@{/images/hot_coffees.png}" alt="Hot Coffee">
+                </div>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ea commodo consequat. Duis aut dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            </div>
+        </div>
+    </section>
+</main>
+
+</body>
+</html>

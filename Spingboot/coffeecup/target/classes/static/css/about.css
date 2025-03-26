@@ -1,0 +1,281 @@
+/* --- CSS Dành Riêng Cho Trang About (Gift Voucher & About Us) --- */
+
+/* Container chung cho nội dung chính */
+.about-page-container {
+    /* Không cần padding/margin ở đây */
+}
+
+/* --- Gift Voucher Section --- */
+.gift-voucher-section {
+    padding: 50px 5% 80px 5%;
+    margin-top: 200px;
+
+    background-color: #ffffff; /* Nền trắng */
+    max-width: 1100px; /* Giới hạn chiều rộng */
+    /* Căn giữa và đặt margin-bottom */
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 50px;
+
+    position: relative; /* Để định vị chiếc lá */
+    border: 2px solid #000b2c; /* Viền xanh bao quanh */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05); /* Bóng đổ nhẹ */
+    box-sizing: border-box; /* Tính padding và border đúng */
+}
+
+/* Các style còn lại của Gift Voucher giữ nguyên */
+.gv-content {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+}
+
+.gv-left-col {
+    flex-basis: 40%;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+.gv-circle {
+    width: 280px;
+    height: 280px;
+    background-color: #000b2c;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    position: relative;
+    overflow: visible;
+    border: 4px solid #ff4b00; /* Viền cam bên trong */
+    box-shadow: 0 0 15px rgba(0,11,44,0.2);
+}
+
+.bean-icon {
+    width: 50px;
+    height: auto;
+    margin-bottom: 10px;
+    opacity: 0.8;
+}
+
+.free-text {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 60px;
+    font-weight: 700;
+    line-height: 1;
+    color: #ffffff;
+}
+
+.gv-leaf {
+    position: absolute;
+    width: 170px;
+    height: auto;
+    bottom: -15px;
+    left: 65%;
+    transform: rotate(25deg);
+    z-index: 5;
+}
+
+.gv-right-col {
+    flex: 1;
+}
+
+.gv-right-col h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 55px;
+    color: #000b2c;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+.gv-cup-text {
+    font-family: 'Open Sans', sans-serif;
+    background-color: #fec8a0;
+    color: #1e1e1e;
+    padding: 10px 25px;
+    border-radius: 10px;
+    display: inline-block;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 25px;
+}
+
+.gv-description {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 15px;
+    color: #555;
+    line-height: 1.7;
+    max-width: 450px;
+}
+
+/* --- About Us Section --- */
+.about-us-section {
+    background-color: #f8f9fa; /* Màu nền xám rất nhạt */
+    padding: 80px 5%; /* Padding: top, trái/phải, bottom */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto; /* Căn giữa nếu cần */
+    max-width: 1100px; /* Giữ cùng max-width với section trên */
+    box-sizing: border-box;
+    /* Không có viền xanh ở đây */
+}
+
+/* Container chứa text */
+.about-us-content {
+    max-width: 800px;
+    width: 100%;
+    text-align: center;
+}
+
+.about-us-content h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 60px;
+    color: #000b2c;
+    font-weight: 700;
+    margin-bottom: 40px;
+}
+
+.about-us-content p {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    color: #343a40;
+    line-height: 1.8;
+    text-align: left;
+    margin-bottom: 25px;
+}
+
+
+/* --- Responsive --- */
+@media (max-width: 992px) {
+    .gift-voucher-section {
+        margin-top: 100px; /* Điều chỉnh margin-top */
+        padding-top: 40px; /* Giữ padding top nhỏ */
+    }
+    /* ... các style responsive khác giữ nguyên ... */
+    .gv-circle {
+        width: 240px;
+        height: 240px;
+        border-width: 3px; /* Viền cam bên trong */
+    }
+    .gv-leaf {
+        width: 140px;
+        bottom: -10px;
+        left: 60%;
+    }
+    .gv-right-col h2 {
+        font-size: 45px;
+    }
+    .gv-cup-text {
+        font-size: 18px;
+        padding: 8px 20px;
+    }
+    .about-us-content h2 {
+        font-size: 50px;
+    }
+}
+
+@media (max-width: 768px) {
+    .gift-voucher-section {
+        margin-top: 120px; /* Điều chỉnh margin-top */
+        padding-top: 40px; /* Giữ padding top nhỏ */
+        padding-bottom: 60px;
+        border-width: 3px; /* Viền xanh bao ngoài mỏng hơn */
+        margin-bottom: 30px;
+    }
+    /* ... các style responsive khác giữ nguyên ... */
+    .gv-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    .gv-left-col {
+        margin-bottom: 60px;
+        width: 100%;
+        flex-basis: auto;
+    }
+    .gv-circle {
+        margin: 0 auto;
+    }
+    .gv-leaf {
+        width: 130px;
+        bottom: -30px;
+        left: 50%;
+        transform: translateX(25%) rotate(15deg);
+        z-index: 1;
+    }
+    .gv-right-col {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .gv-description {
+        max-width: 90%;
+    }
+    .about-us-section {
+        padding: 60px 5%;
+    }
+    .about-us-content h2 {
+        font-size: 45px;
+        margin-bottom: 30px;
+    }
+    .about-us-content p {
+        font-size: 15px;
+        line-height: 1.7;
+    }
+}
+
+@media (max-width: 480px) {
+    .gift-voucher-section {
+        margin-top: 100px; /* Điều chỉnh margin-top */
+        padding-top: 30px; /* Giữ padding top nhỏ */
+    }
+    /* ... các style responsive khác giữ nguyên ... */
+    .gv-circle {
+        width: 200px;
+        height: 200px;
+        border-width: 3px; /* Viền cam bên trong */
+    }
+    .bean-icon {
+        width: 35px;
+    }
+    .free-text {
+        font-size: 40px;
+    }
+    .gv-leaf {
+        width: 110px;
+        bottom: -25px;
+        transform: translateX(20%) rotate(10deg);
+    }
+    .gv-right-col h2 {
+        font-size: 35px;
+    }
+    .gv-cup-text {
+        font-size: 16px;
+    }
+    .about-us-content h2 {
+        font-size: 35px;
+    }
+    .about-us-content p {
+        font-size: 14px;
+    }
+}
+
+/* --- Đảm bảo style Header hoạt động --- */
+/* Các style này NÊN nằm trong style.css chung */
+/*
+header {
+    position: fixed; // Hoặc sticky
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: white; // Hoặc màu nền header của bạn
+    z-index: 1000;
+    height: 80px; // Chiều cao thực tế của header
+    padding: 20px 50px; // Ví dụ padding
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); // Ví dụ bóng đổ
+    box-sizing: border-box;
+}
+*/
+/* ... (phần còn lại của style header) ... */

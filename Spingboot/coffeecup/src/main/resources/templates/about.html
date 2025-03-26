@@ -6,54 +6,69 @@
     <title>CoffeeCup - About Us</title>
     <!-- Link CSS chung -->
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <!-- Link CSS dành riêng cho trang About (nên đặt SAU style.css) -->
+    <!-- Link CSS dành riêng cho trang About -->
     <link rel="stylesheet" th:href="@{/css/about.css}">
-    <!-- Thêm font từ Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        /* CSS tạm thời để căn giữa ảnh - Bạn có thể chuyển vào about.css */
-        .about-page-content {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding-top: 80px; /* Thêm padding top để nội dung không bị header che khuất, điều chỉnh nếu cần */
-            padding-bottom: 40px; /* Thêm padding dưới cùng */
-            min-height: calc(100vh - 80px); /* Chiều cao tối thiểu trừ đi chiều cao header (ước lượng) */
-            box-sizing: border-box;
-        }
+    <!-- Thêm font từ Google Fonts (Cần Cormorant Garamond và Open Sans) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,700;1,500&family=Open+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-        .about-main-image {
-            display: block;
-            max-width: 90%; /* Giới hạn chiều rộng tối đa, điều chỉnh nếu cần */
-            height: auto;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Thêm bóng đổ nhẹ nhàng hơn */
-            border-radius: 8px; /* Bo góc nhẹ (tùy chọn) */
-        }
-
-        /* Có thể bạn cần định nghĩa class này trong style.css hoặc about.css */
-        /* Ví dụ:
-        .about-page-body {
-             background-color: #f8f8f8; // Hoặc màu nền bạn muốn
-        }
-        */
-    </style>
 </head>
-<body class="about-page-body"> <!-- Thêm class để áp dụng style nền nếu cần -->
-<main class="about-page-content">
-    <!--
-        Quan trọng: Đảm bảo đường dẫn trong th:src chính xác
-        trỏ đến hình ảnh của bạn trong thư mục static (ví dụ: static/images/your_about_image.png)
-        và đổi tên "your_about_image.png" thành tên file thực tế.
-    -->
-    <img th:src="@{/images/voucher.png}"
-         alt="Giới thiệu về CoffeeCup và Voucher Cà Phê Miễn Phí"
-         class="about-main-image">
+<body>
+
+<!-- Header (Giống các trang khác, đảm bảo 'About' là active) -->
+<header> <!-- Thêm class header-fixed nếu muốn header dính -->
+    <nav>
+        <ul>
+            <li><a th:href="@{/}">Home</a></li>
+            <li><a th:href="@{/about}" class="active">About</a></li> <!-- About is active -->
+            <li><a th:href="@{/menu}">Menu</a></li>
+            <li><a th:href="@{/blog}">Blog</a></li>
+            <li><a th:href="@{/shop}">Shop</a></li>
+            <li><a th:href="@{/contact}">Contact</a></li>
+        </ul>
+        <div class="logo">
+            <img th:src="@{/images/logo.png}" alt="CoffeeCup Logo">
+            <span class="logo-text">CoffeeCup</span>
+        </div>
+    </nav>
+</header>
+
+<!-- Container chính cho nội dung trang About -->
+<main class="about-page-container">
+
+    <!-- Gift Voucher Section (Đã chuyển vào đây) -->
+    <section class="gift-voucher-section">
+        <div class="gv-content">
+            <div class="gv-left-col">
+                <div class="gv-circle">
+                    <img th:src="@{/images/logo.png}" alt="Coffee Bean Icon" class="bean-icon">
+                    <span class="free-text">FREE</span>
+                </div>
+                <!-- Ảnh chiếc lá được đặt absolute -->
+                <img th:src="@{/images/leaf.png}" alt="Leaf" class="gv-leaf">
+            </div>
+            <div class="gv-right-col">
+                <h2>Gift Voucher</h2>
+                <p class="gv-cup-text">1 Cup of Coffee</p>
+                <p class="gv-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Us Section (Nằm dưới Gift Voucher) -->
+    <section class="about-us-section">
+        <div class="about-us-content">
+            <h2>About Us</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</p>
+        </div>
+    </section>
+
 </main>
 
-<!-- Bạn có thể thêm Footer ở đây nếu website của bạn có Footer chung -->
+<!-- Footer (Nếu có) -->
 <!--
 <footer>
-    <p>© 2023 CoffeeCup. All rights reserved.</p>
+     ...
 </footer>
 -->
 

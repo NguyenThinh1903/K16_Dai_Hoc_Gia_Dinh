@@ -1,0 +1,130 @@
+/* Reset mặc định */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+
+/* Hero Section */
+.hero {
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+/* Header */
+header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 100px 50px;
+    background: transparent;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+}
+
+nav ul li {
+    margin-right: 100px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #000b2c;
+    font-size: 22px;
+    font-weight: 700;
+    padding-bottom: 5px;
+    transition: border-bottom 0.3s ease;
+}
+
+nav ul li a:hover {
+    border-bottom: 2px solid #ff4b00;
+}
+
+nav ul li a.active {
+    border-bottom: 2px solid #ff4b00;
+}
+
+/* Logo và dòng chữ CoffeeCup */
+.logo {
+    display: flex;
+    align-items: center;
+    padding-right: 130px;
+}
+
+.logo img {
+    height: 40px;
+    margin-right: 10px;
+    filter: brightness(0) invert(1);
+}
+
+.logo .logo-text {
+    color: #FFFFFF;
+    font-size: 35px;
+    font-weight: 200;
+    font-family: 'Open Sans', sans-serif;
+}
+
+/* Hero Content */
+.hero-content {
+    max-width: 500px;
+    padding-left: 50px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.hero-content h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 130px;
+    color: #000b2c;
+    font-style: italic;
+    font-weight: 500;
+}
+
+/* --- CSS Rule đã thay đổi --- */
+.hero-content h2 {
+    font-family: "Myriad Pro", Arial, Helvetica, sans-serif; /* Ưu tiên Myriad Pro, nếu không có dùng Arial/Helvetica */
+    font-weight: 400; /* Hoặc font-weight: normal; để chỉ định weight Regular */
+    color: #ff4b00;
+    font-size: 23px;
+    margin: 10px 0;
+    letter-spacing: 3px;
+}
+/* --- Hết phần thay đổi --- */
+
+.hero-content p {
+    color: #000b2c;
+    font-size: 20px;
+    margin-bottom: 20px;
+    /* Font mặc định Open Sans sẽ được sử dụng ở đây */
+}
+
+.btn {
+    display: inline-block;
+    background-color: #ff4b00;
+    color: white;
+    padding: 20px 30px;
+    text-decoration: none;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 25px;
+}
+
+.btn:hover {
+    background-color: #e69520;
+}
