@@ -3,143 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoffeeCup - Shop Info</title> <!-- Đổi Title -->
+    <title>CoffeeCup - Shop Info</title>
     <!-- Link CSS chung -->
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <!-- Link CSS dành riêng cho trang Shop (nên đặt SAU style.css) -->
-    <link rel="stylesheet" th:href="@{/css/shop.css}"> <!-- Đổi CSS file -->
-    <!-- Thêm font từ Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        /* --- CSS TẠM THỜI - Nên chuyển vào shop.css và style.css --- */
-
-        /* --- Style chung cho Body và Header cố định (Copy từ ví dụ trước) --- */
-        body {
-            padding-top: 80px; /* !!! ĐIỀU CHỈNH GIÁ TRỊ NÀY THEO CHIỀU CAO HEADER CỦA BẠN !!! */
-            margin: 0;
-            font-family: 'Open Sans', sans-serif;
-        }
-
-        .header-fixed {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: #fff;
-            z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            height: 80px; /* !!! Đặt chiều cao header thực tế ở đây !!! */
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-        }
-        .header-fixed nav { width: 100%; display: flex; justify-content: space-between; align-items: center; }
-        .header-fixed nav ul { list-style: none; padding: 0; margin: 0; display: flex; }
-        .header-fixed nav ul li { margin: 0 15px; }
-        .header-fixed nav ul li a { text-decoration: none; color: #333; font-weight: 500; }
-        .header-fixed nav ul li a.active { color: #ff4b00; font-weight: 700; }
-        .header-fixed .logo { display: flex; align-items: center; }
-        .header-fixed .logo img { height: 50px; margin-right: 10px; }
-        .header-fixed .logo .logo-text { font-family: 'Dancing Script', cursive; font-size: 28px; color: #333; }
-
-        /* --- CSS Dành Riêng Cho Trang Shop --- */
-        body.shop-page-body {
-            background-color: #f4f4f4; /* Nền xám rất nhạt cho trang shop */
-            color: #333; /* Màu chữ mặc định tối */
-        }
-
-        .shop-page-content {
-            display: flex;
-            flex-direction: column; /* Xếp các section theo chiều dọc */
-            align-items: center; /* Căn giữa các section theo chiều ngang */
-            padding: 40px 20px; /* Padding trên/dưới và trái/phải */
-            gap: 50px; /* Khoảng cách giữa các section (giờ mở cửa và chi nhánh) */
-        }
-
-        .shop-section {
-            width: 100%;
-            max-width: 1000px; /* Giới hạn chiều rộng tối đa của các section */
-            display: flex; /* Sử dụng flex để dễ căn chỉnh nội dung bên trong nếu cần */
-            justify-content: center; /* Căn giữa hình ảnh bên trong section */
-        }
-
-        .shop-image {
-            display: block; /* Hiển thị ảnh như một khối */
-            max-width: 100%; /* Ảnh sẽ co lại nếu section hẹp hơn */
-            height: auto; /* Giữ tỷ lệ khung hình */
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
-            border-radius: 8px; /* Bo góc nhẹ (tùy chọn) */
-        }
-
-        /* --- Responsive (Ví dụ cơ bản) --- */
-        @media (max-width: 768px) {
-            body {
-                padding-top: 60px; /* Giảm padding nếu header thu nhỏ */
-            }
-            .header-fixed { height: 60px; }
-            .header-fixed nav ul { display: none; } /* Ẩn menu chính */
-            /* Thêm các điều chỉnh khác cho header mobile nếu cần */
-
-            .shop-page-content {
-                padding: 30px 15px;
-                gap: 30px;
-            }
-        }
-
-    </style>
+    <!-- Link CSS dành riêng cho trang Shop -->
+    <link rel="stylesheet" th:href="@{/css/shop.css}">
+    <!-- Thêm font từ Google Fonts (Cần Cormorant Garamond và Open Sans) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=Open+Sans:wght@300;400&display=swap" rel="stylesheet">
 </head>
-<body class="shop-page-body"> <!-- Class body riêng cho trang Shop -->
+<body> <!-- Bỏ class shop-page-body nếu không cần style nền riêng -->
 
-<!-- Header Cố Định -->
-<header class="header-fixed">
+<!-- Header (Đảm bảo 'Shop' là active) -->
+<header class="header-fixed"> <!-- Giả sử dùng class này -->
     <nav>
         <ul>
             <li><a th:href="@{/}">Home</a></li>
             <li><a th:href="@{/about}">About</a></li>
             <li><a th:href="@{/menu}">Menu</a></li>
             <li><a th:href="@{/blog}">Blog</a></li>
-            <li><a th:href="@{/shop}" class="active">Shop</a></li> <!-- Active link -->
+            <li><a th:href="@{/shop}" class="active">Shop</a></li> <!-- Shop is active -->
             <li><a th:href="@{/contact}">Contact</a></li>
         </ul>
         <div class="logo">
             <img th:src="@{/images/logo.png}" alt="CoffeeCup Logo">
             <span class="logo-text">CoffeeCup</span>
         </div>
-        <!-- Thêm nút burger menu cho mobile ở đây nếu cần -->
     </nav>
 </header>
 
-<!-- Nội Dung Chính Trang Shop -->
-<main class="shop-page-content">
+<!-- Nội dung chính trang Shop -->
+<main class="shop-page-container">
 
     <!-- Section Giờ Mở Cửa -->
-    <section class="shop-section opening-hours-section">
-        <!--
-            Quan trọng: Thay đổi "opening_hours.png" thành tên file ảnh giờ mở cửa thực tế
-            và đảm bảo nó nằm trong thư mục static/images.
-        -->
-        <img th:src="@{/images/opening_hours.png}"
-             alt="CoffeeCup Opening Hours: Monday-Friday 8:00am-11:30pm, Saturday-Sunday 9:00am-10:30pm"
-             class="shop-image">
+    <section class="opening-hours-section">
+        <h2 class="section-title">We are Open</h2>
+        <div class="hours-blocks">
+            <div class="hour-block">
+                <p class="days">Monday - Friday</p>
+                <p class="time">8:00 am - 11:30 pm</p>
+            </div>
+            <div class="hour-block">
+                <p class="days">Saturday and Sunday</p>
+                <p class="time">9:00 am - 10:30 pm</p>
+            </div>
+        </div>
     </section>
 
     <!-- Section Chi Nhánh -->
-    <section class="shop-section branches-section">
-        <!--
-            Quan trọng: Thay đổi "branches.png" thành tên file ảnh chi nhánh thực tế
-            và đảm bảo nó nằm trong thư mục static/images.
-        -->
-        <img th:src="@{/images/branches.png}"
-             alt="CoffeeCup Branches in New York, Texas, and New Jersey"
-             class="shop-image">
+    <section class="branches-section">
+        <h2 class="section-title">Our Branches</h2>
+        <div class="branch-cards">
+            <!-- Chi nhánh 1: New York -->
+            <div class="branch-card">
+                <img th:src="@{/images/branch-ny.jpg}" alt="New York Branch" class="branch-image"> <!-- <<-- THAY TÊN FILE -->
+                <div class="branch-info">
+                    <h3 class="branch-name">New York</h3>
+                    <p class="branch-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation</p>
+                </div>
+            </div>
+            <!-- Chi nhánh 2: Texas -->
+            <div class="branch-card">
+                <img th:src="@{/images/branch-tx.jpg}" alt="Texas Branch" class="branch-image"> <!-- <<-- THAY TÊN FILE -->
+                <div class="branch-info">
+                    <h3 class="branch-name">Texas</h3>
+                    <p class="branch-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation</p>
+                </div>
+            </div>
+            <!-- Chi nhánh 3: New Jersey -->
+            <div class="branch-card">
+                <img th:src="@{/images/branch-nj.jpg}" alt="New Jersey Branch" class="branch-image"> <!-- <<-- THAY TÊN FILE -->
+                <div class="branch-info">
+                    <h3 class="branch-name">New Jersy</h3> <!-- Lưu ý chính tả: Jersey -->
+                    <p class="branch-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation</p>
+                </div>
+            </div>
+        </div>
     </section>
 
 </main>
 
-<!-- Footer (nếu có) -->
+<!-- Footer (Nếu có) -->
 <!--
 <footer>
-    <p>© 2023 CoffeeCup. All rights reserved.</p>
+     ...
 </footer>
 -->
 

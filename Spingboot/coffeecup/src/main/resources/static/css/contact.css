@@ -1,148 +1,253 @@
-/* --- START OF FILE contact.css --- */
+/* --- CSS Dành Riêng Cho Trang Contact (Hoàn Chỉnh) --- */
 
-/* Reset mặc định */
+/* --- Biến CSS (Để dễ dàng chỉnh sửa) --- */
+:root {
+    /* Màu sắc */
+    --dark-blue: #000b2c;
+    --primary-text-color: #fcf8f5; /* Màu chữ trắng ngà */
+    --orange-accent-color: #ff4c00; /* Màu cam cho hover/active/icon */
+
+    /* Font chữ */
+    --main-font: 'Proza Libre', sans-serif;
+
+    /* Kích thước */
+    --base-font-size: 20px;
+    --title-font-size: 38px;   /* Giảm nhẹ cho cân đối */
+    --logo-text-size: 42px;   /* Giảm nhẹ cho cân đối */
+    --logo-image-height: 50px;
+    --icon-height: 22px;
+    --container-max-width: 1200px;
+
+    /* Khoảng cách */
+    --header-padding-top: 60px;
+    --footer-padding-top: 80px;
+    --footer-padding-bottom: 60px;
+    --info-contact-gap: 80px;
+    --footer-link-gap: 60px; /* Tăng từ 40px lên 60px để giãn cách chữ */
+    --social-icon-gap: 25px;
+    --list-item-gap: 18px; /* Khoảng cách dọc giữa các mục trong list */
+}
+
+/* --- Reset & Body Setup --- */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+html {
+    height: 100%;
+}
+
 body {
-    font-family: 'Proza Libre', sans-serif;
-    color: #fcf8f5;
-    background-color: #000b2c;
-    min-height: 100vh; /* Đảm bảo body chiếm ít nhất toàn bộ chiều cao màn hình */
+    font-family: var(--main-font);
+    color: var(--primary-text-color);
+    background-color: var(--dark-blue);
+    min-height: 100%;
     display: flex;
-    flex-direction: column; /* Sắp xếp header, main, footer theo chiều dọc */
+    flex-direction: column;
 }
 
 /* **** Container Chung **** */
 .container {
-    width: 90%; /* Chiếm 90% chiều rộng của phần tử cha */
-    /* ===== CHÚ THÍCH 1: ĐIỀU CHỈNH CHIỀU RỘNG TỐI ĐA CONTAINER ===== */
-    /* Tăng giá trị này (ví dụ: 1200px, 1280px, 1360px) sẽ làm khu vực nội dung rộng ra, */
-    /* đẩy các phần tử ở hai bên ra xa nhau hơn và gần lề màn hình hơn. */
-    /* Giảm giá trị này sẽ làm chúng gần nhau hơn và cách xa lề màn hình hơn. */
-    max-width: 1280px; /* <<<<------ THAY ĐỔI GIÁ TRỊ NÀY */
-    margin-left: auto;  /* Tự động căn lề trái */
-    margin-right: auto; /* Tự động căn lề phải => Căn giữa container */
-    /* border: 1px solid red; */ /* Bỏ comment để xem đường viền container */
+    width: 90%;
+    max-width: var(--container-max-width);
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* ---- Header ---- */
 header {
-    width: 100%; /* Header chiếm toàn bộ chiều rộng */
-    /* ===== CHÚ THÍCH 2: ĐIỀU CHỈNH KHOẢNG CÁCH TỪ ĐỈNH TRANG ===== */
-    /* Tăng/giảm giá trị padding-top này để đẩy toàn bộ header (logo và info/contact) lên hoặc xuống. */
-    padding-top: 300px; /* <<<<------ THAY ĐỔI GIÁ TRỊ NÀY */
+    width: 100%;
+    padding-top: calc(var(--header-padding-top) + 150px); /* Giữ nguyên yêu cầu của bạn */
+    padding-bottom: 40px; /* Khoảng cách dưới header */
 }
 
-/* Header Container dùng Flexbox */
 header .container {
-    display: flex; /* Sắp xếp logo và info/contact trên một hàng */
-    justify-content: space-between; /* Đẩy logo sang trái, info/contact sang phải */
-    align-items: flex-start; /* Căn các phần tử theo lề trên của chúng */
-    /* border: 1px dashed green; */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 30px;
 }
 
 /* Logo styles */
 .logo {
-    display: flex; /* Căn chỉnh ảnh và text logo */
-    align-items: center; /* Căn giữa theo chiều dọc */
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
 }
 .logo img {
-    height: 60px; /* Chiều cao ảnh logo */
-    margin-right: 15px; /* Khoảng cách giữa ảnh và text logo */
-    filter: brightness(0) invert(1); /* Đổi màu logo thành trắng */
+    height: var(--logo-image-height);
+    margin-right: 15px;
+    filter: brightness(0) invert(1); /* Logo trắng */
 }
 .logo .logo-text {
-    font-size: 60px; /* Cỡ chữ text logo */
-    font-weight: 700; /* Độ đậm chữ */
-    color: #fcf8f5; /* Màu chữ logo */
+    font-size: var(--logo-text-size);
+    font-weight: 700;
+    color: var(--primary-text-color);
+    white-space: nowrap;
 }
 
-/* Info/Contact styles (nằm trong header) */
+/* Info/Contact styles */
 .info-and-contact {
-    display: flex; /* Sắp xếp cột Info và cột Contact trên một hàng */
-    align-items: flex-start; /* Căn các cột theo lề trên */
-    gap: 100px; /* Khoảng cách ngang giữa cột Info và cột Contact */
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--info-contact-gap);
+    padding-top: 5px;
 }
 
-/* Font và khoảng cách bên trong info/contact */
 .info h3, .contact h3 {
-    margin-bottom: 30px; /* Khoảng cách dưới tiêu đề "Information." và "Contact Us." */
-    font-size: 40px; /* Cỡ chữ tiêu đề */
-    font-weight: bold; /* Độ đậm tiêu đề */
+    margin-bottom: 25px;
+    font-size: var(--title-font-size);
+    font-weight: 700;
+    color: var(--primary-text-color);
+    white-space: nowrap;
 }
 .info ul {
-    list-style: none; /* Bỏ dấu chấm đầu dòng */
-    padding: 0; /* Bỏ padding mặc định của ul */
+    list-style: none;
+    padding: 0;
 }
 .info ul li {
-    margin-bottom: 15px; /* Khoảng cách giữa các mục link (About us, Branches,...) */
+    margin-bottom: var(--list-item-gap);
 }
 .info ul li a, .contact p {
-    color: #fcf8f5; /* Màu chữ link và text contact */
-    text-decoration: none; /* Bỏ gạch chân link */
-    font-size: 20px; /* Cỡ chữ link và text contact */
+    color: var(--primary-text-color);
+    text-decoration: none;
+    font-size: var(--base-font-size);
 }
 .contact p {
-    margin-bottom: 15px; /* Khoảng cách giữa các dòng text contact (Support, email) */
+    margin-bottom: var(--list-item-gap);
 }
+/* Hover và Active styles */
 .info ul li a:hover, footer .nav-links a:hover {
-    text-decoration: underline; /* Thêm gạch chân khi hover link */
+    color: var(--orange-accent-color);
 }
 .info ul li a.active, footer .nav-links a.active {
-    font-weight: bold; /* Làm đậm link đang active */
+    color: var(--orange-accent-color);
+    font-weight: 700;
 }
 
 /* ---- Main ---- */
-/* Main chỉ dùng để chiếm không gian dọc còn lại giữa header và footer */
 main {
-    flex-grow: 1; /* Cho phép main co giãn để đẩy footer xuống dưới cùng */
+    flex-grow: 1; /* Quan trọng: Đẩy footer xuống */
     width: 100%;
 }
 
 /* ---- Footer ---- */
 footer {
-    width: 100%; /* Footer chiếm toàn bộ chiều rộng */
-    padding-top: 40px; /* Khoảng cách từ nội dung main (hoặc header nếu main trống) đến footer */
-    padding-bottom: 50px; /* Khoảng cách từ nội dung footer đến cạnh dưới trang */
+    width: 100%;
+    padding-top: var(--footer-padding-top);
+    padding-bottom: var(--footer-padding-bottom);
+    /* Đã bỏ đường chia footer */
 }
 
-/* Footer container dùng flexbox để căn chỉnh */
 footer .container {
-    display: flex; /* Sắp xếp nav-links và social-icons trên một hàng */
-    justify-content: space-between; /* Đẩy nav-links sang trái, social-icons sang phải */
-    align-items: center; /* Căn giữa các phần tử theo chiều dọc */
+    width: 95%; /* Tăng từ 90% lên 95% để gần lề hơn */
+    max-width: var(--container-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
 }
 
 /* Footer nav links */
-footer .nav-links a {
-    color: #fcf8f5; /* Màu chữ link footer */
-    text-decoration: none; /* Bỏ gạch chân */
-    font-size: 20px; /* Cỡ chữ link footer */
-    /* ===== CHÚ THÍCH 3: ĐIỀU CHỈNH KHOẢNG CÁCH GIỮA CÁC LINK FOOTER ===== */
-    /* Tăng giá trị này để các chữ ("Home", "About", "Menu"...) cách xa nhau hơn. */
-    /* Giảm giá trị này để chúng gần nhau hơn. */
-    margin-right: 30px; /* <<<<------ THAY ĐỔI GIÁ TRỊ NÀY */
+footer .nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--footer-link-gap); /* Giãn cách chữ nhờ biến */
+    justify-content: flex-start; /* Căn sang trái thay vì center */
 }
-footer .nav-links a:last-child {
-    margin-right: 0; /* Link cuối cùng không cần khoảng cách bên phải */
+
+footer .nav-links a {
+    color: var(--primary-text-color);
+    text-decoration: none;
+    font-size: var(--base-font-size);
+    white-space: nowrap;
 }
 
 /* Footer social icons */
-.social-icons a {
-    margin-left: 18px; /* Khoảng cách bên trái giữa các icon mạng xã hội */
-}
-.social-icons a:first-child {
-    margin-left: 0; /* Icon đầu tiên không cần khoảng cách bên trái */
-}
-.social-icons img {
-    height: 24px; /* Chiều cao icon */
-    vertical-align: middle; /* Căn icon thẳng hàng với text (nếu có) */
-    /* Filter đổi màu icon thành màu cam (#ff4c00) */
-    filter: brightness(0) saturate(100%) invert(40%) sepia(99%) saturate(1352%) hue-rotate(351deg) brightness(99%) contrast(97%);
+.social-icons {
+    display: flex;
+    align-items: center;
+    gap: var(--social-icon-gap);
+    justify-content: center;
 }
 
-/* --- END OF FILE contact.css --- */
+.social-icons img {
+    height: var(--icon-height);
+    vertical-align: middle;
+    filter: brightness(0) saturate(100%) invert(40%) sepia(99%) saturate(1352%) hue-rotate(1deg) brightness(104%) contrast(104%);
+    transition: filter 0.3s ease, transform 0.3s ease;
+}
+.social-icons a:hover img {
+    filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(7500%) hue-rotate(110deg) brightness(110%) contrast(109%);
+    transform: scale(1.15);
+}
+
+/* --- Responsive --- */
+@media (max-width: 992px) {
+    :root {
+        --logo-text-size: 38px;
+        --title-font-size: 34px;
+        --base-font-size: 18px;
+        --info-contact-gap: 50px;
+        --footer-link-gap: 40px; /* Giảm khi màn hình nhỏ */
+        --social-icon-gap: 20px;
+        --header-padding-top: 40px;
+        --footer-padding-top: 60px;
+        --footer-padding-bottom: 40px;
+    }
+    .logo img { height: 45px; }
+}
+
+@media (max-width: 768px) {
+    header .container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .info-and-contact {
+        justify-content: center;
+        margin-top: 30px;
+        gap: 40px;
+    }
+    .info, .contact {
+        text-align: center;
+    }
+    .info ul {
+        display: inline-block;
+        text-align: left;
+    }
+
+    footer .container {
+        flex-direction: column;
+        gap: 30px;
+    }
+    footer .nav-links {
+        justify-content: center; /* Khi màn hình nhỏ, căn giữa thay vì trái */
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --logo-text-size: 32px;
+        --title-font-size: 28px;
+        --base-font-size: 16px;
+        --info-contact-gap: 30px;
+        --footer-link-gap: 20px; /* Giảm thêm khi màn hình rất nhỏ */
+        --social-icon-gap: 15px;
+        --icon-height: 20px;
+        --header-padding-top: 30px;
+        --footer-padding-top: 50px;
+        --footer-padding-bottom: 30px;
+    }
+    .logo img { height: 40px; }
+    .info h3, .contact h3 { margin-bottom: 15px; }
+    .info ul li, .contact p { margin-bottom: 12px; }
+    footer .nav-links { gap: 15px; }
+}

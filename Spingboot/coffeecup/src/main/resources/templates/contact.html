@@ -1,13 +1,16 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact - CoffeeCup</title>
-    <link href="https://fonts.googleapis.com/css2?family=Proza+Libre&display=swap" rel="stylesheet">
+    <!-- Link Google Font Proza Libre (Thêm weight 700 nếu tiêu đề cần đậm hơn) -->
+    <link href="https://fonts.googleapis.com/css2?family=Proza+Libre:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Link CSS -->
     <link rel="stylesheet" th:href="@{/css/contact.css}">
 </head>
 <body>
+
 <header>
     <div class="container">
         <!-- Logo bên trái -->
@@ -16,17 +19,16 @@
             <span class="logo-text">CoffeeCup</span>
         </div>
 
-        <!-- **** CHUYỂN info-and-contact LÊN ĐÂY **** -->
-        <!-- Khối Info/Contact bên phải -->
+        <!-- Khối Info/Contact bên phải (Đã chuyển lên header) -->
         <div class="info-and-contact">
             <div class="info">
                 <h3>Information.</h3>
                 <ul>
-                    <li><a href="#">About us</a></li>
-                    <li><a href="#">Branches</a></li>
-                    <li><a href="#">Menu</a></li>
+                    <li><a th:href="@{/about}">About us</a></li>
+                    <li><a th:href="@{/shop}">Branches</a></li>
+                    <li><a th:href="@{/menu}">Menu</a></li>
                     <li><a th:href="@{/contact}" class="active">Contact</a></li>
-                    <li><a href="#">Map</a></li>
+                    <li><a href="#">Map</a></li> <!-- Hoặc link đến trang Map -->
                 </ul>
             </div>
             <div class="contact">
@@ -38,12 +40,9 @@
     </div>
 </header>
 
-<!-- Main giờ chỉ còn là khoảng trống -->
+<!-- Main giờ chỉ còn là khoảng trống để đẩy footer xuống -->
 <main>
-    <!-- Có thể để trống hoặc bỏ container nếu không cần -->
-    <!-- <div class="container"> -->
-    <!-- Nội dung chính (nếu có) sẽ vào đây -->
-    <!-- </div> -->
+    <!-- Không cần nội dung ở đây -->
 </main>
 
 <footer>
@@ -51,10 +50,10 @@
         <!-- Nav links bên trái -->
         <div class="nav-links">
             <a th:href="@{/}">Home</a>
-            <a href="#">About</a>
-            <a href="#">Menu</a>
-            <a href="#">Blog</a>
-            <a href="#">Shop</a>
+            <a th:href="@{/about}">About</a>
+            <a th:href="@{/menu}">Menu</a>
+            <a th:href="@{/blog}">Blog</a>
+            <a th:href="@{/shop}">Shop</a>
             <a th:href="@{/contact}" class="active">Contact</a>
         </div>
         <!-- Social icons bên phải -->
@@ -66,5 +65,6 @@
         </div>
     </div>
 </footer>
+
 </body>
 </html>

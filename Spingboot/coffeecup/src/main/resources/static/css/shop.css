@@ -1,0 +1,200 @@
+/* --- CSS Dành Riêng Cho Trang Shop (Hoàn Chỉnh) --- */
+
+/* --- Biến CSS --- */
+:root {
+    /* Chiều cao Header - Chỉnh bằng chiều cao thực tế header */
+    --header-height: 80px;
+    /* Màu sắc */
+    --dark-blue: #000b2c;
+    --medium-blue: #233e6a;
+    --orange: #ff4b00;
+    --light-text: #f0f0f0;
+    --dark-text: #333;
+
+    /* === KHOẢNG CÁCH TỪ HEADER XUỐNG TIÊU ĐỀ ĐẦU TIÊN === */
+    /* <<-- CHỈNH KHOẢNG CÁCH TRÊN CÙNG Ở ĐÂY -->> */
+    --header-to-first-title-margin: 130px;
+}
+
+/* --- Thiết lập Body --- */
+body {
+    padding-top: var(--header-height);
+    margin: 0;
+    background-color: #fff; /* Nền trắng mặc định */
+    font-family: 'Open Sans', sans-serif;
+    color: var(--dark-text);
+}
+
+/* --- Container chính --- */
+.shop-page-container {
+    padding: 0 5%; /* Chỉ padding ngang */
+    max-width: 1200px;
+    margin: 0 auto; /* Căn giữa */
+}
+
+/* --- Tiêu đề Section chung --- */
+.section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 55px;
+    font-weight: 700;
+    color: var(--dark-blue);
+    text-align: center;
+    margin-top: 0; /* Reset */
+    margin-bottom: 50px;
+}
+
+/* --- Section Giờ Mở Cửa --- */
+.opening-hours-section {
+    /* Sử dụng biến để tạo khoảng cách trên */
+    padding-top: var(--header-to-first-title-margin);
+    margin-bottom: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hours-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    width: 100%;
+    max-width: 700px;
+}
+
+.hour-block {
+    background-color: var(--medium-blue);
+    color: var(--light-text);
+    padding: 30px 40px;
+    text-align: center;
+    border-radius: 5px;
+    box-shadow: 3px 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.hour-block .days {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+}
+
+.hour-block .time {
+    font-size: 20px;
+    margin: 0;
+}
+
+
+/* --- Section Chi Nhánh --- */
+.branches-section {
+    padding-bottom: 60px; /* Thêm padding dưới cùng cho trang */
+}
+
+.branch-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 40px;
+}
+
+.branch-card {
+    background-color: var(--medium-blue); /* Nền xanh cho toàn card */
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 3px 5px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+}
+
+.branch-image {
+    display: block;
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.branch-info {
+    padding: 25px; /* Padding bao ngoài tên và mô tả */
+    /* Bỏ color ở đây vì description có màu riêng */
+    flex-grow: 1; /* Cho phép phần info co giãn */
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; Bỏ căn giữa để description căn trái */
+}
+
+.branch-name {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    background-color: var(--orange);
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: 20px;
+    display: inline-block;
+    margin: 0 auto 0 auto; /* Căn giữa tên */
+    text-align: center;
+}
+
+/* Khung nền đậm cho mô tả */
+.branch-description {
+    background-color: var(--dark-blue); /* Nền xanh đậm nhất */
+    color: var(--light-text);         /* Chữ sáng */
+    padding: 15px 20px;               /* Padding bên trong */
+    border-radius: 3px;               /* Bo góc nhẹ */
+    box-sizing: border-box;
+
+    font-size: 14px;
+    line-height: 1.7;
+    font-weight: 300;
+    text-align: left;                 /* Căn trái chữ */
+    margin: 0;                        /* Reset margin */
+    margin-top: 20px;                 /* <<-- Khoảng cách với tên chi nhánh */
+    /* Không dùng flex-grow để khung chỉ cao vừa đủ */
+}
+
+
+/* --- Responsive --- */
+@media (max-width: 992px) {
+    /* Điều chỉnh biến cho tablet */
+    :root {
+        --header-to-first-title-margin: 50px;
+    }
+    .section-title { font-size: 45px; margin-bottom: 40px; }
+    .hours-blocks { max-width: 600px; gap: 25px; }
+    .hour-block { padding: 25px 30px; }
+    .hour-block .days { font-size: 24px; }
+    .hour-block .time { font-size: 18px; }
+    .branch-cards { gap: 30px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .branch-name { font-size: 22px; }
+    .branch-description { font-size: 13px; padding: 12px 15px; margin-top: 15px; }
+}
+
+@media (max-width: 768px) {
+    /* Điều chỉnh biến cho mobile */
+    :root {
+        --header-height: 60px;
+        --header-to-first-title-margin: 40px;
+    }
+    body { padding-top: var(--header-height); }
+    .shop-page-container { padding: 0 4%; }
+    .section-title { font-size: 38px; margin-bottom: 30px; }
+    .opening-hours-section { padding-top: var(--header-to-first-title-margin); margin-bottom: 60px; }
+    .hours-blocks { max-width: 100%; }
+    .branch-cards { grid-template-columns: 1fr; } /* 1 cột */
+    .branch-image { height: 180px; }
+    .branch-info { padding: 20px; } /* Giảm padding card */
+    .branch-name { font-size: 20px; }
+    .branch-description {
+        text-align: center; /* Căn giữa lại trên mobile nếu muốn */
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --header-to-first-title-margin: 30px;
+    }
+    .section-title { font-size: 32px; }
+    .hour-block { padding: 20px; }
+    .hour-block .days { font-size: 20px; }
+    .hour-block .time { font-size: 16px; }
+    .branch-name { font-size: 18px;}
+    .branch-description { font-size: 12px; }
+}

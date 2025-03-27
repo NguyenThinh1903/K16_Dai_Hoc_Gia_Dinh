@@ -1,0 +1,174 @@
+/* --- CSS Dành Riêng Cho Trang Blog (Customer Reviews - Hoàn Chỉnh) --- */
+
+/* --- Biến CSS --- */
+:root {
+    --header-height: 80px;
+    --dark-blue: #000b2c;
+    --light-text: #ccc;
+    --name-text: #fff;
+    --header-to-title-margin: 60px;
+    --title-to-review-margin: 70px;
+    --review-item-gap: 50px;
+}
+body {
+    /* Đẩy nội dung xuống dưới header cố định */
+    padding-top: var(--header-height);
+    margin: 0;
+    background-color: #fff;
+    font-family: 'Open Sans', sans-serif;
+}
+
+/* --- Container chính --- */
+.blog-page-container {
+    padding: 40px 5%; /* Padding ngang cho toàn trang */
+}
+
+/* --- Tiêu đề trang --- */
+.page-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 60px;
+    font-weight: 700;
+    color: var(--dark-blue);
+    text-align: center;
+    /* Sử dụng biến cho khoảng cách trên và dưới */
+    margin-top: var(--header-to-title-margin);
+    margin-bottom: var(--title-to-review-margin);
+    /* Reset margin trái phải */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* --- Khối Review --- */
+.review-container {
+    background-color: var(--dark-blue);
+    max-width: 950px; /* Giới hạn chiều rộng */
+    margin: 0 auto; /* Căn giữa */
+    padding: 60px 50px; /* Padding bên trong */
+    border: 1px solid var(--dark-blue);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+.review-content {
+    display: flex;
+    gap: 40px; /* Khoảng cách giữa ảnh và text */
+    align-items: stretch; /* Kéo dài cột bằng nhau */
+}
+
+/* --- Cột ảnh --- */
+.review-image-col {
+    flex-basis: 45%; /* Chiều rộng cột ảnh */
+    min-width: 0; /* Cho phép co lại nếu cần */
+}
+
+.review-photo {
+    display: block;
+    width: 100%;
+    height: 100%; /* Chiếm hết chiều cao cột */
+    object-fit: cover; /* Phủ kín, cắt nếu cần */
+}
+
+/* --- Cột Text --- */
+.review-text-col {
+    flex: 1; /* Chiếm phần còn lại */
+    color: var(--light-text);
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Căn giữa các review theo chiều dọc */
+}
+
+.review-item {
+    /* Khoảng cách giữa các review item */
+    margin-bottom: var(--review-item-gap);
+}
+.review-item:last-child {
+    margin-bottom: 0; /* Bỏ margin cho review cuối */
+}
+
+.review-item h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--name-text); /* Màu tên trắng */
+    margin: 0 0 15px 0; /* Khoảng cách dưới tên */
+}
+
+.review-item p {
+    font-size: 16px;
+    line-height: 1.8;
+    margin: 0;
+}
+
+/* --- Responsive --- */
+@media (max-width: 992px) {
+    /* Điều chỉnh biến cho màn hình nhỏ hơn nếu cần */
+    /* (Bạn có thể ghi đè biến trong media query nếu muốn giá trị khác) */
+    /* Ví dụ:
+    :root {
+        --title-to-review-margin: 60px;
+        --review-item-gap: 40px;
+        --header-to-title-margin: 50px;
+    }
+    */
+    .page-title { font-size: 50px; }
+    .review-container { padding: 50px 40px; max-width: 800px; }
+    .review-content { gap: 30px; }
+    .review-item h3 { font-size: 26px; }
+    .review-item p { font-size: 15px; }
+}
+
+@media (max-width: 768px) {
+    /* Điều chỉnh biến cho mobile */
+    :root {
+        --header-height: 60px; /* Giả sử header thu nhỏ */
+        --header-to-title-margin: 40px;
+        --title-to-review-margin: 60px;
+        --review-item-gap: 30px;
+    }
+    body { padding-top: var(--header-height); }
+    .blog-page-container { padding: 30px 4%; }
+    .page-title { font-size: 40px; }
+    .review-container { padding: 30px; }
+
+    .review-content {
+        flex-direction: column; /* Xếp chồng cột */
+        gap: 30px;
+    }
+
+    .review-image-col {
+        flex-basis: auto; /* Reset flex-basis */
+        max-height: 400px;
+        width: 100%; /* Chiếm hết chiều rộng */
+        margin-bottom: var(--review-item-gap); /* Tạo khoảng cách dưới ảnh */
+    }
+    .review-photo {
+        height: auto; /* Để ảnh tự điều chỉnh chiều cao */
+        max-height: 400px;
+        width: 100%; /* Đảm bảo ảnh không bị tràn */
+    }
+
+    .review-text-col {
+        text-align: center; /* Căn giữa text */
+        /* Không cần justify-content nữa */
+    }
+    .review-item h3 {
+        font-size: 24px;
+    }
+    .review-item p {
+        font-size: 14px;
+        line-height: 1.7;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Có thể điều chỉnh biến thêm cho màn hình rất nhỏ */
+    :root {
+        --header-to-title-margin: 30px;
+        --title-to-review-margin: 50px;
+        --review-item-gap: 25px;
+    }
+    .page-title { font-size: 32px; }
+    .review-container { padding: 20px; }
+    .review-item h3 { font-size: 22px; margin-bottom: 10px;}
+    .review-item p { font-size: 13px; }
+}
