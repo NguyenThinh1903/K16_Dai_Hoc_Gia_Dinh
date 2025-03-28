@@ -1,71 +1,65 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{_layout}">
 <head>
-    <meta charset="UTF-8">
-    <title>Manage Customers - CoffeeCup Admin</title>
-    <!-- Thêm CSS cơ bản -->
-    <link rel="stylesheet" th:href="@{/css/admin-style.css}">
-    <!-- Thêm Bootstrap CSS để hỗ trợ alert và table -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Manage Customers</title>
+    <!-- Có thể thêm CSS/JS riêng vào head-extra/script-extra nếu cần -->
 </head>
 <body>
-<div class="container">
-    <h1>Manage Customers</h1>
+<main layout:fragment="content">
+    <div class="container">
+        <h1>Manage Customers</h1>
 
-    <!-- Hiển thị thông báo thành công nếu có -->
-    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
-        [[${successMessage}]]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <!-- Thông báo success/error -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            [[${successMessage}]]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            [[${errorMessage}]]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="action-bar">
+            <!-- Nút Back to Home đã có ở header -->
+            <a th:href="@{/admin/customers/add}" class="btn btn-primary">Add New Customer</a>
+            <!-- Nút Logout đã có ở header -->
+        </div>
+
+        <div class="table-responsive"> <!-- Bọc table để responsive -->
+            <table class="table table-striped table-hover"> <!-- Thêm class Bootstrap nếu dùng -->
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                    <th style="width: 150px;">Actions</th> <!-- Đặt chiều rộng cột Actions -->
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="customer : ${customers}">
+                    <td th:text="${customer.id}">1</td>
+                    <td th:text="${customer.name}">John Doe</td>
+                    <td th:text="${customer.email}">john@example.com</td>
+                    <td th:text="${customer.phone}">123456789</td>
+                    <td th:text="${customer.address}">123 Main St</td>
+                    <td>
+                        <a th:href="@{/admin/customers/edit/{id}(id=${customer.id})}" class="btn btn-sm btn-warning me-1">Edit</a> <!-- Thêm margin -->
+                        <a th:href="@{/admin/customers/delete/{id}(id=${customer.id})}"
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Are you sure you want to delete this customer?');">Delete</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(customers)}">
+                    <td colspan="6" style="text-align: center; padding: 20px;">No customers found.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-
-    <!-- Hiển thị thông báo lỗi nếu có -->
-    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-        [[${errorMessage}]]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-
-    <div class="action-bar">
-        <a th:href="@{/}" class="btn btn-secondary">Back to Home</a>
-        <a th:href="@{/admin/customers/add}" class="btn btn-primary">Add New Customer</a>
-    </div>
-
-    <table class="table">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Address</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- Lặp qua danh sách customers -->
-        <tr th:each="customer : ${customers}">
-            <td th:text="${customer.id}">1</td>
-            <td th:text="${customer.name}">John Doe</td>
-            <td th:text="${customer.email}">john@example.com</td>
-            <td th:text="${customer.phone}">123456789</td>
-            <td th:text="${customer.address}">123 Main St</td>
-            <td>
-                <!-- Link Edit -->
-                <a th:href="@{/admin/customers/edit/{id}(id=${customer.id})}" class="btn btn-sm btn-warning">Edit</a>
-                <!-- Link Delete -->
-                <a th:href="@{/admin/customers/delete/{id}(id=${customer.id})}"
-                   class="btn btn-sm btn-danger"
-                   onclick="return confirm('Are you sure you want to delete this customer?');">Delete</a>
-            </td>
-        </tr>
-        <!-- Hiển thị nếu không có customer nào -->
-        <tr th:if="${#lists.isEmpty(customers)}">
-            <td colspan="6" style="text-align: center;">No customers found.</td>
-        </tr>
-        </tbody>
-    </table>
-</div>
-
-<!-- Thêm Bootstrap JS để nút close trong alert hoạt động -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</main>
 </body>
 </html>

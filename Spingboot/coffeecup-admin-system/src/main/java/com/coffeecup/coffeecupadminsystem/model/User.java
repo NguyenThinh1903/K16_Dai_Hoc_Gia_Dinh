@@ -22,17 +22,18 @@ public class User {
     private Long id;
 
     @NotEmpty(message = "Username cannot be empty")
-    @Size(min = 4, max = 50, message = "Username must be between 4 and 50 characters")
+    @Size(min = 4, max = 10, message = "Username must be between 4 and 6 characters")
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
-    @NotEmpty(message = "Password cannot be empty")
-    @Column(nullable = false, length = 60) // BCrypt mã hóa ra khoảng 60 ký tự
+    // Không dùng @Size ở đây vì lưu hash
+    @Column(nullable = false, length = 60)
     private String password;
 
     @Column(nullable = false)
     private boolean enabled = true;
 
+    @NotEmpty(message = "At least one role must be selected")
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_authorities",
@@ -40,4 +41,17 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "authority_id")
     )
     private Set<Authority> authorities = new HashSet<>();
+
+    // Trường tạm thời nhận Confirm Password từ Form
+    @Transient
+    private String confirmPassword;
+
+    // Trường tạm thời nhận Current Password từ Form
+    @Transient
+    private String currentPassword;
+
+    // Đảm bảo authorities không null khi binding
+    public void setAuthorities(Set<Authority> authorities) {
+        this.authorities = (authorities == null) ? new HashSet<>() : authorities;
+    }
 }

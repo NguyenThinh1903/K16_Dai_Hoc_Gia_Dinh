@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Users - CoffeeCup System</title>
+    <link rel="stylesheet" th:href="@{/css/admin-style.css}">
+</head>
+<body>
+<div class="container">
+    <h1>Manage Users</h1>
+
+    <!-- Hiển thị thông báo thành công/lỗi -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        [[${successMessage}]]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        [[${errorMessage}]]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="action-bar">
+        <a th:href="@{/}" class="btn btn-secondary">Back to Home</a>
+        <a th:href="@{/system/users/add}" class="btn btn-primary">Add New User</a>
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Enabled</th>
+            <th>Roles</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.id}">1</td>
+            <td th:text="${user.username}">admin</td>
+            <td>
+                <span th:if="${user.enabled}" style="color: green; font-weight: bold;">✔</span>
+                <span th:unless="${user.enabled}" style="color: red; font-weight: bold;">✘</span>
+            </td>
+            <td>
+                <span>ROLE_ADMIN, ROLE_USER</span>
+            </td>
+            <td>
+                <a th:href="@{/system/users/edit/{id}(id=${user.id})}" class="btn btn-sm btn-warning">Edit</a>
+                <!-- Nút Delete - Cập nhật từ đoạn code mới -->
+                <a th:href="@{/system/users/delete/{id}(id=${user.id})}"
+                   class="btn btn-sm btn-danger"
+                   th:if="${#authentication.name != user.username}"
+                   th:onclick="'return confirm(\'Are you sure you want to delete user \\\'__${user.username}__\\\'?\');'"
+                >Delete</a>
+                <span th:unless="${#authentication.name != user.username}" class="text-muted">(Cannot delete self)</span>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(users)}">
+            <td colspan="5" style="text-align: center;">No users found.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
