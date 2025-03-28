@@ -5,31 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f96a2635-784d-4c66-98b8-a3d26856af6b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/coffeecup/coffeecup/config/DataInitializer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/coffeecup/coffeecup/config/SecurityConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/coffeecup/coffeecup/controller/AuthController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/coffeecup/coffeecup/model/Authority.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/coffeecup/coffeecup/model/User.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/coffeecup/coffeecup/repository/AuthorityRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/coffeecup/coffeecup/repository/UserRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/coffeecup/coffeecup/service/UserDetailsServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/templates/login.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/templates/register.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/css/about.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/css/about.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/css/blog.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/css/blog.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/css/shop.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/css/shop.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/coffeecup/coffeecup/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/coffeecup/coffeecup/config/SecurityConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/templates/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/templates/home.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/static/css/about.css" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/css/about.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/static/css/blog.css" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/css/blog.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/static/css/shop.css" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/css/shop.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -102,7 +80,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1743131063465</updated>
-      <workItem from="1743131064560" duration="2173000" />
+      <workItem from="1743131064560" duration="2456000" />
     </task>
     <servers />
   </component>
