@@ -18,21 +18,21 @@ public class HomeController {
 
     @GetMapping("/menu")
     public String menu() {
-        return "menu"; // Trang Contact
+        return "menu"; // Trang menu
     }
 
     @GetMapping("/about")
     public String about() {
-        return "about"; // Trang Contact
+        return "about"; // Trang about
     }
 
     @GetMapping("/blog")
     public String blog() {
-        return "blog"; // Trang Contact
+        return "blog"; // Trang blog
     }
 
     @GetMapping("/shop")
     public String shop() {
-        return "shop"; // Trang Contact
+        return "shop"; // Trang shop
     }
 }
