@@ -1,17 +1,14 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CoffeeCup</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <!-- Thêm font từ Google Fonts (Đã thêm Cormorant Garamond và bỏ Dancing Script) -->
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,700;1,500&family=Open+Sans:wght@200;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<!-- Hero Section (bao gồm cả header) -->
 <section class="hero" th:style="'background-image: url(/images/background.jpg)'">
-    <!-- Header -->
     <header>
         <nav>
             <ul>
@@ -22,16 +19,43 @@
                 <li><a href="/shop">Shop</a></li>
                 <li><a href="/contact">Contact</a></li>
             </ul>
-            <div class="logo">
-                <img th:src="@{/images/logo.png}" alt="CoffeeCup Logo">
-                <span class="logo-text">CoffeeCup</span> <!-- Thêm dòng chữ CoffeeCup -->
+
+            <!-- Khối bao bọc Logo và Auth -->
+            <!-- *** THAY ĐỔI Ở ĐÂY: align-items: center *** -->
+            <div style="display: flex; flex-direction: column; align-items: center;">
+
+                <!-- Logo -->
+                <div class="logo"> <!-- Class này có thể cần xóa padding-right trong style.css -->
+                    <img th:src="@{/images/logo.png}" alt="CoffeeCup Logo">
+                    <span class="logo-text">CoffeeCup</span>
+                </div>
+
+                <!-- Khối Login/Register/Logout - Nằm dưới Logo -->
+                <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
+                    <!-- Hiển thị khi ĐÃ ĐĂNG NHẬP -->
+                    <div sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #FFFFFF; font-weight: 500;">
+                            Hi, <span sec:authentication="name" style="font-weight: 700;">User</span>!
+                        </span>
+                        <form th:action="@{/logout}" method="post" style="display: inline; margin: 0;">
+                            <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
+                            <button type="submit" style="background: none; border: none; color: #ff4b00; cursor: pointer; font-size: 18px; font-weight: 700; padding: 0;">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                    <!-- Hiển thị khi CHƯA ĐĂNG NHẬP -->
+                    <div sec:authorize="!isAuthenticated()">
+                        <a th:href="@{/login}" style="color: #FFFFFF; text-decoration: none; font-size: 18px; font-weight: 700;">Login</a>
+                        <a th:href="@{/register}" style="color: #ff4b00; text-decoration: none; margin-left: 10px; font-size: 18px; font-weight: 700;">Register</a>
+                    </div>
+                </div>
             </div>
         </nav>
     </header>
 
-    <!-- Hero Content -->
     <div class="hero-content">
-        <h1>Coffee</h1> <!-- Tiêu đề này sẽ dùng Cormorant Garamond -->
+        <h1>Coffee</h1>
         <h2>Everything You Love About Coffee</h2>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
         <a href="/order" class="btn">Order Now</a>

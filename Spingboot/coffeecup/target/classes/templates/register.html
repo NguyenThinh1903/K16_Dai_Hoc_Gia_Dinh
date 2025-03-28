@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - CoffeeCup</title>
+    <!-- Link CSS chung hoặc CSS riêng -->
+    <style>
+        body { display: flex; justify-content: center; align-items: center; min-height: 90vh; background-color:#f4f4f4; font-family: 'Open Sans', sans-serif;}
+        .register-container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); width: 420px; text-align: center;}
+        .register-container img { max-width: 80px; margin-bottom: 20px; filter: none;} /* Bỏ filter trắng cho logo */
+        .register-container h2 { margin-bottom: 25px; color: #000b2c; font-family: 'Cormorant Garamond', serif; font-size: 28px;}
+        .form-group { margin-bottom: 20px; text-align: left;}
+        .form-group label { display: block; margin-bottom: 8px; color: #555; font-weight: 600; font-size: 14px;}
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 15px;}
+        .btn-register { width: 100%; padding: 12px; background-color: #000b2c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: 600; transition: background-color 0.3s ease;}
+        .btn-register:hover { background-color: #233e6a; }
+        .error-message { color: #dc3545; font-size: 13px; margin-top: 5px; display: block; } /* Làm nổi bật lỗi hơn */
+        .login-link { margin-top: 20px; font-size: 14px; color: #555; }
+        .login-link a { color: #000b2c; text-decoration: none; font-weight: 600;}
+        .login-link a:hover { text-decoration: underline; color: #ff4b00;}
+    </style>
+</head>
+<body>
+<div class="register-container">
+    <img th:src="@{/images/logo.png}" alt="CoffeeCup Logo"> <!-- Thêm logo -->
+    <h2>Create CoffeeCup Account</h2>
+
+    <form th:action="@{/register}" th:object="${user}" method="post">
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" th:field="*{username}" required autofocus/>
+            <div th:if="${#fields.hasErrors('username')}" class="error-message">
+                <span th:errors="*{username}"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" th:field="*{password}" required/>
+            <div th:if="${#fields.hasErrors('password')}" class="error-message">
+                <!-- Chỉ hiển thị lỗi chung của field password, ko cần chi tiết -->
+                <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
+            </div>
+        </div>
+
+        <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
+        <button type="submit" class="btn-register">Register</button>
+    </form>
+
+    <div class="login-link">
+        Already have an account? <a th:href="@{/login}">Login here</a>
+    </div>
+</div>
+</body>
+</html>
