@@ -5,7 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f96a2635-784d-4c66-98b8-a3d26856af6b" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../coffeecup-admin-system/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../coffeecup-admin-system/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../coffeecup-admin-system/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../coffeecup-admin-system/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../coffeecup-admin-system/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../coffeecup-admin-system/src/main/java/com/coffeecup/coffeecupadminsystem/CoffeecupAdminSystemApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../coffeecup-admin-system/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../coffeecup-admin-system/src/test/java/com/coffeecup/coffeecupadminsystem/CoffeecupAdminSystemApplicationTests.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,6 +59,11 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Documents\K16_Dai_Hoc_Gia_Dinh\Spingboot\coffeecup\src\main\java\com\coffeecup\coffeecup\model" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="CoffeecupApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
@@ -80,6 +92,7 @@
       <updated>1743131063465</updated>
       <workItem from="1743131064560" duration="3127000" />
       <workItem from="1743134714512" duration="101000" />
+      <workItem from="1743135651450" duration="106000" />
     </task>
     <servers />
   </component>
