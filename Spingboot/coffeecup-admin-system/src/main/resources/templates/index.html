@@ -37,11 +37,10 @@
             </div>
             <!-- Khối Quản lý System -->
             <div class="management-card" th:if="${isSystem}">
-                <!-- Thay bằng icon phù hợp nếu dùng FontAwesome -->
                 <h2><i class="fas fa-cogs"></i> System Section</h2>
                 <ul>
                     <li><a th:href="@{/system/users}">Manage Users</a></li>
-                    <!-- <li><a th:href="@{/system/authorities}">Manage Authorities</a></li> -->
+                    <li><a th:href="@{/system/authorities}">Manage Roles (Authorities)</a></li>
                 </ul>
             </div>
         </div>

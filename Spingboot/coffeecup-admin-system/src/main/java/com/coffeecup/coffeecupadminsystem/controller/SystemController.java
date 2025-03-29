@@ -15,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.HashSet;
 import java.util.List;
@@ -268,5 +269,119 @@ public class SystemController {
         return "redirect:/system/users";
     }
 
-    // Các phương thức cho Authorities (nếu cần)
+    // ===========================================
+    // Authority (Role) Management Methods
+    // ===========================================
+
+    // --- HIỂN THỊ DANH SÁCH AUTHORITIES ---
+    @GetMapping("/authorities")
+    public String listAuthorities(Model model) {
+        log.info("Fetching authority list");
+        List<Authority> authorities = authorityRepository.findAll();
+        model.addAttribute("authorities", authorities);
+        // Thêm thông báo nếu có
+        if (model.containsAttribute("successMessage")) log.info("Displaying success message: {}", model.getAttribute("successMessage"));
+        if (model.containsAttribute("errorMessage")) log.warn("Displaying error message: {}", model.getAttribute("errorMessage"));
+        return "system/authorities/list"; // View: templates/system/authorities/list.html
+    }
+
+    // --- HIỂN THỊ FORM THÊM AUTHORITY MỚI ---
+    @GetMapping("/authorities/add")
+    public String showAddAuthorityForm(Model model) {
+        log.info("Showing add authority form");
+        model.addAttribute("authority", new Authority());
+        model.addAttribute("pageTitle", "Add New Authority");
+        return "system/authorities/form";
+    }
+
+    // --- HIỂN THỊ FORM CHỈNH SỬA AUTHORITY ---
+    @GetMapping("/authorities/edit/{id}")
+    public String showEditAuthorityForm(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
+        log.info("Showing edit authority form for ID: {}", id);
+        Optional<Authority> authorityOptional = authorityRepository.findById(id);
+
+        if (authorityOptional.isEmpty()) {
+            log.warn("Authority not found for edit with ID: {}", id);
+            redirectAttributes.addFlashAttribute("errorMessage", "Authority not found with ID: " + id);
+            return "redirect:/system/authorities";
+        }
+
+        Authority authority = authorityOptional.get();
+        model.addAttribute("authority", authority);
+        model.addAttribute("pageTitle", "Edit Authority '" + authority.getName() + "' (ID: " + id + ")");
+        return "system/authorities/form";
+    }
+
+    // --- XỬ LÝ LƯU AUTHORITY (Thêm mới / Cập nhật) ---
+    @PostMapping("/authorities/save")
+    public String saveAuthority(@Valid @ModelAttribute("authority") Authority authority,
+                                BindingResult bindingResult,
+                                RedirectAttributes redirectAttributes,
+                                Model model) {
+
+        boolean isNewAuthority = (authority.getId() == null);
+        log.info("Attempting to save authority (New: {}): {}", isNewAuthority, authority.getName());
+
+        // Kiểm tra tên authority trùng lặp
+        authorityRepository.findByName(authority.getName()).ifPresent(existingAuthority -> {
+            if (isNewAuthority || !existingAuthority.getId().equals(authority.getId())) {
+                bindingResult.rejectValue("name", "error.authority", "Authority name already exists.");
+            }
+        });
+
+        // Xử lý nếu có lỗi validation
+        if (bindingResult.hasErrors()) {
+            log.warn("Validation errors found for authority {}: {}", authority.getName(), bindingResult.getAllErrors());
+            model.addAttribute("pageTitle", isNewAuthority ? "Add New Authority" : "Edit Authority (ID: " + authority.getId() + ")");
+            return "system/authorities/form";
+        }
+
+        // Lưu authority nếu không có lỗi
+        try {
+            log.info("Saving authority: {}", authority.getName());
+            authorityRepository.save(authority);
+            redirectAttributes.addFlashAttribute("successMessage", "Authority '" + authority.getName() + "' has been saved successfully!");
+            return "redirect:/system/authorities";
+        } catch (Exception e) {
+            log.error("Error saving authority {}: ", authority.getName(), e);
+            model.addAttribute("saveError", "An error occurred while saving the authority. Check logs for details.");
+            model.addAttribute("pageTitle", isNewAuthority ? "Add New Authority" : "Edit Authority (ID: " + authority.getId() + ")");
+            return "system/authorities/form";
+        }
+    }
+
+    // --- XÓA AUTHORITY ---
+    @GetMapping("/authorities/delete/{id}")
+    public String deleteAuthority(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        log.info("Attempting to delete authority with ID: {}", id);
+
+        try {
+            Optional<Authority> authorityOptional = authorityRepository.findById(id);
+            if (authorityOptional.isPresent()) {
+                Authority authorityToDelete = authorityOptional.get();
+                String roleName = authorityToDelete.getName();
+
+                // Kiểm tra các role cốt lõi - không cho xóa
+                if ("ROLE_ADMIN".equals(roleName) || "ROLE_SYSTEM".equals(roleName) || "ROLE_USER".equals(roleName)) {
+                    log.warn("Attempt to delete core role: {}", roleName);
+                    redirectAttributes.addFlashAttribute("errorMessage", "Cannot delete core system role: " + roleName);
+                    return "redirect:/system/authorities";
+                }
+
+                authorityRepository.deleteById(id);
+                log.info("Authority deleted successfully: {}", roleName);
+                redirectAttributes.addFlashAttribute("successMessage", "Role '" + roleName + "' (ID: " + id + ") deleted successfully.");
+            } else {
+                log.warn("Authority not found for deletion with ID: {}", id);
+                redirectAttributes.addFlashAttribute("errorMessage", "Role not found with ID: " + id);
+            }
+        } catch (DataIntegrityViolationException e) {
+            log.error("Error deleting authority with ID: {}: Cannot delete role because it might be in use.", id, e);
+            redirectAttributes.addFlashAttribute("errorMessage", "Cannot delete role (ID: " + id + "). It might be assigned to users. Please check user assignments.");
+        } catch (Exception e) {
+            log.error("Error deleting authority with ID: {}: ", id, e);
+            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting role (ID: " + id + ").");
+        }
+        return "redirect:/system/authorities";
+    }
 }
