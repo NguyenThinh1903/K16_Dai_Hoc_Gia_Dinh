@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${product != null ? product.ten + ' - CoffeeCup' : 'Product Not Found - CoffeeCup'}">Product Detail</title>
+    <!-- Link CSS chung -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- Link CSS riêng -->
+    <link rel="stylesheet" th:href="@{/css/product-detail.css}">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,700;1,500&family=Open+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<!-- Header của Project 1 -->
+<header>
+    <nav>
+        <!-- ... Menu ... -->
+        <!-- ... Logo và Login/Logout ... -->
+    </nav>
+</header>
+<!-- Hết Header -->
+
+<!-- Container chính cho trang chi tiết -->
+<div class="product-detail-container" th:if="${product}">
+    <!-- Cột ảnh -->
+    <div class="product-image-section">
+        <img th:if="${product.imageFileName != null}" th:src="@{${product.getImageUrl()}}" th:alt="${product.ten}" />
+        <img th:unless="${product.imageFileName != null}" th:src="@{/images/placeholder.png}" alt="Placeholder Image" />
+    </div>
+    <!-- Cột thông tin -->
+    <div class="product-info-section">
+        <h1 th:text="${product.ten}">Product Name</h1>
+        <div class="product-price-detail" th:text="${#numbers.formatCurrency(product.gia)}">$0.00</div>
+        <div class="product-description">
+            <h4>Description</h4>
+            <p th:text="${product.moTa}">Product description goes here...</p>
+        </div>
+        <div class="product-content" th:if="${product.noiDung != null and not #strings.isEmpty(product.noiDung)}">
+            <h4>Details</h4>
+            <div th:utext="${#strings.nl2br(product.noiDung)}">Product content details...</div>
+        </div>
+        <button type="button" class="buy-now-btn" onclick="alert('Chức năng đặt hàng chưa được triển khai!');">Buy Now</button>
+        <a th:href="@{/products}" class="back-link">← Back to Products</a>
+    </div>
+</div>
+
+<!-- Thông báo nếu không tìm thấy sản phẩm -->
+<!-- Đã sửa lại để dùng class container chung -->
+<div class="container" th:unless="${product}">
+    <h2 class="error-message">Product Not Found</h2>
+    <p class="back-button"><a th:href="@{/products}" class="btn btn-secondary">Back to Products</a></p>
+</div>
+
+<!-- Footer -->
+</body>
+</html>

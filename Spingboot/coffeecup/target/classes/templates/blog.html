@@ -17,12 +17,14 @@
 <header class="header-fixed"> <!-- Giả sử dùng class này cho header cố định -->
     <nav>
         <ul>
-            <li><a th:href="@{/}">Home</a></li>
-            <li><a th:href="@{/about}">About</a></li>
-            <li><a th:href="@{/menu}">Menu</a></li>
-            <li><a th:href="@{/blog}" class="active">Blog</a></li> <!-- Blog is active -->
-            <li><a th:href="@{/shop}">Shop</a></li>
-            <li><a th:href="@{/contact}">Contact</a></li>
+            <!-- *** SỬA LẠI DÙNG BIẾN TỪ MODEL *** -->
+            <li><a href="/" th:classappend="${currentURI == '/' ? 'active' : ''}">Home</a></li>
+            <li><a href="/about" th:classappend="${currentURI == '/about' ? 'active' : ''}">About</a></li>
+            <li><a href="/menu" th:classappend="${currentURI == '/menu' ? 'active' : ''}">Menu</a></li>
+            <li><a href="/blog" th:classappend="${currentURI == '/blog' ? 'active' : ''}">Blog</a></li>
+            <li><a href="/products" th:classappend="${currentURI != null and currentURI.startsWith('/products') ? 'active' : ''}">Products</a></li> <!-- Thêm kiểm tra null -->
+            <li><a href="/shop" th:classappend="${currentURI == '/shop' ? 'active' : ''}">Shop</a></li>
+            <li><a href="/contact" th:classappend="${currentURI == '/contact' ? 'active' : ''}">Contact</a></li>
         </ul>
     </nav>
 </header>

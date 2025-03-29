@@ -1,0 +1,124 @@
+/* src/main/resources/static/css/product-detail.css */
+
+body {
+    padding-top: 100px; /* Điều chỉnh theo header */
+    background-color: #fdfdfd;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.product-detail-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 30px 40px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 50px;
+    align-items: start;
+}
+
+.product-image-section img {
+    width: 100%; /* Chiếm hết chiều rộng cột grid */
+    height: auto; /* Để chiều cao tự điều chỉnh theo tỷ lệ ảnh */
+    max-width: 450px; /* Giới hạn chiều rộng tối đa của ảnh */
+    display: block;
+    margin: 0 auto; /* Căn giữa ảnh trong cột nếu cột rộng hơn max-width */
+    border-radius: 8px; /* Giữ bo góc */
+    border: 1px solid #e0e0e0; /* Viền rõ hơn chút */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Thêm bóng đổ nhẹ */
+    object-fit: contain; /* Đảm bảo thấy toàn bộ ảnh chi tiết */
+}
+
+.product-info-section h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.8em;
+    color: #000b2c;
+    margin-top: 0;
+    margin-bottom: 15px;
+    line-height: 1.2;
+}
+
+.product-price-detail {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #ff4b00;
+    margin-bottom: 25px;
+}
+
+.product-description h4, .product-content h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3em;
+    color: #000b2c;
+    margin-top: 0;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
+}
+
+.product-description p, .product-content div {
+    color: #444;
+    line-height: 1.7;
+    margin-bottom: 20px;
+    font-size: 0.95em;
+}
+
+.product-content {
+    margin-top: 30px;
+}
+
+.buy-now-btn {
+    display: inline-block;
+    background-color: #ff4b00;
+    color: white;
+    padding: 12px 30px;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 1.1em;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease;
+    margin-top: 25px;
+}
+
+.buy-now-btn:hover {
+    background-color: #e43a00;
+}
+
+.back-link {
+    display: block;
+    margin-top: 30px;
+    text-align: center;
+    color: #007bff; /* Hoặc màu link khác */
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    body { padding-top: 80px; }
+    .product-detail-container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        padding: 20px;
+    }
+    .product-info-section h1 { font-size: 2em; }
+    .product-price-detail { font-size: 1.4em; }
+}
+
+/* CSS cho container lỗi (nếu dùng) */
+.container .error-message { /* Ví dụ */
+    text-align: center;
+    padding: 40px;
+    color: red;
+}
+.container .back-button { /* Ví dụ */
+    text-align: center;
+}
