@@ -120,12 +120,6 @@
             <div class="form-group">
                 <label style="margin-bottom: 10px; font-weight: 600;">Status & Roles:</label>
                 <div class="status-roles-container">
-                    <!-- Enabled Switch/Checkbox -->
-                    <div class="form-check form-switch enabled-switch">
-                        <input type="checkbox" id="enabled" th:field="*{enabled}" class="form-check-input" role="switch"/>
-                        <label class="form-check-label" for="enabled">Enabled</label>
-                    </div>
-
                     <!-- Horizontal Roles Checkboxes -->
                     <div class="roles-horizontal-group">
                         <div th:each="role : ${allRoles}" class="role-item-horizontal">

@@ -239,3 +239,38 @@ h1 {
 .form-control.is-invalid { /* Class này Thymeleaf tự thêm khi có lỗi server */
     border-color: #dc3545;
 }
+
+/* Style cho Badges */
+.badge {
+    display: inline-block;
+    padding: .35em .65em;
+    font-size: .75em;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25rem;
+}
+
+.bg-success { background-color: #198754; }
+.bg-danger { background-color: #dc3545; }
+.bg-secondary { background-color: #6c757d; }
+
+/* Style cho nút nhỏ hơn (btn-xs) */
+.btn-xs {
+    padding: .2rem .4rem;
+    font-size: .75rem;
+    border-radius: .2rem;
+}
+
+/* Style cho nút outline (viền) */
+.btn-outline-secondary { color: #6c757d; border-color: #6c757d; }
+.btn-outline-secondary:hover { color: #fff; background-color: #6c757d; border-color: #6c757d; }
+.btn-outline-success { color: #198754; border-color: #198754; }
+.btn-outline-success:hover { color: #fff; background-color: #198754; border-color: #198754; }
+.btn-outline-danger { color: #dc3545; border-color: #dc3545; }
+.btn-outline-danger:hover { color: #fff; background-color: #dc3545; border-color: #dc3545; }
+.btn-outline-light { color: #f8f9fa; border-color: #f8f9fa; } /* Dùng trong header */
+.btn-outline-light:hover { color: #000; background-color: #f8f9fa; border-color: #f8f9fa; }

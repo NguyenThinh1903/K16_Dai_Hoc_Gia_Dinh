@@ -229,4 +229,44 @@ public class SystemController {
         }
         return "redirect:/system/users";
     }
+
+    // --- TOGGLE USER ENABLED STATUS ---
+    @PostMapping("/users/toggle/{id}")
+    public String toggleUserStatus(@PathVariable("id") Long id, RedirectAttributes redirectAttributes, Authentication authentication) {
+        log.info("Attempting to toggle status for user ID: {}", id);
+        String loggedInUsername = authentication.getName();
+
+        try {
+            Optional<User> userOptional = userRepository.findById(id);
+            if (userOptional.isPresent()) {
+                User userToToggle = userOptional.get();
+
+                // Ngăn chặn tự disable tài khoản đang đăng nhập
+                if (userToToggle.getUsername().equals(loggedInUsername)) {
+                    log.warn("Attempt to disable own account: {}", loggedInUsername);
+                    redirectAttributes.addFlashAttribute("errorMessage", "You cannot disable your own account.");
+                    return "redirect:/system/users";
+                }
+
+                // Đảo ngược trạng thái enabled
+                boolean newState = !userToToggle.isEnabled();
+                userToToggle.setEnabled(newState);
+                userRepository.save(userToToggle); // Lưu lại thay đổi
+
+                log.info("User '{}' status toggled to: {}", userToToggle.getUsername(), newState ? "Enabled" : "Disabled");
+                redirectAttributes.addFlashAttribute("successMessage",
+                        "User '" + userToToggle.getUsername() + "' has been " + (newState ? "enabled" : "disabled") + ".");
+
+            } else {
+                log.warn("User not found for status toggle with ID: {}", id);
+                redirectAttributes.addFlashAttribute("errorMessage", "User not found with ID: " + id);
+            }
+        } catch (Exception e) {
+            log.error("Error toggling status for user ID: {}: ", id, e);
+            redirectAttributes.addFlashAttribute("errorMessage", "Error toggling status for user (ID: " + id + ").");
+        }
+        return "redirect:/system/users";
+    }
+
+    // Các phương thức cho Authorities (nếu cần)
 }
