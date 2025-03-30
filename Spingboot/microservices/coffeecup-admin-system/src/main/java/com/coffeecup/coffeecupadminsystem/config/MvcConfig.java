@@ -11,10 +11,6 @@ import java.nio.file.Paths;
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
 
-    // Không cần @Value nữa nếu dùng đường dẫn tương đối cố định
-    // @Value("${app.upload.dir}")
-    // private String uploadDir;
-
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // Đường dẫn tương đối đến thư mục 'image/products' từ gốc project
