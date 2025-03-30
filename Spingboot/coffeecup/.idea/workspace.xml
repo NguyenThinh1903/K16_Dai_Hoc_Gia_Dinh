@@ -4,19 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f96a2635-784d-4c66-98b8-a3d26856af6b" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../coffeecup-admin-system/image/products/1743159159102_dark_coffee.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/coffeecup/coffeecup/config/MvcConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/coffeecup/coffeecup/config/MvcConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/contact.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/templates/contact.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/menu.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/templates/menu.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/coffeecup/coffeecup/config/MvcConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/coffeecup/coffeecup/config/MvcConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/templates/contact.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/templates/contact.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/templates/menu.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/templates/menu.html" afterDir="false" />
-    </list>
+    <list default="true" id="f96a2635-784d-4c66-98b8-a3d26856af6b" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -100,7 +88,7 @@
       <workItem from="1743135651450" duration="106000" />
       <workItem from="1743256800140" duration="8960000" />
       <workItem from="1743266012463" duration="1084000" />
-      <workItem from="1743267168597" duration="574000" />
+      <workItem from="1743267168597" duration="654000" />
     </task>
     <servers />
   </component>
