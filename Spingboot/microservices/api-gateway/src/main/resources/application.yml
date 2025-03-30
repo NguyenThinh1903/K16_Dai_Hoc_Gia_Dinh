@@ -9,26 +9,26 @@ spring:
       discovery:
         locator:
           enabled: true
-          lower-case-service-id: true # Th??ng kh?ng c?n thi?t v?i YAML nh?ng c? th? gi?
+          lower-case-service-id: true
       routes:
-        # Route 0: Static/Uploads (Giữ nguyên)
         - id: static_resources_route
           uri: lb://coffeecup-public-site
           predicates:
             - Path=/css/**, /js/**, /images/**, /webjars/**, /uploads/products/**
           order: 0
-        # Route 1: Admin/System (Đã sửa path)
         - id: admin_system_route
           uri: lb://coffeecup-admin-system
           predicates:
-            # *** Chỉ bắt /admin, /system và login/logout quản lý ***
             - Path=/admin/**, /system/**, /manage/login, /manage/logout
           order: 1
-        # Route 2: Public Pages (Đã thêm login/logout public)
+        - id: api_route
+          uri: lb://coffeecup-admin-system
+          predicates:
+            - Path=/api/**
+          order: 2
         - id: public_pages_route
           uri: lb://coffeecup-public-site
           predicates:
-            # *** Thêm /login, /logout vào đây ***
             - Path=/, /home, /about, /menu, /blog, /products, /products/{id:\d+}, /shop, /contact, /register, /login, /logout
           order: 5
 
@@ -36,11 +36,3 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-  # instance: # C?c c?u h?nh instance n?u c?n
-  #   prefer-ip-address: true
-
-# B?t log DEBUG n?u c?n ki?m tra
-# logging:
-#   level:
-#     org.springframework.cloud.gateway: DEBUG
-#     reactor.netty.http.client: DEBUG

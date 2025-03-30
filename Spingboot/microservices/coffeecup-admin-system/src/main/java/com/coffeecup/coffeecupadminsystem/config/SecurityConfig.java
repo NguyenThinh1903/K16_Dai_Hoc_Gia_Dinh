@@ -1,8 +1,9 @@
-package com.coffeecup.coffeecupadminsystem.config; // Sửa package nếu cần
+package com.coffeecup.coffeecupadminsystem.config;
 
-import com.coffeecup.coffeecupadminsystem.service.UserDetailsServiceImpl; // Sửa import nếu cần
+import com.coffeecup.coffeecupadminsystem.service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -38,11 +39,15 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
-                        // *** THỬ THAY ĐỔI Ở ĐÂY: Thêm dấu ** ***
-                        .requestMatchers("/login**").permitAll() // Cho phép /login và /login?error=true, /login?logout vv...
+                        .requestMatchers("/manage/login").permitAll() // Login admin
+                        // *** CHO PHÉP API GET CÔNG KHAI ***
+                        .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
+                        // *** CÁC API KHÁC CẦN QUYỀN ADMIN ***
+                        .requestMatchers("/api/**").hasRole("ADMIN") // Ví dụ: Mọi API khác cần ADMIN
+                        // Phân quyền trang quản trị
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/system/**").hasRole("SYSTEM")
-                        .anyRequest().hasAnyRole("ADMIN", "SYSTEM")
+                        .anyRequest().hasAnyRole("ADMIN", "SYSTEM") // Các trang khác của admin/system
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
