@@ -1,0 +1,51 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true # Th??ng không c?n thi?t v?i YAML nh?ng có th? gi?
+      routes:
+        # Route 0: Static/Uploads
+        - id: static_resources_route
+          uri: lb://coffeecup-public-site # Dùng tên service ch? th??ng
+          predicates:
+            - Path=/css/**, /js/**, /images/**, /webjars/**, /uploads/products/**
+          order: 0
+        # Route 1: Admin/System/Login
+        - id: admin_system_route
+          uri: lb://coffeecup-admin-system
+          predicates:
+            - Path=/admin/**, /system/**, /login
+          order: 1
+        # Route 2: Public Pages
+        - id: public_pages_route
+          uri: lb://coffeecup-public-site
+          predicates:
+            # Li?t kê các path public, bao g?m /
+            - Path=/, /home, /about, /menu, /blog, /products, /products/{id:\d+}, /shop, /contact, /register
+          order: 5
+        # Route 3: Fallback (Tùy ch?n)
+        # - id: public_fallback_route
+        #   uri: lb://coffeecup-public-site
+        #   predicates:
+        #     - Path=/**
+        #   order: 10
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  # instance: # Các c?u hình instance n?u c?n
+  #   prefer-ip-address: true
+
+# B?t log DEBUG n?u c?n ki?m tra
+# logging:
+#   level:
+#     org.springframework.cloud.gateway: DEBUG
+#     reactor.netty.http.client: DEBUG
