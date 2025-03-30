@@ -8,7 +8,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,12 +16,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.FileSystems;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
@@ -38,13 +36,8 @@ public class AdminController {
     @Autowired
     private ProductRepository productRepository;
 
-    private static final String UPLOAD_DIR = "static/uploads/products/";
-
-    // Hàm tiện ích để lấy đường dẫn upload tuyệt đối
-    private Path getUploadPath() {
-        String projectRootPath = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
-        return Paths.get(projectRootPath, "image", "products");
-    }
+    @Value("${app.upload.dir}")
+    private String uploadDir;
 
     // ===========================================
     // Customer Management Methods
@@ -192,7 +185,7 @@ public class AdminController {
         log.info("Attempting to save product (Action: {})", action);
 
         boolean isNew = (product.getMa() == null);
-        String oldImageFileName = product.getImageFileName(); // Lấy tên file ảnh cũ
+        String oldImageFileName = product.getImageFileName();
 
         if (bindingResult.hasErrors()) {
             log.warn("Validation errors found: {}", bindingResult.getAllErrors());
@@ -207,8 +200,7 @@ public class AdminController {
                 String fileName = System.currentTimeMillis() + "_" + imageFile.getOriginalFilename();
                 uniqueFileName = fileName;
 
-                Path uploadPath = getUploadPath();
-
+                Path uploadPath = Paths.get(uploadDir);
                 if (!Files.exists(uploadPath)) {
                     Files.createDirectories(uploadPath);
                     log.info("Created directory: {}", uploadPath);
@@ -265,7 +257,7 @@ public class AdminController {
 
                 if (imageFileNameToDelete != null && !imageFileNameToDelete.isEmpty()) {
                     try {
-                        Path uploadPath = getUploadPath();
+                        Path uploadPath = Paths.get(uploadDir);
                         Path filePathToDelete = uploadPath.resolve(imageFileNameToDelete);
                         Files.deleteIfExists(filePathToDelete);
                         log.info("Deleted associated image file: {}", filePathToDelete);
