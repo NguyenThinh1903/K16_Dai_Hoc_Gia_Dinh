@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{_layout}">
+<head>
+    <title>Manage Customers</title>
+    <!-- Có thể thêm CSS/JS riêng vào head-extra/script-extra nếu cần -->
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="container">
+        <h1>Manage Customers</h1>
+
+        <!-- Thông báo success/error -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            [[${successMessage}]]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            [[${errorMessage}]]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="action-bar">
+            <!-- Nút Back to Home đã có ở header -->
+            <a th:href="@{/admin/customers/add}" class="btn btn-primary">Add New Customer</a>
+            <!-- Nút Logout đã có ở header -->
+        </div>
+
+        <div class="table-responsive"> <!-- Bọc table để responsive -->
+            <table class="table table-striped table-hover"> <!-- Thêm class Bootstrap nếu dùng -->
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                    <th style="width: 150px;">Actions</th> <!-- Đặt chiều rộng cột Actions -->
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="customer : ${customers}">
+                    <td th:text="${customer.id}">1</td>
+                    <td th:text="${customer.name}">John Doe</td>
+                    <td th:text="${customer.email}">john@example.com</td>
+                    <td th:text="${customer.phone}">123456789</td>
+                    <td th:text="${customer.address}">123 Main St</td>
+                    <td>
+                        <a th:href="@{/admin/customers/edit/{id}(id=${customer.id})}" class="btn btn-sm btn-warning me-1">Edit</a> <!-- Thêm margin -->
+                        <a th:href="@{/admin/customers/delete/{id}(id=${customer.id})}"
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Are you sure you want to delete this customer?');">Delete</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(customers)}">
+                    <td colspan="6" style="text-align: center; padding: 20px;">No customers found.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

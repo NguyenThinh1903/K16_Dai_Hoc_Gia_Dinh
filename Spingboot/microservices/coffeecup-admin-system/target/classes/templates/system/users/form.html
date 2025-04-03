@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{_layout}">
+<head>
+    <title th:text="${pageTitle}">User Form</title>
+    <th:block layout:fragment="head-extra">
+        <style>
+            #currentPasswordGroup.edit-mode { display: block; }
+            #currentPasswordGroup:not(.edit-mode) { display: none; }
+
+            /* Container chung cho status và roles */
+            .status-roles-container {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 15px 25px;
+                padding: 15px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                background-color: #fdfdfd;
+            }
+
+            /* Định dạng phần Enabled */
+            .enabled-switch {
+                padding-left: 0;
+                margin-right: 15px;
+            }
+            .enabled-switch .form-check-input {
+                width: 2.5em; height: 1.25em; margin-left: 0; margin-right: 8px;
+            }
+            .enabled-switch .form-check-label {
+                font-weight: 600;
+            }
+
+            /* Nhóm các checkbox role nằm ngang */
+            .roles-horizontal-group {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 15px;
+                flex-grow: 1;
+            }
+
+            /* Từng mục role */
+            .role-item-horizontal {
+                display: flex;
+                align-items: center;
+            }
+
+            .role-item-horizontal input[type="checkbox"] {
+                margin-right: 5px;
+                width: 15px; height: 15px;
+                cursor: pointer;
+            }
+            .role-item-horizontal label {
+                margin-bottom: 0;
+                font-weight: normal;
+                cursor: pointer;
+                white-space: nowrap;
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="container">
+        <h1 th:text="${pageTitle}">User Form</h1>
+        <div th:if="${saveError}" class="form-error-message" th:text="${saveError}"></div>
+
+        <form id="userForm" th:action="@{/system/users/save}" th:object="${user}" method="post" novalidate>
+            <input type="hidden" th:field="*{id}" />
+
+            <!-- Username Input -->
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" th:field="*{username}"
+                       th:class="'form-control' + (${#fields.hasErrors('username')} ? ' is-invalid' : '')"
+                       required minlength="4" maxlength="6"
+                       aria-describedby="usernameError serverUsernameError"/>
+                <span id="usernameError" class="live-error">Username must be between 4 and 6 characters.</span>
+                <div id="serverUsernameError" th:if="${#fields.hasErrors('username')}" class="invalid-feedback"><span th:errors="*{username}"></span></div>
+            </div>
+
+            <!-- Current Password Input -->
+            <div class="form-group" id="currentPasswordGroup" th:classappend="*{id != null} ? 'edit-mode'">
+                <label for="currentPassword">Current Password:</label>
+                <input type="password" id="currentPassword" th:field="*{currentPassword}"
+                       th:class="'form-control' + (${#fields.hasErrors('currentPassword')} ? ' is-invalid' : '')"
+                       th:required="*{id != null}"
+                       aria-describedby="currentPasswordError serverCurrentPasswordError currentPasswordHelp"/>
+                <small id="currentPasswordHelp" class="form-text text-muted">Required to save any changes.</small>
+                <span id="currentPasswordError" class="live-error">Current password required/incorrect.</span>
+                <div id="serverCurrentPasswordError" th:if="${#fields.hasErrors('currentPassword')}" class="invalid-feedback"><span th:errors="*{currentPassword}"></span></div>
+            </div>
+
+            <!-- New Password Input -->
+            <div class="form-group">
+                <label for="password">New Password:</label>
+                <input type="password" id="password" th:field="*{password}"
+                       th:class="'form-control' + (${#fields.hasErrors('password')} ? ' is-invalid' : '')"
+                       th:required="*{id == null}" minlength="6" maxlength="10"
+                       aria-describedby="passwordError serverPasswordError passwordHelp"/>
+                <small id="passwordHelp" class="form-text text-muted">Enter 6-10 characters ONLY if you want to change the password.</small>
+                <span id="passwordError" class="live-error">Password must be between 6 and 10 characters.</span>
+                <div id="serverPasswordError" th:if="${#fields.hasErrors('password')}" class="invalid-feedback"><span th:errors="*{password}"></span></div>
+            </div>
+
+            <!-- Confirm New Password Input -->
+            <div class="form-group">
+                <label for="confirmPassword">Confirm New Password:</label>
+                <input type="password" id="confirmPassword" th:field="*{confirmPassword}"
+                       th:class="'form-control' + (${#fields.hasErrors('confirmPassword')} ? ' is-invalid' : '')"
+                       th:required="*{id == null}" minlength="6" maxlength="10"
+                       aria-describedby="confirmPasswordError serverConfirmPasswordError"/>
+                <span id="confirmPasswordError" class="live-error">Passwords do not match or are invalid length.</span>
+                <div id="serverConfirmPasswordError" th:if="${#fields.hasErrors('confirmPassword')}" class="invalid-feedback"><span th:errors="*{confirmPassword}"></span></div>
+            </div>
+
+            <!-- Enabled & Roles Group -->
+            <div class="form-group">
+                <label style="margin-bottom: 10px; font-weight: 600;">Status & Roles:</label>
+                <div class="status-roles-container">
+                    <!-- Horizontal Roles Checkboxes -->
+                    <div class="roles-horizontal-group">
+                        <div th:each="role : ${allRoles}" class="role-item-horizontal">
+                            <input type="checkbox" th:field="*{authorities}" th:value="${role.id}" th:id="'role-' + ${role.id}"
+                                   class="form-check-input"/>
+                            <label th:for="'role-' + ${role.id}">
+                                <span th:text="${#strings.replace(role.name, 'ROLE_', '')}">ROLE</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hiển thị lỗi server cho authorities -->
+                <div id="serverRolesError" th:if="${#fields.hasErrors('authorities')}" class="invalid-feedback" style="margin-top: 5px;">
+                    <span th:errors="*{authorities}"></span>
+                </div>
+                <!-- Lỗi JS cho roles -->
+                <span id="rolesError" class="live-error">At least one role must be selected.</span>
+            </div>
+
+            <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save User</button>
+                <a th:href="@{/system/users}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<th:block layout:fragment="script-extra">
+    <script>
+        const usernameInput = document.getElementById('username');
+        const usernameError = document.getElementById('usernameError');
+        const passwordInput = document.getElementById('password');
+        const passwordError = document.getElementById('passwordError');
+        const currentPasswordInput = document.getElementById('currentPassword');
+        const currentPasswordGroup = document.getElementById('currentPasswordGroup');
+        const currentPasswordError = document.getElementById('currentPasswordError');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const confirmPasswordError = document.getElementById('confirmPasswordError');
+        const rolesCheckboxes = document.querySelectorAll('input[name="authorities"]');
+        const rolesError = document.getElementById('rolesError');
+        const isEditMode = document.querySelector('input[name="id"]').value !== '';
+
+        const serverUsernameErrorDiv = document.getElementById('serverUsernameError');
+        const serverPasswordErrorDiv = document.getElementById('serverPasswordError');
+        const serverCurrentPasswordErrorDiv = document.getElementById('serverCurrentPasswordError');
+        const serverConfirmPasswordErrorDiv = document.getElementById('serverConfirmPasswordError');
+        const serverRolesErrorDiv = document.getElementById('serverRolesError');
+
+        function validateUserField(inputElement, errorElement, serverErrorDiv) {
+            inputElement.classList.remove('is-invalid');
+            inputElement.classList.remove('is-invalid-js');
+            errorElement.style.display = 'none';
+            if (serverErrorDiv) serverErrorDiv.style.display = 'none';
+
+            let skipRequiredCheck = isEditMode && inputElement.value === '' &&
+                (inputElement.id === 'password' || inputElement.id === 'confirmPassword');
+
+            if (inputElement.id === 'currentPassword' && isEditMode) {
+                skipRequiredCheck = false;
+            }
+
+            if (!inputElement.checkValidity() && !skipRequiredCheck) {
+                inputElement.classList.add('is-invalid-js');
+                let message = 'Invalid input.';
+                const validity = inputElement.validity;
+
+                if (validity.valueMissing) {
+                    if (inputElement.id === 'currentPassword' && isEditMode) {
+                        message = 'Current password is required to save changes.';
+                    } else {
+                        message = `${inputElement.labels[0]?.textContent.replace(':','') || inputElement.name} cannot be empty.`;
+                    }
+                } else if (validity.tooShort || validity.tooLong) {
+                    if (inputElement.id === 'password' || inputElement.id === 'confirmPassword') {
+                        message = `Password must be between ${inputElement.minLength} and ${inputElement.maxLength} characters.`;
+                    } else if (inputElement.id === 'username') {
+                        message = `Username must be between ${inputElement.minLength} and ${inputElement.maxLength} characters.`;
+                    } else {
+                        message = `Length is invalid.`;
+                    }
+                }
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+
+            if (inputElement.id === 'confirmPassword' || inputElement.id === 'password') {
+                validateConfirmPassword();
+            }
+        }
+
+        function validateConfirmPassword() {
+            confirmPasswordInput.classList.remove('is-invalid-js');
+            confirmPasswordError.style.display = 'none';
+            if (serverConfirmPasswordErrorDiv) serverConfirmPasswordErrorDiv.style.display = 'none';
+
+            if (passwordInput.value !== '' || !isEditMode) {
+                if (passwordInput.value !== confirmPasswordInput.value || !confirmPasswordInput.checkValidity()) {
+                    confirmPasswordInput.classList.add('is-invalid-js');
+                    confirmPasswordError.textContent = 'Passwords do not match or are invalid length.';
+                    confirmPasswordError.style.display = 'block';
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function validateRoles() {
+            const isAnyRoleChecked = Array.from(rolesCheckboxes).some(cb => cb.checked);
+            rolesError.style.display = isAnyRoleChecked ? 'none' : 'block';
+            return isAnyRoleChecked;
+        }
+
+        usernameInput.addEventListener('input', () => validateUserField(usernameInput, usernameError, serverUsernameErrorDiv));
+        usernameInput.addEventListener('blur', () => validateUserField(usernameInput, usernameError, serverUsernameErrorDiv));
+        passwordInput.addEventListener('input', () => validateUserField(passwordInput, passwordError, serverPasswordErrorDiv));
+        passwordInput.addEventListener('blur', () => validateUserField(passwordInput, passwordError, serverPasswordErrorDiv));
+        currentPasswordInput.addEventListener('input', () => validateUserField(currentPasswordInput, currentPasswordError, serverCurrentPasswordErrorDiv));
+        currentPasswordInput.addEventListener('blur', () => validateUserField(currentPasswordInput, currentPasswordError, serverCurrentPasswordErrorDiv));
+        confirmPasswordInput.addEventListener('input', validateConfirmPassword);
+        confirmPasswordInput.addEventListener('blur', validateConfirmPassword);
+        rolesCheckboxes.forEach(checkbox => checkbox.addEventListener('change', validateRoles));
+
+        const form = document.getElementById('userForm');
+        form.addEventListener('submit', function (event) {
+            let isFormValid = true;
+
+            validateUserField(usernameInput, usernameError, serverUsernameErrorDiv);
+            if (!usernameInput.checkValidity()) isFormValid = false;
+
+            if (isEditMode) {
+                validateUserField(currentPasswordInput, currentPasswordError, serverCurrentPasswordErrorDiv);
+                if (currentPasswordInput.value === '') {
+                    currentPasswordInput.classList.add('is-invalid-js');
+                    currentPasswordError.textContent = 'Current password is required to save changes.';
+                    currentPasswordError.style.display = 'block';
+                    isFormValid = false;
+                } else if (!currentPasswordInput.checkValidity()) {
+                    isFormValid = false;
+                }
+            }
+
+            let isChangingPassword = passwordInput.value !== '';
+            if (!isEditMode || isChangingPassword) {
+                validateUserField(passwordInput, passwordError, serverPasswordErrorDiv);
+                if (!passwordInput.checkValidity()) isFormValid = false;
+                validateUserField(confirmPasswordInput, confirmPasswordError, serverConfirmPasswordErrorDiv);
+                if (!validateConfirmPassword()) isFormValid = false;
+            } else {
+                passwordInput.classList.remove('is-invalid-js');
+                passwordError.style.display = 'none';
+                confirmPasswordInput.classList.remove('is-invalid-js');
+                confirmPasswordError.style.display = 'none';
+            }
+
+            if (!validateRoles()) isFormValid = false;
+
+            if (!isFormValid) {
+                event.preventDefault();
+                event.stopPropagation();
+                alert('Please fix the client-side validation errors before submitting.');
+            }
+        }, false);
+    </script>
+</th:block>
+</body>
+</html>

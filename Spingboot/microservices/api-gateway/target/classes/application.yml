@@ -1,0 +1,38 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: static_resources_route
+          uri: lb://coffeecup-public-site
+          predicates:
+            - Path=/css/**, /js/**, /images/**, /webjars/**, /uploads/products/**
+          order: 0
+        - id: admin_system_route
+          uri: lb://coffeecup-admin-system
+          predicates:
+            - Path=/admin/**, /system/**, /manage/login, /manage/logout
+          order: 1
+        - id: api_route
+          uri: lb://coffeecup-admin-system
+          predicates:
+            - Path=/api/**
+          order: 2
+        - id: public_pages_route
+          uri: lb://coffeecup-public-site
+          predicates:
+            - Path=/, /home, /about, /menu, /blog, /products, /products/{id:\d+}, /shop, /contact, /register, /login, /logout
+          order: 5
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{_layout}">
+<head>
+    <title>Dashboard</title>
+    <th:block layout:fragment="head-extra">
+        <style>
+            .management-sections { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-top: 30px; }
+            .management-card { background-color: #fff; padding: 25px; border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); }
+            .management-card h2 { font-size: 1.5em; color: #0056b3; /* Đậm hơn chút */ margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 12px; }
+            .management-card ul { list-style: none; padding: 0; margin: 0; }
+            .management-card ul li { margin-bottom: 12px; }
+            .management-card ul li a { text-decoration: none; color: #343a40; display: block; padding: 8px 0; transition: color 0.2s ease, padding-left 0.2s ease; border-left: 3px solid transparent; }
+            .management-card ul li a:hover { color: #0056b3; font-weight: 500; padding-left: 8px; border-left-color: #0056b3; }
+            .management-card h2 i { margin-right: 10px; color: #6c757d; }
+            h1 { text-align: center; color: #495057; margin-bottom: 30px;} /* Style cho tiêu đề trang */
+        </style>
+        <!-- Link Font Awesome nếu muốn icon -->
+        <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" /> -->
+    </th:block>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="container">
+        <h1>CoffeeCup Management Dashboard</h1>
+
+        <div class="management-sections">
+            <!-- Khối Quản lý Admin -->
+            <div class="management-card" th:if="${isAdmin}">
+                <!-- Thay bằng icon phù hợp nếu dùng FontAwesome -->
+                <h2><i class="fas fa-user-shield"></i> Admin Section</h2>
+                <ul>
+                    <li><a th:href="@{/admin/customers}">Manage Customers</a></li>
+                    <li><a th:href="@{/admin/products}">Manage Products</a></li>
+                </ul>
+            </div>
+            <!-- Khối Quản lý System -->
+            <div class="management-card" th:if="${isSystem}">
+                <h2><i class="fas fa-cogs"></i> System Section</h2>
+                <ul>
+                    <li><a th:href="@{/system/users}">Manage Users</a></li>
+                    <li><a th:href="@{/system/authorities}">Manage Roles (Authorities)</a></li>
+                </ul>
+            </div>
+        </div>
+        <p th:unless="${isAdmin or isSystem}" style="text-align: center; margin-top: 30px; color: #6c757d;">You do not have specific management roles assigned.</p>
+    </div>
+</main>
+</body>
+</html>

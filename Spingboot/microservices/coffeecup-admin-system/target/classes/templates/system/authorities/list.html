@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{_layout}">
+<head>
+    <title>Manage Roles (Authorities)</title>
+    <!-- Kế thừa CSS từ layout -->
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="container">
+        <h1>Manage Roles (Authorities)</h1>
+
+        <!-- Hiển thị thông báo -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            [[${successMessage}]]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            [[${errorMessage}]]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="action-bar">
+            <a th:href="@{/}" class="btn btn-secondary">Back to Home</a>
+            <a th:href="@{/system/authorities/add}" class="btn btn-primary">Add New Role</a> <!-- Link thêm Role mới -->
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Role Name (Authority)</th>
+                    <th style="width: 150px;">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="auth : ${authorities}">
+                    <td th:text="${auth.id}">1</td>
+                    <td th:text="${auth.name}">ROLE_ADMIN</td>
+                    <td>
+                        <!-- Link Edit (Có thể không cần thiết nếu role cố định) -->
+                        <!-- <a th:href="@{/system/authorities/edit/{id}(id=${auth.id})}" class="btn btn-sm btn-warning me-1">Edit</a> -->
+
+                        <!-- Link Delete (Cẩn thận!) -->
+                        <!-- Chỉ cho xóa những role không phải là role cơ bản -->
+                        <a th:if="${auth.name != 'ROLE_ADMIN' and auth.name != 'ROLE_SYSTEM' and auth.name != 'ROLE_USER'}"
+                           th:href="@{/system/authorities/delete/{id}(id=${auth.id})}"
+                           class="btn btn-sm btn-danger"
+                           th:onclick="'return confirm(\'Are you sure you want to delete role \\\'__${auth.name}__\\\'? This might affect users with this role.\');'">
+                            Delete
+                        </a>
+                        <!-- Ghi chú cho các role không thể xóa -->
+                        <span th:unless="${auth.name != 'ROLE_ADMIN' and auth.name != 'ROLE_SYSTEM' and auth.name != 'ROLE_USER'}"
+                              class="text-muted" style="font-size: 0.85em;">(Cannot delete core role)</span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(authorities)}">
+                    <td colspan="3" style="text-align: center; padding: 20px;">No roles found.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

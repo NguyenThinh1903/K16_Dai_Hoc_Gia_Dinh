@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{_layout}">
+<head>
+    <title th:text="${pageTitle}">Product Form</title>
+    <!-- CSS lỗi đã được chuyển vào _layout.html -->
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="container">
+        <h1 th:text="${pageTitle}">Product Form</h1>
+
+        <div th:if="${saveError}" class="form-error-message" th:text="${saveError}"></div>
+
+        <form id="productForm" th:action="@{/admin/products/save}" th:object="${product}" method="post" enctype="multipart/form-data" novalidate>
+            <input type="hidden" th:field="*{ma}" />
+            <input type="hidden" th:field="*{imageFileName}" />
+
+            <!-- Name (Ten) Input -->
+            <div class="form-group">
+                <label for="ten">Product Name:</label>
+                <input type="text" id="ten" th:field="*{ten}"
+                       th:class="'form-control' + (${#fields.hasErrors('ten')} ? ' is-invalid' : '')"
+                       required maxlength="255" aria-describedby="tenError serverTenError"/>
+                <span id="tenError" class="live-error">Product name cannot be empty.</span>
+                <div id="serverTenError" th:if="${#fields.hasErrors('ten')}" class="invalid-feedback">
+                    <span th:errors="*{ten}"></span>
+                </div>
+            </div>
+
+            <!-- Description (MoTa) Input -->
+            <div class="form-group">
+                <label for="moTa">Description:</label>
+                <textarea id="moTa" th:field="*{moTa}" rows="3"
+                          th:class="'form-control' + (${#fields.hasErrors('moTa')} ? ' is-invalid' : '')"
+                          maxlength="500" aria-describedby="moTaError serverMoTaError"></textarea>
+                <span id="moTaError" class="live-error">Description cannot exceed 500 characters.</span>
+                <div id="serverMoTaError" th:if="${#fields.hasErrors('moTa')}" class="invalid-feedback">
+                    <span th:errors="*{moTa}"></span>
+                </div>
+            </div>
+
+            <!-- Content (NoiDung) Input -->
+            <div class="form-group">
+                <label for="noiDung">Content:</label>
+                <textarea id="noiDung" th:field="*{noiDung}" rows="6"
+                          th:class="'form-control' + (${#fields.hasErrors('noiDung')} ? ' is-invalid' : '')"
+                          aria-describedby="noiDungError serverNoiDungError"></textarea>
+                <span id="noiDungError" class="live-error">Error in content.</span>
+                <div id="serverNoiDungError" th:if="${#fields.hasErrors('noiDung')}" class="invalid-feedback">
+                    <span th:errors="*{noiDung}"></span>
+                </div>
+            </div>
+
+            <!-- Price (Gia) Input -->
+            <div class="form-group">
+                <label for="gia">Price:</label>
+                <input type="number" id="gia" th:field="*{gia}" step="0.01" min="0.01"
+                       th:class="'form-control' + (${#fields.hasErrors('gia')} ? ' is-invalid' : '')"
+                       required aria-describedby="giaError serverGiaError"/>
+                <span id="giaError" class="live-error">Price must be a positive number (e.g., 10.50).</span>
+                <div id="serverGiaError" th:if="${#fields.hasErrors('gia')}" class="invalid-feedback">
+                    <span th:errors="*{gia}"></span>
+                </div>
+            </div>
+
+            <!-- Product Image Upload -->
+            <div class="form-group">
+                <label for="imageFile">Product Image:</label>
+                <!-- Thêm class để JS validation chung không báo lỗi required nếu không chọn file mới khi edit -->
+                <input type="file" id="imageFile" name="imageFile" class="form-control file-input" accept="image/png, image/jpeg, image/gif"/>
+                <!-- Hiển thị ảnh hiện tại -->
+                <div th:if="${product.ma != null and product.imageFileName != null}" style="margin-top: 10px;">
+                    <label style="font-weight: normal; display: block; margin-bottom: 5px;">Current Image:</label>
+                    <img th:src="@{${product.getImageUrl()}}" alt="Current Product Image" class="current-image"/>
+                </div>
+                <!-- Thông báo lỗi upload từ server (nếu có) -->
+                <div th:if="${#fields.hasErrors('imageFileName')}" class="invalid-feedback">
+                    <span th:errors="*{imageFileName}"></span>
+                </div>
+            </div>
+
+            <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Product</button>
+                <a th:href="@{/admin/products}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</main>
+<th:block layout:fragment="script-extra">
+    <script>
+        // Lấy các elements
+        const tenInput = document.getElementById('ten');
+        const tenError = document.getElementById('tenError');
+        const moTaInput = document.getElementById('moTa');
+        const moTaError = document.getElementById('moTaError');
+        const noiDungInput = document.getElementById('noiDung');
+        const noiDungError = document.getElementById('noiDungError');
+        const giaInput = document.getElementById('gia');
+        const giaError = document.getElementById('giaError');
+        const imageFileInput = document.getElementById('imageFile'); // Input file ảnh
+
+        // Lấy các div lỗi server
+        const serverTenErrorDiv = document.getElementById('serverTenError');
+        const serverMoTaErrorDiv = document.getElementById('serverMoTaError');
+        const serverNoiDungErrorDiv = document.getElementById('serverNoiDungError');
+        const serverGiaErrorDiv = document.getElementById('serverGiaError');
+
+
+        function validateProductInput(inputElement, errorElement, serverErrorDiv) {
+            inputElement.classList.remove('is-invalid');
+            inputElement.classList.remove('is-invalid-js');
+            errorElement.style.display = 'none';
+            if (serverErrorDiv) serverErrorDiv.style.display = 'none';
+
+            // Bỏ qua validation client-side cho input file nếu không bắt buộc
+            if (inputElement.type === 'file' && !inputElement.hasAttribute('required')) {
+                return; // Không cần validate file ở đây nữa nếu không required
+            }
+
+
+            if (!inputElement.checkValidity()) {
+                inputElement.classList.add('is-invalid-js');
+                let message = 'Invalid input.';
+                const validity = inputElement.validity;
+
+                if (validity.valueMissing) {
+                    let fieldName = inputElement.labels[0]?.textContent.replace(':','').trim() || inputElement.id;
+                    message = `${fieldName} cannot be empty.`;
+                } else if (validity.rangeUnderflow || validity.rangeOverflow || validity.stepMismatch || validity.badInput) {
+                    if(inputElement.id === 'gia') message = giaError.textContent;
+                    else message = 'Invalid number format or value.';
+                } else if (validity.tooLong) {
+                    message = `Cannot exceed ${inputElement.maxLength} characters.`;
+                }
+                // Thêm kiểm tra pattern nếu có
+                else if (validity.patternMismatch) {
+                    message = 'Invalid format.'; // Thông báo chung cho pattern
+                }
+
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        // Gắn sự kiện
+        tenInput.addEventListener('input', () => validateProductInput(tenInput, tenError, serverTenErrorDiv));
+        tenInput.addEventListener('blur', () => validateProductInput(tenInput, tenError, serverTenErrorDiv));
+        moTaInput.addEventListener('input', () => validateProductInput(moTaInput, moTaError, serverMoTaErrorDiv));
+        giaInput.addEventListener('input', () => validateProductInput(giaInput, giaError, serverGiaErrorDiv));
+        giaInput.addEventListener('blur', () => validateProductInput(giaInput, giaError, serverGiaErrorDiv));
+        noiDungInput.addEventListener('input', () => validateProductInput(noiDungInput, noiDungError, serverNoiDungErrorDiv));
+
+        // JS kiểm tra file ảnh (giữ lại nếu muốn)
+        imageFileInput.addEventListener('change', function() { /* ... code kiểm tra file ... */ });
+
+        // Xử lý submit
+        const form = document.getElementById('productForm');
+        form.addEventListener('submit', function (event) {
+            let isFormValid = true;
+            validateProductInput(tenInput, tenError, serverTenErrorDiv); if (!tenInput.checkValidity()) isFormValid = false;
+            validateProductInput(moTaInput, moTaError, serverMoTaErrorDiv); // if (!moTaInput.checkValidity()) isFormValid = false; // Chỉ check nếu có validation phức tạp
+            validateProductInput(noiDungInput, noiDungError, serverNoiDungErrorDiv); // if (!noiDungInput.checkValidity()) isFormValid = false;
+            validateProductInput(giaInput, giaError, serverGiaErrorDiv); if (!giaInput.checkValidity()) isFormValid = false;
+
+            // Kiểm tra input file ảnh nếu nó là bắt buộc (hiện tại không bắt buộc)
+            // if (imageFileInput.hasAttribute('required') && !imageFileInput.value) {
+            //     // Thêm logic hiển thị lỗi cho file input nếu cần
+            //     isFormValid = false;
+            // }
+
+
+            if (!isFormValid) {
+                event.preventDefault();
+                event.stopPropagation();
+                alert('Please fix the client-side validation errors before submitting.');
+            }
+        }, false);
+    </script>
+</th:block>
+</body>
+</html>

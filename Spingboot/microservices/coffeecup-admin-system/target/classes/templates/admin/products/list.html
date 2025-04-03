@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{_layout}">
+<head>
+    <title>Manage Products</title>
+    <!-- CSS cho thumbnail đã được chuyển vào _layout.html -->
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="container">
+        <h1>Manage Products</h1>
+
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            [[${successMessage}]]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            [[${errorMessage}]]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${warningMessage}" class="alert alert-warning alert-dismissible fade show" role="alert"> <!-- Thêm cho warning -->
+            [[${warningMessage}]]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+
+        <div class="action-bar">
+            <a th:href="@{/admin/products/add}" class="btn btn-primary">Add New Product</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th style="width: 150px;">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="product : ${products}">
+                    <td th:text="${product.ma}">1</td>
+                    <td>
+                        <img th:if="${product.imageFileName != null}"
+                             th:src="@{${product.getImageUrl()}}"
+                             alt="Product Image" class="product-thumbnail"/>
+                        <span th:unless="${product.imageFileName != null}" style="font-size: 0.8em; color: #6c757d;">No Image</span>
+                    </td>
+                    <td th:text="${product.ten}">Sample Product</td>
+                    <td th:text="${#strings.abbreviate(product.moTa, 80)}">Short desc...</td>
+                    <td th:text="${#numbers.formatCurrency(product.gia)}">$10.00</td>
+                    <td>
+                        <a th:href="@{/admin/products/edit/{id}(id=${product.ma})}" class="btn btn-sm btn-warning me-1">Edit</a>
+                        <a th:href="@{/admin/products/delete/{id}(id=${product.ma})}"
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(products)}">
+                    <td colspan="6" style="text-align: center; padding: 20px;">No products found.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

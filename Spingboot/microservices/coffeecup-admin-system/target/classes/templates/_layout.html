@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Tiêu đề: Layout Title - Content Title (Lấy từ trang con) -->
+    <title>CoffeeCup Admin</title>
+
+    <!-- Link CSS chung -->
+    <link rel="stylesheet" th:href="@{/css/admin-style.css}">
+
+    <!-- Style cơ bản cho layout -->
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            font-family: sans-serif; /* Đảm bảo font được áp dụng */
+            background-color: #f8f9fa; /* Màu nền nhẹ cho body */
+        }
+        .admin-header {
+            background-color: #343a40;
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+        .admin-header .brand {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #fff;
+            text-decoration: none;
+        }
+        .admin-header .brand:hover {
+            color: #f8f9fa;
+        }
+        .admin-header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .admin-header .user-info span {
+            color: #dee2e6;
+            font-size: 0.95em;
+        }
+        .admin-header .btn-outline-light {
+            color: #f8f9fa;
+            border-color: #f8f9fa;
+            padding: 0.3rem 0.7rem; /* Chỉnh lại padding nút logout */
+            font-size: 0.9em;
+        }
+        .admin-header .btn-outline-light:hover {
+            color: #343a40;
+            background-color: #f8f9fa;
+            border-color: #f8f9fa;
+        }
+
+        main {
+            flex-grow: 1;
+            padding: 30px 0; /* Tăng padding trên dưới */
+        }
+        /* Container trong main sẽ được style bởi admin-style.css */
+        /* Đảm bảo container trong admin-style.css có max-width và margin auto */
+
+        .admin-footer {
+            text-align: center;
+            margin-top: auto;
+            padding: 1rem;
+            border-top: 1px solid #dee2e6;
+            color: #6c757d;
+            font-size: 0.9em;
+            background-color: #e9ecef;
+        }
+
+        /* Style cho lỗi (giữ ở đây để các trang con kế thừa) */
+        .live-error { color: #dc3545; font-size: 0.8em; display: none; margin-top: 4px; }
+        .form-control.is-invalid-js { border-color: #dc3545; }
+        .form-control.is-invalid-js + .live-error { display: block; }
+        .form-control.is-invalid { border-color: #dc3545; }
+        .invalid-feedback { display: block; width: 100%; margin-top: 4px; font-size: 80%; color: #dc3545; }
+        .form-error-message { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; padding: .75rem 1.25rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: .25rem; }
+        textarea.form-control { height: auto; min-height: 80px; } /* Chiều cao tối thiểu cho textarea */
+        .current-image { max-width: 150px; height: auto; display: block; margin-top: 10px; border: 1px solid #ddd; padding: 5px; border-radius: 4px;}
+        .product-thumbnail { max-width: 60px; height: auto; max-height: 60px; object-fit: cover; border: 1px solid #eee; vertical-align: middle; border-radius: 3px;}
+
+    </style>
+
+    <!-- Khu vực để trang con chèn thêm thẻ vào <head> -->
+    <th:block layout:fragment="head-extra"></th:block>
+</head>
+<body>
+
+<!-- Header chung -->
+<header class="admin-header">
+    <a th:href="@{/}" class="brand">CoffeeCup Management</a>
+    <div class="user-info" sec:authorize="isAuthenticated()">
+             <span>
+                 Welcome, <strong sec:authentication="name" style="color: #fff;">User</strong>!
+                 (<span th:text="${#strings.listJoin(#authentication.authorities, ', ')}" style="font-style: italic;">Roles</span>)
+             </span>
+        <form th:action="@{/logout}" method="post" style="margin: 0;">
+            <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
+            <button type="submit" class="btn btn-sm btn-outline-light">Logout</button>
+        </form>
+    </div>
+</header>
+
+<!-- Nội dung chính từ trang con -->
+<main layout:fragment="content">
+    <div class="container">
+        <p>Default Content - This should be replaced.</p>
+    </div>
+</main>
+
+<!-- Footer chung -->
+<footer class="admin-footer">
+    © [[${#dates.year(#dates.createNow())}]] CoffeeCup Management System
+</footer>
+
+<!-- Khu vực để trang con chèn thêm thẻ script vào cuối <body> -->
+<th:block layout:fragment="script-extra"></th:block>
+</body>
+</html>

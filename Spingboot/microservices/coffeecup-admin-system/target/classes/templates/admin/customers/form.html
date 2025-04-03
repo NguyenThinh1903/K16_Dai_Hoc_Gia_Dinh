@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{_layout}">
+<head>
+    <title th:text="${pageTitle}">Customer Form</title>
+    <!-- CSS lỗi đã được đưa vào _layout.html -->
+    <th:block layout:fragment="head-extra">
+        <!-- Giữ lại style nếu có style riêng cho form này -->
+    </th:block>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="container">
+        <h1 th:text="${pageTitle}">Customer Form</h1>
+
+        <div th:if="${saveError}" class="form-error-message" th:text="${saveError}"></div>
+
+        <form id="customerForm" th:action="@{/admin/customers/save}" th:object="${customer}" method="post" novalidate>
+            <input type="hidden" th:field="*{id}" />
+
+            <!-- Name Input -->
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" th:field="*{name}"
+                       th:class="'form-control' + (${#fields.hasErrors('name')} ? ' is-invalid' : '')"
+                       required
+                       pattern="^[a-zA-Z .'-]+$"
+                       maxlength="100"
+                       aria-describedby="nameError serverNameError"/>
+                <span id="nameError" class="live-error">Name must contain only letters (a-z, A-Z), spaces, and punctuation (.',-).</span>
+                <div id="serverNameError" th:if="${#fields.hasErrors('name')}" class="invalid-feedback">
+                    <span th:errors="*{name}"></span>
+                </div>
+            </div>
+
+            <!-- Email Input -->
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" th:field="*{email}"
+                       th:class="'form-control' + (${#fields.hasErrors('email')} ? ' is-invalid' : '')"
+                       required
+                       maxlength="100"
+                       aria-describedby="emailError serverEmailError"/>
+                <span id="emailError" class="live-error">Please enter a valid email address.</span>
+                <div id="serverEmailError" th:if="${#fields.hasErrors('email')}" class="invalid-feedback">
+                    <span th:errors="*{email}"></span>
+                </div>
+            </div>
+
+            <!-- Phone Input -->
+            <div class="form-group">
+                <label for="phone">Phone:</label>
+                <input type="tel" id="phone" th:field="*{phone}"
+                       th:class="'form-control' + (${#fields.hasErrors('phone')} ? ' is-invalid' : '')"
+                       required
+                       pattern="\d{10}"
+                       maxlength="10"
+                       minlength="10"
+                       aria-describedby="phoneError serverPhoneError"/>
+                <span id="phoneError" class="live-error">Phone number must be exactly 10 digits.</span>
+                <div id="serverPhoneError" th:if="${#fields.hasErrors('phone')}" class="invalid-feedback">
+                    <span th:errors="*{phone}"></span>
+                </div>
+            </div>
+
+            <!-- Address Input -->
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <input type="text" id="address" th:field="*{address}"
+                       th:class="'form-control' + (${#fields.hasErrors('address')} ? ' is-invalid' : '')"
+                       required
+                       maxlength="255"
+                       aria-describedby="addressError serverAddressError"/>
+                <span id="addressError" class="live-error">Address cannot be empty.</span>
+                <div id="serverAddressError" th:if="${#fields.hasErrors('address')}" class="invalid-feedback">
+                    <span th:errors="*{address}"></span>
+                </div>
+            </div>
+
+            <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Customer</button>
+                <a th:href="@{/admin/customers}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<th:block layout:fragment="script-extra">
+    <!-- JavaScript validation giữ nguyên ở đây -->
+    <script>
+        const nameInput = document.getElementById('name');
+        const nameError = document.getElementById('nameError');
+        const emailInput = document.getElementById('email');
+        const emailError = document.getElementById('emailError');
+        const phoneInput = document.getElementById('phone');
+        const phoneError = document.getElementById('phoneError');
+        const addressInput = document.getElementById('address');
+        const addressError = document.getElementById('addressError');
+        const serverNameErrorDiv = document.getElementById('serverNameError');
+        const serverEmailErrorDiv = document.getElementById('serverEmailError');
+        const serverPhoneErrorDiv = document.getElementById('serverPhoneError');
+        const serverAddressErrorDiv = document.getElementById('serverAddressError');
+        const serverEmailExistsErrorDiv = document.getElementById('serverEmailExistsError'); // Giữ lại nếu bạn xử lý lỗi trùng email riêng
+
+        function validateInput(inputElement, errorElement, serverErrorDiv) {
+            inputElement.classList.remove('is-invalid');
+            inputElement.classList.remove('is-invalid-js');
+            errorElement.style.display = 'none';
+            if (serverErrorDiv) serverErrorDiv.style.display = 'none';
+            // Tạm thời comment out dòng này xem có ảnh hưởng gì không
+            // if (inputElement.id === 'email' && serverEmailExistsErrorDiv) serverEmailExistsErrorDiv.style.display = 'none';
+
+            if (!inputElement.checkValidity()) {
+                inputElement.classList.add('is-invalid-js');
+                let message = 'Invalid input.';
+                const validity = inputElement.validity;
+                if (validity.valueMissing) { message = `${inputElement.labels[0]?.textContent || inputElement.name} cannot be empty.`; }
+                else if (validity.patternMismatch) {
+                    if(inputElement.id === 'name') message = nameError.textContent;
+                    else if(inputElement.id === 'phone') message = phoneError.textContent;
+                    else if(inputElement.id === 'email') message = emailError.textContent;
+                    else message = 'Invalid format.';
+                } else if (validity.typeMismatch && inputElement.type === 'email') { message = emailError.textContent; }
+                else if (validity.tooShort || validity.tooLong) {
+                    if(inputElement.id === 'phone') { message = phoneError.textContent; }
+                    else { message = `Length is invalid.`; }
+                }
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        nameInput.addEventListener('input', () => validateInput(nameInput, nameError, serverNameErrorDiv));
+        emailInput.addEventListener('input', () => validateInput(emailInput, emailError, serverEmailErrorDiv));
+        phoneInput.addEventListener('input', () => validateInput(phoneInput, phoneError, serverPhoneErrorDiv));
+        addressInput.addEventListener('input', () => validateInput(addressInput, addressError, serverAddressErrorDiv));
+        nameInput.addEventListener('blur', () => validateInput(nameInput, nameError, serverNameErrorDiv));
+        emailInput.addEventListener('blur', () => validateInput(emailInput, emailError, serverEmailErrorDiv));
+        phoneInput.addEventListener('blur', () => validateInput(phoneInput, phoneError, serverPhoneErrorDiv));
+        addressInput.addEventListener('blur', () => validateInput(addressInput, addressError, serverAddressErrorDiv));
+
+        const form = document.getElementById('customerForm');
+        form.addEventListener('submit', function (event) {
+            let isFormValid = true;
+            validateInput(nameInput, nameError, serverNameErrorDiv); if (!nameInput.checkValidity()) isFormValid = false;
+            validateInput(emailInput, emailError, serverEmailErrorDiv); if (!emailInput.checkValidity()) isFormValid = false;
+            validateInput(phoneInput, phoneError, serverPhoneErrorDiv); if (!phoneInput.checkValidity()) isFormValid = false;
+            validateInput(addressInput, addressError, serverAddressErrorDiv); if (!addressInput.checkValidity()) isFormValid = false;
+            if (!isFormValid) { event.preventDefault(); event.stopPropagation(); alert('Please fix the client-side validation errors before submitting.'); }
+        }, false);
+    </script>
+</th:block>
+</body>
+</html>
