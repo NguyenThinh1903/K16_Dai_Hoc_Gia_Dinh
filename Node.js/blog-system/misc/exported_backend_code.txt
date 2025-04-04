@@ -1,0 +1,2248 @@
+// C:\thangs\NODE_JS\blog-system_backup\backend\server.js
+const { sequelize, syncModels } = require('./models'); // Import sequelize directly
+const logger = require('./utils/logger');
+const app = require('./app'); // NOW it's safe to import app
+
+
+const startServer = async () => {
+  try {
+    await sequelize.authenticate(); // This tests the connection.
+    logger.info('Database connection has been established successfully.');
+    const forceSync = process.env.DB_SYNC_FORCE === 'true';
+    await syncModels(forceSync); // Consider making 'force' configurable via environment variable
+    // Now that the DB is setup, start the app.
+    //This will go inside the app.js and trigger the server start
+  } catch (error) {
+    logger.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error(`Unhandled Rejection at: ${promise}, reason: ${reason}`);
+  process.exit(1); // Or consider a graceful shutdown
+});
+
+process.on('uncaughtException', (error) => {
+  logger.error(`Uncaught Exception:`, error); // Log the FULL error
+  process.exit(1); // Or consider a graceful shutdown
+});
+
+startServer(); 
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\app.js
+// C:\thangs\NODE_JS\blog-system_backup\blog-system\backend\app.js
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+const path = require('path');
+require('dotenv').config();
+
+// Import routes - Do NOT use them yet.
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swagger');
+const adminRoutes = require('./routes/adminRoutes');
+const authRoutes = require('./routes/authRoutes');
+const postRoutes = require('./routes/postRoutes');
+const commentRoutes = require('./routes/commentRoutes');
+const likeRoutes = require('./routes/likeRoutes');
+const userRoutes = require('./routes/userRoutes');
+
+// Import middlewares
+const { errorHandler, notFound } = require('./middlewares/errorHandler');
+const { apiLimiter } = require('./middlewares/rateLimiter');
+const fileUploadPromise = require('./middlewares/fileUpload'); // Get the promise
+
+const app = express();
+
+// CORS Configuration
+const corsOptions = {
+    origin: process.env.NODE_ENV === 'production'
+        ? process.env.FRONTEND_URL
+        : 'http://localhost:5173',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-visitor-id'],
+};
+app.use(cors(corsOptions));
+
+// Middleware
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+app.use(morgan('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+// Serve static files from 'uploads'
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Rate limiting (apply to all /api routes)
+app.use('/api', apiLimiter);
+
+// Centralized Asynchronous Middleware Loading AND Route Setup
+const startApp = async () => {
+    try {
+        // 1. WAIT for the file upload middleware to be ready:
+        const { upload, deleteOldFile, logFileUploadRequest } = await fileUploadPromise;
+
+        // 2. NOW set up your routes.  upload, etc., are DEFINITELY available.
+        app.use('/api/auth', authRoutes);
+        app.use('/api/posts', postRoutes(upload, logFileUploadRequest, deleteOldFile)); // Pass upload, etc.
+        app.use('/api', commentRoutes);
+        app.use('/api/', likeRoutes);
+        app.use('/api/', userRoutes(upload, logFileUploadRequest)); // Pass upload, etc.
+        app.use('/api/admin', adminRoutes);
+
+        // Base route for API health check
+        app.get('/api/health', (req, res) => {
+            res.status(200).json({
+                status: 'success',
+                message: 'API is running',
+                timestamp: new Date()
+            });
+        });
+
+        // Swagger Documentation
+        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+        // 3. Error Handling (Must be last)
+        app.use(notFound);
+        app.use(errorHandler);
+
+        // Start the server
+        const PORT = process.env.PORT || 3000;
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
+
+
+    } catch (error) {
+        console.error('Failed to initialize middleware or routes:', error);
+        process.exit(1); // Exit if setup fails
+    }
+};
+
+
+startApp();
+
+module.exports = app;
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\reset-db.js
+const { sequelize, syncModels } = require('./models');
+const readline = require('readline');
+const { exec } = require('child_process');
+const util = require('util');
+const execPromise = util.promisify(exec);
+
+// Create readline interface for user prompts
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+// Promisify the readline question method
+const question = (query) => new Promise((resolve) => rl.question(query, resolve));
+
+async function resetDatabase(environment, options = {}) {
+  try {
+    // Set the environment based on input or default to development
+    process.env.NODE_ENV = environment || process.env.NODE_ENV || 'development';
+    
+    console.log(`\n==== Database Reset Tool ====`);
+    console.log(`Target environment: ${process.env.NODE_ENV}`);
+    
+    // Confirm action for production or staging environment to prevent accidents
+    if (['production', 'staging'].includes(process.env.NODE_ENV) && !options.force) {
+      console.log('\n⚠️  WARNING: You are about to reset a sensitive database environment!');
+      console.log('   This will DELETE ALL DATA. This action CANNOT be undone.\n');
+      
+      const confirmation = await question(`Type "${process.env.NODE_ENV}" to confirm, or anything else to cancel: `);
+      
+      if (confirmation.toLowerCase() !== process.env.NODE_ENV.toLowerCase()) {
+        console.log('\n❌ Operation cancelled. No changes were made.');
+        return false;
+      }
+      
+      console.log('\n⚠️  You have confirmed a potentially destructive operation.');
+      
+      if (process.env.NODE_ENV === 'production' && !options.forceProduction) {
+        const doubleConfirmation = await question(`For PRODUCTION, please type "YES I UNDERSTAND THE CONSEQUENCES" to proceed: `);
+        
+        if (doubleConfirmation !== 'YES I UNDERSTAND THE CONSEQUENCES') {
+          console.log('\n❌ Operation cancelled. No changes were made.');
+          return false;
+        }
+      }
+    }
+
+    // Connect to the database
+    console.log('\n🔄 Connecting to database...');
+    await sequelize.authenticate();
+    console.log(`✅ Connected to the ${process.env.NODE_ENV} database.`);
+
+    // Drop and recreate all tables in the correct order
+    console.log('\n🔄 Dropping existing tables...');
+    
+    if (sequelize.options.dialect === 'mysql') {
+      await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
+    } else if (sequelize.options.dialect === 'postgres') {
+      // For PostgreSQL
+      await sequelize.query('SET session_replication_role = replica;');
+    }
+    
+    await sequelize.drop(); 
+    
+    if (sequelize.options.dialect === 'mysql') {
+      await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
+    } else if (sequelize.options.dialect === 'postgres') {
+      // For PostgreSQL
+      await sequelize.query('SET session_replication_role = default;');
+    }
+    
+    console.log('✅ All tables dropped successfully.');
+
+    // Sync models to recreate tables
+    console.log('\n🔄 Recreating database schema...');
+    await syncModels(true);
+    console.log('✅ Database schema recreated successfully.');
+
+    // Run seeders if requested
+    if (options.seed) {
+      try {
+        console.log('\n🔄 Running database seeders...');
+        const command = `npx sequelize-cli db:seed:all --env ${process.env.NODE_ENV}`;
+        
+        const { stdout, stderr } = await execPromise(command);
+        
+        if (stdout) console.log(`Seeder output: ${stdout}`);
+        if (stderr && !stderr.includes('Deprecation Warning')) console.error(`Seeder warnings: ${stderr}`);
+        
+        console.log('✅ Database seeded successfully.');
+      } catch (error) {
+        console.error('\n❌ Error running seeders:');
+        if (error.stdout) console.log(error.stdout);
+        if (error.stderr) console.error(error.stderr);
+        throw new Error('Seeding failed');
+      }
+    }
+
+    console.log('\n✅ Database reset complete!');
+    return true;
+
+  } catch (error) {
+    console.error('\n❌ Error during database reset:');
+    console.error(error);
+    return false;
+  } finally {
+    // Close the database connection
+    if (sequelize) {
+      await sequelize.close();
+      console.log('📝 Database connection closed.');
+    }
+    
+    // Close readline interface
+    rl.close();
+  }
+}
+
+// Process command line arguments
+if (require.main === module) {
+  // Only parse args when running directly (not when imported)
+  const args = process.argv.slice(2);
+  const options = {
+    seed: args.includes('--seed'),
+    force: args.includes('--force'),
+    forceProduction: args.includes('--force-production')
+  };
+  
+  // Environment is the first argument that doesn't start with --
+  const environment = args.find(arg => !arg.startsWith('--'));
+  
+  resetDatabase(environment, options)
+    .then(success => {
+      process.exit(success ? 0 : 1);
+    })
+    .catch(err => {
+      console.error('Unhandled error:', err);
+      process.exit(1);
+    });
+} else {
+  // Export the function when this file is imported
+  module.exports = resetDatabase;
+}
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\config\config.js
+require('dotenv').config();
+
+module.exports = {
+development: {
+    username: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    host: process.env.DB_HOST,
+    dialect: 'mysql',
+},
+test: {
+    username: process.env.DB_USER_TEST,
+    password: process.env.DB_PASS_TEST,
+    database: process.env.DB_NAME_TEST,
+    host: process.env.DB_HOST_TEST,
+    dialect: 'mysql',
+},
+production: {
+    username: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    host: process.env.DB_HOST,
+    dialect: 'mysql',
+}
+};
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\swagger.js
+// swagger.js
+const swaggerJSDoc = require('swagger-jsdoc');
+
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Blog System API',
+      version: '1.0.0',
+      description: 'API documentation for the blog system',
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000/api',
+        description: 'Development server',
+      },
+      // Add other servers (staging, production) as needed
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+      schemas: {
+        User: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer', description: 'The user ID' },
+            email: { type: 'string', format: 'email', description: 'The user\'s email address' },
+            role: { type: 'string', enum: ['user', 'admin', 'owner'], description: 'The user\'s role' },
+            created_at: { type: 'string', format: 'date-time' },
+            updated_at: { type: 'string', format: 'date-time' },
+          },
+        },
+        UserProfile: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            user_id: { type: 'integer' },
+            name: { type: 'string' },
+            avatar: { type: 'string', format: 'url' },
+            bio: { type: 'string' },
+            created_at: { type: 'string', format: 'date-time' },
+            updated_at: { type: 'string', format: 'date-time' },
+          },
+        },
+        Post: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer', description: 'The post ID' },
+            title: { type: 'string', description: 'The post title' },
+            content: { type: 'string', description: 'The post content' },
+            status: { type: 'string', enum: ['draft', 'published'], description: 'The post status' },
+            image_url: { type: 'string', format: 'url', description: 'URL of the post image' },
+            created_at: { type: 'string', format: 'date-time', description: 'Creation timestamp' },
+            updated_at: { type: 'string', format: 'date-time', description: 'Last update timestamp' },
+            comment_count: { type: 'integer', description: 'Number of comments', default: 0 },
+            likes: { type: 'integer', description: 'Number of likes', default: 0 },
+            dislikes: { type: 'integer', description: 'Number of dislikes', default: 0 },
+            userLikeStatus: { type: 'string', enum: ['like', 'dislike', null], description: 'User\'s like status (if applicable)' },
+          },
+        },
+        Comment: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer', description: 'The comment ID' },
+            post_id: { type: 'integer', description: 'The ID of the post the comment belongs to' },
+            user_id: { type: 'integer', nullable: true, description: 'The ID of the user who wrote the comment (null for guests)' },
+            visitor_id: { type: 'string', nullable: true, description: 'The visitor ID for guest comments (null for registered users)' },
+            content: { type: 'string', description: 'The comment content' },
+            created_at: { type: 'string', format: 'date-time', description: 'Creation timestamp' },
+            updated_at: { type: 'string', format: 'date-time', description: 'Last update timestamp' },
+          },
+        },
+        Like: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            post_id: { type: 'integer' },
+            user_id: { type: 'integer', nullable: true },
+            visitor_id: { type: 'string', nullable: true },
+            like_type: { type: 'string', enum: ['like', 'dislike'] },
+            created_at: { type: 'string', format: 'date-time' },
+            updated_at: { type: 'string', format: 'date-time' },
+          }
+        },
+        Error: {
+          type: 'object',
+          properties: {
+            status: { type: 'string', example: 'error' },
+            message: { type: 'string' },
+          },
+        },
+      },
+    },
+    security: [{
+      bearerAuth: [] // Apply bearerAuth globally (can be overridden per route)
+    }]
+  },
+  apis: ['./routes/*.js'], // Path to the API routes
+};
+
+const swaggerSpec = swaggerJSDoc(options);
+
+module.exports = swaggerSpec;
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\config\db.js
+const { Sequelize } = require('sequelize');
+const config = require('./config')[process.env.NODE_ENV || 'development'];
+
+const sequelize = new Sequelize(
+  config.database,
+  config.username,
+  config.password,
+  {
+    host: config.host,
+    dialect: config.dialect,
+    logging: config.logging // Consider setting logging to false in production
+  }
+);
+
+module.exports = {
+  sequelize,
+};
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\controllers\authController.js
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { validationResult } = require('express-validator');
+const { User } = require('../models');
+const AppError = require('../utils/AppError');
+const logger = require('../utils/logger'); // Import the logger
+
+exports.login = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new AppError('Validation failed', 400, errors.array()));
+    }
+
+    const { email, password } = req.body;
+    const user = await User.findOne({ where: { email, role: 'owner' } });
+
+    if (!user) {
+      return next(new AppError('Invalid credentials', 401));
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!isMatch) {
+      return next(new AppError('Invalid credentials', 401));
+    }
+
+    const payload = { user: { id: user.id, role: user.role } };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
+    res.json({ status: 'success', token });
+
+  } catch (error) {
+    logger.error('Error in login:', error); // Log the error
+    next(error);
+  }
+};
+
+exports.userLogin = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new AppError('Validation failed', 400, errors.array()));
+    }
+
+    const { email, password } = req.body;
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return next(new AppError('Invalid credentials', 401));
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!isMatch) {
+      return next(new AppError('Invalid credentials', 401));
+    }
+
+    const payload = {
+      user: {
+        id: user.id,
+        role: user.role
+      }
+    };
+
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN },
+      (err, token) => {
+        if (err) return next(err); // Pass JWT errors to error handler
+        res.json({
+          status: 'success',
+          token
+        });
+      }
+    );
+
+  } catch (error) {
+    logger.error('Error in userLogin:', error); // Log the error
+    next(error);
+  }
+};
+
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\controllers\likeController.js
+const { Like, Post } = require('../models');
+const { validationResult } = require('express-validator');
+const { getUserIdOrGuestId } = require('../utils/user');
+const AppError = require('../utils/AppError');
+const logger = require('../utils/logger');
+
+exports.updateLike = async (req, res, next) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return next(new AppError('Validation failed', 400, errors.array()));
+        }
+
+        const postId = req.params.id;
+        const { like_type } = req.body;
+
+        const post = await Post.findByPk(postId);
+        if (!post) {
+            return next(new AppError('Post not found', 404));
+        }
+
+        const { userId, visitorId } = getUserIdOrGuestId(req, res);
+
+        const whereClause = {
+            post_id: postId
+        };
+
+        const likeData = {
+            post_id: postId,
+            like_type
+        };
+
+        if (userId) {
+            whereClause.user_id = userId;
+            likeData.user_id = userId;
+            likeData.visitor_id = null;
+        } else {
+            whereClause.visitor_id = visitorId;
+            likeData.visitor_id = visitorId;
+            likeData.user_id = null;
+        }
+
+        const existingLike = await Like.findOne({ where: whereClause });
+
+        if (existingLike) {
+            existingLike.like_type = like_type;
+            await existingLike.save();
+            return res.json({
+                message: `Like updated to ${like_type}`,
+                data: existingLike
+            });
+        } else {
+            const newLike = await Like.create(likeData);
+            return res.status(201).json({
+                message: `Like created: ${like_type}`,
+                data: newLike
+            });
+        }
+    } catch (error) {
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            return next(new AppError('You have already liked/disliked this post.', 409));
+          }
+        logger.error('Error updating like:', error);
+        next(error);
+    }
+};
+
+exports.deleteLike = async (req, res, next) => {
+    try {
+        const postId = req.params.id;
+
+        const post = await Post.findByPk(postId);
+        if (!post) {
+            return next(new AppError('Post not found', 404));
+        }
+
+        const { userId, visitorId } = getUserIdOrGuestId(req, res);
+
+        const whereClause = {
+            post_id: postId
+        };
+
+        if (userId) {
+            whereClause.user_id = userId;
+        } else if (visitorId) {
+            whereClause.visitor_id = visitorId;
+        } else {
+            return next(new AppError('Authentication required', 403));
+        }
+
+        const like = await Like.findOne({ where: whereClause });
+
+        if (!like) {
+            return next(new AppError('Like not found', 404));
+        }
+
+        const isOwner = (userId && like.user_id === userId) || (visitorId && like.visitor_id === visitorId);
+        const isAdmin = req.user && req.user.role === 'admin';
+
+        if (isOwner || isAdmin) {
+            await like.destroy();
+            return res.status(200).json({ message: 'Like removed' });
+        } else {
+            return next(new AppError('Forbidden', 403));
+        }
+    } catch (error) {
+        logger.error('Error deleting like:', error);
+        next(error);
+    }
+};
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\controllers\userController.js
+const { User, UserProfile } = require('../models');
+const bcrypt = require('bcrypt');
+const { validationResult } = require('express-validator');
+const AppError = require('../utils/AppError');
+const logger = require('../utils/logger');
+const { deleteOldFile } = require('../middlewares/fileUpload');
+
+exports.registerUser = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new AppError('Validation failed', 400, errors.array()));
+    }
+
+    const { email, password } = req.body;
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return next(new AppError('Email already registered', 409));
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const password_hash = await bcrypt.hash(password, salt);
+    const role = req.originalUrl.includes('/admin/register') ? 'admin' : 'user';
+
+    const newUser = await User.create({
+      email,
+      password_hash,
+      role: role
+    });
+
+    const newProfile = await UserProfile.create({
+      user_id: newUser.id,
+    });
+
+    res.status(201).json({
+      status: 'success',
+      message: `${role.charAt(0).toUpperCase() + role.slice(1)} registered successfully`,
+      data: {
+        user: {
+          id: newUser.id,
+          role: newUser.role
+        }
+      }
+    });
+
+  } catch (error) {
+    logger.error('Error in registerUser:', error);
+    next(error);
+  }
+};
+
+exports.getAllUsers = async (req, res, next) => {
+  try {
+    const users = await User.findAll({
+      include: [{
+        model: UserProfile,
+        attributes: ['name', 'avatar', 'bio']
+      }],
+      attributes: { exclude: ['password_hash'] }
+    });
+
+    res.json({
+      status: 'success',
+      data: {
+        users
+      }
+    });
+
+  } catch (error) {
+    logger.error('Error in getAllUsers:', error);
+    next(error);
+  }
+};
+
+exports.getUserProfile = async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      include: [{
+        model: UserProfile,
+        attributes: ['name', 'avatar', 'bio']
+      }],
+      attributes: { exclude: ['password_hash'] }
+    });
+
+    if (!user) {
+      return next(new AppError('User not found', 404));
+    }
+
+    res.json({ data: user });
+  } catch (error) {
+    logger.error('Error in getUserProfile:', error);
+    next(error);
+  }
+};
+// userController.js
+const updateUserProfileFields = async (userProfile, updateData, req) => {
+  const oldAvatar = userProfile.avatar; // Store old avatar before update
+
+ if (updateData.name) userProfile.name = updateData.name;
+ if (updateData.bio) userProfile.bio = updateData.bio;
+
+ if (req.file) {
+     userProfile.avatar = `/uploads/${req.file.filename}`;
+ }
+
+ await userProfile.save();
+
+ // Delete old avatar file *after* successful save
+ if (req.file && oldAvatar) {
+   await deleteOldFile(oldAvatar);
+ }
+ return userProfile;
+}
+
+exports.updateUserProfile = async (req, res, next) => {
+   try {
+       const errors = validationResult(req);
+       if (!errors.isEmpty()) {
+           return next(new AppError('Validation failed', 400, errors.array()));
+       }
+       const userProfile = await UserProfile.findOne({ where: { user_id: req.user.id } });
+
+       if (!userProfile) {
+           return next(new AppError('User profile not found', 404));
+       }
+
+       const updatedUserProfile = await updateUserProfileFields(userProfile, req.body, req);
+
+       res.json({ message: 'Profile updated', data: updatedUserProfile });
+   } catch (error) {
+       logger.error('Error in updateUserProfile:', error);
+
+       // Delete the newly uploaded file if an error occurs *after* multer
+       if (req.file) {
+         await deleteOldFile(`/uploads/${req.file.filename}`);
+       }
+       next(error);
+   }
+};
+
+exports.updateAnyProfile = async (req, res, next) => {
+   try {
+     const errors = validationResult(req);
+     if (!errors.isEmpty()) {
+       return next(new AppError('Validation failed', 400, errors.array()));
+     }
+     const userId = req.params.userId;
+
+     const userProfile = await UserProfile.findOne({ where: { user_id: userId} });
+
+     if (!userProfile) {
+       return next(new AppError('User profile not found', 404));
+     }
+
+     const updatedUserProfile = await updateUserProfileFields(userProfile, req.body, req);
+
+     res.json({ message: 'Profile updated', data: updatedUserProfile });
+   } catch (error) {
+       logger.error("Error updating any profile:", error);
+       if(req.file){
+           await deleteOldFile(`/uploads/${req.file.filename}`);
+       }
+     next(error);
+   }
+};
+
+exports.viewAnyProfile = async(req, res, next) => {
+    try{
+        const userId = req.params.userId;
+        const user = await User.findByPk(userId, {
+          include: [{
+            model: UserProfile,
+            attributes: ['name', 'avatar', 'bio']
+          }],
+          attributes: { exclude: ['password_hash', 'role'] }
+        });
+
+        if (!user) {
+          return next(new AppError('User not found', 404));
+        }
+
+        res.json({ data: user });
+    }
+    catch(error){
+        logger.error("Error viewing any profile", error);
+        next(error);
+    }
+};
+
+exports.deleteOwnProfile = async (req, res, next) => {
+    try {
+        const user = await User.findByPk(req.user.id);
+        const userProfile = await UserProfile.findOne({where : {user_id: req.user.id}});
+        if (!user || !userProfile) {
+          return next(new AppError('User not found', 404));
+        }
+        await userProfile.destroy();
+        await user.destroy();
+        res.status(200).json({message: 'User deleted'});
+    } catch (error) {
+        logger.error("Error deleting own profile", error);
+        next(error)
+    }
+};
+
+exports.deleteAnyProfile = async(req, res, next) => {
+    try {
+        const userId = req.params.userId;
+        const user = await User.findByPk(userId);
+        const userProfile = await UserProfile.findOne({where: {user_id: userId}});
+        if(!user || !userProfile){
+            return next(new AppError('User not found', 404));
+        }
+        await userProfile.destroy();
+        await user.destroy();
+        res.status(200).json({message: 'User deleted'});
+    } catch (error) {
+        logger.error("Error deleting any profile", error);
+        next(error)
+    }
+};
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\controllers\postController.js
+// C:\thangs\NODE_JS\blog-system_backup\blog-system\backend\controllers\postController.js
+const { Post, Comment, Like } = require('../models');
+const { validationResult } = require('express-validator');
+const { sanitizeContent, sanitizeSearchQuery } = require('../utils/sanitize');
+const { transformPost, transformPosts } = require('../utils/transformPosts');
+const { Op } = require('sequelize');
+const { deleteOldFile } = require('../middlewares/fileUpload');
+const AppError = require('../utils/AppError');
+
+// Get all posts with pagination
+exports.getPosts = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const search = req.query.search ? sanitizeSearchQuery(req.query.search) : null;
+
+    let whereClause = {
+      status: 'published'
+    };
+
+    // Add search condition if search query is provided
+    if (search) {
+      whereClause = {
+        ...whereClause,
+        [Op.or]: [
+          { title: { [Op.like]: `%${search}%` } },
+          { content: { [Op.like]: `%${search}%` } }
+        ]
+      };
+    }
+
+    // If the user is the owner, also show draft posts
+    if (req.user && req.user.role === 'owner') {
+      delete whereClause.status;
+    }
+
+    const { count, rows: posts } = await Post.findAndCountAll({
+      where: whereClause,
+      limit,
+      offset,
+      order: [['created_at', 'DESC']],
+      include: [
+        {
+          model: Comment,
+          attributes: ['id'],
+          required: false
+        },
+        {
+          model: Like,
+          attributes: ['like_type'],
+          required: false
+        }
+      ]
+    });
+
+    // Use the helper to transform posts
+    const transformedPosts = transformPosts(posts);
+
+    res.json({
+      status: 'success',
+      data: {
+        posts: transformedPosts,
+        totalPosts: count,
+        currentPage: page,
+        totalPages: Math.ceil(count / limit)
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get a single post by ID
+exports.getPost = async (req, res, next) => {
+  try {
+    const postId = req.params.id;
+    const visitorId = req.query.visitor_id;
+    const userId = req.user ? req.user.id : null;
+
+    const post = await Post.findByPk(postId, {
+      include: [
+        {
+          model: Comment,
+          attributes: ['id', 'visitor_id', 'content', 'created_at', 'updated_at'],
+          limit: 10,
+          order: [['created_at', 'DESC']]
+        },
+        {
+          model: Like,
+          attributes: ['visitor_id', 'like_type', 'user_id']
+        }
+      ]
+    });
+
+
+    if (!post) {
+      return next(new AppError('Post not found', 404));
+    }
+
+
+    if (post.status === 'draft' && (!req.user || req.user.role !== 'owner')) {
+      return next(new AppError('Post not found', 404));
+    }
+
+    const postData = transformPost(post, {
+      visitorId,
+      userId,
+      includeUserLikeStatus: true
+    });
+
+    res.json({
+      status: 'success',
+      data: postData
+    });
+  } catch (error) {
+    console.error('Error in getPost:', error);
+    next(error);
+  }
+};
+
+
+// Create a new post (owner only)
+exports.createPost = async (req, res, next) => {
+  try {
+    console.log('createPost controller called');
+    console.log('File received:', req.file);
+    console.log('Request body:', req.body);
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
+      return next(new AppError('Validation failed', 400, errors.array()));
+    }
+
+    const { title, content, status = 'published' } = req.body;
+
+    // Get image URL from the uploaded file
+    let image_url = null;
+    if (req.file) {
+      console.log('Processing uploaded file:', req.file.filename);
+      // Create URL path to the uploaded file - this should match your static file serving path
+      image_url = `/uploads/${req.file.filename}`;
+      console.log('Set image_url to:', image_url);
+    }
+
+    const sanitizedContent = sanitizeContent(content);
+
+    console.log('Creating post with data:', {
+      title,
+      content: sanitizedContent ? sanitizedContent.substring(0, 20) + '...' : null,
+      status,
+      image_url
+    });
+
+    const post = await Post.create({
+      title,
+      content: sanitizedContent,
+      status,
+      image_url
+    });
+
+    console.log('Post created successfully:', post.id);
+    res.status(201).json({
+      status: 'success',
+      data: post
+    });
+  } catch (error) {
+    console.error('Error in createPost:', error);
+    next(error);
+  }
+};
+
+// Update a post (owner only)
+// Helper function to update post fields
+const updatePostFields = async (post, updateData, req) => {
+  const oldImageUrl = post.image_url; // Store before any changes
+
+  if (updateData.title !== undefined) post.title = updateData.title;
+  if (updateData.content !== undefined) post.content = sanitizeContent(updateData.content);
+  if (updateData.status !== undefined) post.status = updateData.status;
+
+  if (req.file) {
+    post.image_url = `/uploads/${req.file.filename}`;
+  }
+
+  await post.save();
+
+  // Delete old image *after* successful save:
+  if (req.file && oldImageUrl) {
+    await req.deleteOldFile(oldImageUrl);
+  }
+  return post; // Return the updated post
+};
+
+exports.updatePost = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new AppError('Validation failed', 400, errors.array()));
+    }
+
+    const postId = req.params.id;
+    const post = await Post.findByPk(postId);
+    if (!post) {
+      return next(new AppError('Post not found', 404));
+    }
+
+    // Use the helper function:
+    const updatedPost = await updatePostFields(post, req.body, req);
+
+    res.json({ status: 'success', data: updatedPost });
+
+  } catch (error) {
+    if (req.file) {
+      await req.deleteOldFile(`/uploads/${req.file.filename}`);
+    }
+    next(error);
+  }
+};
+
+// Delete a post (owner only)
+exports.deletePost = async (req, res, next) => {
+  try {
+    const postId = req.params.id;
+
+    const post = await Post.findByPk(postId);
+
+    if (!post) {
+      return next(new AppError('Post Not Found', 404));
+    }
+    const oldImageUrl = post.image_url;
+    await post.destroy();
+    if(oldImageUrl){
+        await req.deleteOldFile(oldImageUrl); //delete image after deleting the post
+    }
+    res.json({
+      status: 'success',
+      message: 'Post deleted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Search posts
+exports.searchPosts = async (req, res, next) => {
+  try {
+    const searchQuery = sanitizeSearchQuery(req.query.q);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    if (!searchQuery) {
+      return next(new AppError('Search query is required', 400));
+    }
+
+    let whereClause = {
+      status: 'published',
+      [Op.or]: [
+        { title: { [Op.like]: `%${searchQuery}%` } },
+        { content: { [Op.like]: `%${searchQuery}%` } }
+      ]
+    };
+
+    // If the user is the owner, also search in draft posts
+    if (req.user && req.user.role === 'owner') {
+      delete whereClause.status;
+    }
+
+    const { count, rows: posts } = await Post.findAndCountAll({
+      where: whereClause,
+      limit,
+      offset,
+      order: [['created_at', 'DESC']]
+    });
+
+    // Use the helper to transform posts
+    const transformedPosts = transformPosts(posts);
+
+    res.json({
+      status: 'success',
+      data: {
+        posts: transformedPosts,
+        totalPosts: count,
+        currentPage: page,
+        totalPages: Math.ceil(count / limit)
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\middlewares\auth.js
+const jwt = require('jsonwebtoken');
+
+const authenticateJWT = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  console.log('Auth Header:', authHeader); // Log the entire header
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({
+      status: 'error',
+      message: 'Unauthorized: No token provided'
+    });
+  }
+
+  const token = authHeader.split(' ')[1];
+  console.log('Extracted Token:', token); // Log the extracted token
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Decoded Payload:', decoded); // Log the decoded payload
+    req.user = decoded.user;
+    next();
+  } catch (error) {
+    console.error('JWT Verification Error:', error); // Log any errors
+    return res.status(401).json({
+      status: 'error',
+      message: 'Unauthorized: Invalid token'
+    });
+  }
+};
+
+// Create a new middleware in your auth.js file
+const optionalAuthJWT = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // No token, proceed as guest
+    return next();
+  }
+
+  const token = authHeader.split(' ')[1];
+  
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded.user;
+    next();
+  } catch (error) {
+    // Invalid token, proceed as guest
+    next();
+  }
+};
+
+// Add this new middleware
+const hasRole = (allowedRoles) => {
+  return (req, res, next) => {
+    if (req.user && allowedRoles.includes(req.user.role)) {
+      next();
+    } else {
+      return res.status(403).json({
+        status: 'error',
+        message: `Forbidden: This action requires one of these roles: ${allowedRoles.join(', ')}`
+      });
+    }
+  };
+};
+
+module.exports = {
+  authenticateJWT,
+  optionalAuthJWT,
+  hasRole
+};
+
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\middlewares\errorHandler.js
+// C:\thangs\NODE_JS\blog-system_backup\blog-system\backend\middlewares\errorHandler.js
+const notFound = (req, res, next) => {
+  const error = new Error(`Not Found - ${req.originalUrl}`);
+  res.status(404);
+  next(error); // Pass the error to the error handler
+};
+
+const errorHandler = (err, req, res, next) => {
+console.error(err.stack);
+
+let status = err.statusCode || 500;
+let message = err.message || 'Something went wrong on the server';
+
+  if (err.name === 'SequelizeValidationError') {
+    status = 400; // Bad Request
+    message = err.errors.map(e => e.message).join(', '); // Collect all validation error messages
+  } else if (err.name === 'SequelizeUniqueConstraintError'){
+      status = 409;
+      message = err.errors.map(e => e.message).join(', '); // Collect all validation error messages
+  }
+
+const response = {
+  status: 'error',
+  message,
+};
+
+if (process.env.NODE_ENV === 'development') {
+  response.stack = err.stack;
+}
+
+res.status(status).json(response);
+};
+
+module.exports = { errorHandler, notFound };
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\controllers\commentController.js
+const { Comment, Post } = require('../models');
+const { validationResult } = require('express-validator');
+const { sanitizeContent } = require('../utils/sanitize');
+const { getUserIdOrGuestId } = require('../utils/user');
+const { checkCommentPermission } = require('../utils/permissions');
+const AppError = require('../utils/AppError'); // Import AppError
+const logger = require('../utils/logger');     // Import logger
+
+// Get all comments for a post with pagination
+exports.getComments = async (req, res, next) => {
+  try {
+    const postId = req.params.id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const post = await Post.findByPk(postId);
+    if (!post) {
+      return next(new AppError('Post not found', 404)); // Use AppError
+    }
+
+    const { count, rows: comments } = await Comment.findAndCountAll({
+      where: { post_id: postId },
+      limit,
+      offset,
+      order: [['created_at', 'DESC']]
+    });
+
+    res.json({
+      status: 'success',
+      data: {
+        comments,
+        totalComments: count,
+        currentPage: page,
+        totalPages: Math.ceil(count / limit)
+      }
+    });
+  } catch (error) {
+    logger.error('Error getting comments:', error); // Log the error
+    next(error); // Pass to error handler
+  }
+};
+
+// Get a single comment by ID
+exports.getComment = async (req, res, next) => {
+  try {
+    const commentId = req.params.id;
+    const comment = await Comment.findByPk(commentId);
+
+    if (!comment) {
+      return next(new AppError('Comment not found', 404)); // Use AppError
+    }
+
+    res.json({
+      status: 'success',
+      data: comment
+    });
+  } catch (error) {
+    logger.error(`Error getting comment with ID ${req.params.id}:`, error);
+    next(error);
+  }
+};
+
+// Add a comment to a post
+exports.addComment = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log("Validation Errors:", errors.array()); // Log validation errors
+      return next(new AppError('Validation failed', 400, errors.array()));
+    }
+
+    const postId = req.params.id;
+    const { content } = req.body;
+    console.log("postId:", postId); // Log the post ID
+    console.log("content:", content); // Log the comment content
+
+    const { userId, visitorId } = getUserIdOrGuestId(req, res);
+    console.log("userId:", userId);    // Log user ID
+    console.log("visitorId:", visitorId); // Log visitor ID
+
+    const post = await Post.findByPk(postId);
+    if (!post) {
+      console.log("Post not found!"); // Log if post is not found
+      return next(new AppError('Post not found', 404));
+    }
+
+    const comment = await Comment.create({
+      post_id: postId,
+      user_id: userId,
+      visitor_id: visitorId,
+      content: sanitizeContent(content)
+    });
+
+    res.status(201).json({ data: comment });
+  } catch (error) {
+    console.error('Error adding comment:', error); // Log any other errors
+    next(error);
+  }
+};
+
+// Edit a comment (using the helper function)
+exports.updateComment = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new AppError('Validation failed', 400, errors.array())); // Use AppError
+    }
+
+    const commentId = req.params.id;
+    const { content } = req.body;
+
+    const comment = await Comment.findByPk(commentId);
+    if (!comment) {
+      return next(new AppError('Comment not found', 404)); // Use AppError
+    }
+
+    if (checkCommentPermission(req, comment)) {
+      comment.content = sanitizeContent(content);
+      await comment.save();
+      return res.json({ data: comment });
+    } else {
+      return next(new AppError('Forbidden', 403)); // Use AppError
+    }
+  } catch (error) {
+    logger.error(`Error updating comment with ID ${req.params.id}:`, error);
+    next(error);
+  }
+};
+
+// Delete a comment (using the helper function)
+exports.deleteComment = async (req, res, next) => {
+  try {
+    const commentId = req.params.id;
+
+    const comment = await Comment.findByPk(commentId);
+    if (!comment) {
+      return next(new AppError('Comment not found', 404)); // Use AppError
+    }
+
+    if (checkCommentPermission(req, comment)) {
+      await comment.destroy();
+      return res.json({ message: 'Comment deleted' });
+    } else {
+      return next(new AppError('Forbidden', 403)); // Use AppError
+    }
+  } catch (error) {
+    logger.error(`Error deleting comment with ID ${req.params.id}:`, error);
+    next(error);
+  }
+};
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\middlewares\fileUpload.js
+// middlewares/fileUpload.js
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs').promises;
+const AppError = require('../utils/AppError');
+
+const uploadDir = path.join(__dirname, '../uploads');
+
+const ensureUploadDir = async () => {
+  try {
+    await fs.mkdir(uploadDir, { recursive: true });
+    console.log('Upload directory ensured.');
+  } catch (err) {
+    console.error('Error ensuring upload directory:', err);
+    process.exit(1); // Exit on failure to create directory
+  }
+};
+
+const setupMulter = async () => {
+  try { // Add try...catch around the ENTIRE setup
+    await ensureUploadDir();
+
+    const storage = multer.diskStorage({
+      destination: (req, file, cb) => cb(null, uploadDir),
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        cb(null, uniqueSuffix + ext);
+      }
+    });
+
+    const fileFilter = (req, file, cb) => {
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      if (!allowedTypes.includes(file.mimetype)) {
+        return cb(new AppError('Invalid file type. Only JPEG, PNG, and GIF are allowed.', 400), false);
+      }
+      cb(null, true);
+    };
+
+    const upload = multer({
+      storage: storage,
+      limits: { fileSize: 5 * 1024 * 1024 },
+      fileFilter: fileFilter
+    });
+
+    const logFileUploadRequest = (req, res, next) => {
+      console.log('\n--- File Upload Request ---');
+      console.log('Content-Type:', req.headers['content-type']);
+      console.log('Has Files (req.files):', !!req.files);
+      console.log('Has File (req.file):', !!req.file);
+      console.log('Body before multer:', req.body);
+      next();
+    };
+
+    const deleteOldFile = async (filePath) => {
+        try {
+            if(filePath){
+                await fs.unlink(path.join(__dirname, '..', filePath));
+            }
+        } catch (error) {
+            if(error.code !== 'ENOENT'){
+                console.error(`Error deleting file ${filePath}`, error)
+            }
+        }
+    };
+
+    return { upload, deleteOldFile, logFileUploadRequest };
+
+  } catch (error) {
+    console.error("Error during multer setup:", error); // Log the error
+    throw error; // Re-throw the error to be caught by app.js
+  }
+};
+
+module.exports = setupMulter();
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\middlewares\rateLimiter.js
+// Simple in-memory rate limiter
+const rateLimit = require('express-rate-limit');
+
+const createRateLimiter = (windowMs, max, message) => {
+  return rateLimit({
+    windowMs: windowMs || parseInt(process.env.RATE_LIMIT_WINDOW) * 60 * 1000, // Default to env config in minutes
+    max: max || parseInt(process.env.RATE_LIMIT_MAX_REQUESTS), // Default to env config
+    message: {
+      status: 'error',
+      message: message || 'Too many requests, please try again later'
+    },
+    standardHeaders: true,
+    legacyHeaders: false
+  });
+};
+
+// General API rate limiter
+const apiLimiter = createRateLimiter();
+
+// Stricter limiter for post management (create/edit/delete)
+const postManagementLimiter = createRateLimiter(
+  15 * 60 * 1000, // 15 minutes
+  150, // 5 requests per window
+  'Too many post management requests, please try again later'
+);
+
+// Limiter for authentication attempts
+const authLimiter = createRateLimiter(
+  60 * 60 * 1000, // 1 hour
+  150, // 10 requests per window
+  'Too many login attempts, please try again later'
+);
+
+module.exports = {
+  apiLimiter,
+  postManagementLimiter,
+  authLimiter
+};
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\migrations\20250305060549-create-user-table.js
+'use strict';
+module.exports = {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable('users', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
+      email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
+      },
+      password_hash: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      role: {
+        type: Sequelize.ENUM('user', 'admin', 'owner'),
+        defaultValue: 'user'
+      },
+      created_at: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      updated_at: {
+        allowNull: false,
+        type: Sequelize.DATE
+      }
+    });
+  },
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable('users');
+  }
+};
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\migrations\20250305060552-create-user-profile-table.js
+'use strict';
+module.exports = {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable('user_profiles', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
+      user_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        unique: true, // Enforce one-to-one relationship
+        references: {
+          model: 'users', // This is the table name, not the model name
+          key: 'id'
+        },
+        onDelete: 'CASCADE' // If a user is deleted, delete their profile
+      },
+      name: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      avatar: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      bio: {
+        type: Sequelize.TEXT,
+        allowNull: true
+      },
+      created_at: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      updated_at: {
+        allowNull: false,
+        type: Sequelize.DATE
+      }
+    });
+  },
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable('user_profiles');
+  }
+};
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\migrations\20250305060558-create-comment-table.js
+'use strict';
+module.exports = {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable('Comments', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
+      post_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Posts', // Table name (usually plural)
+          key: 'id'
+        },
+        onDelete: 'CASCADE' // If a post is deleted, delete its comments
+      },
+      user_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true, // Allow null for guest comments
+        references: {
+          model: 'users',
+          key: 'id'
+        },
+        onDelete: 'SET NULL' // If a user is deleted, set user_id to NULL
+      },
+      visitor_id: {
+        type: Sequelize.STRING,
+        allowNull: true // Allow registered users to not have a visitor_id
+      },
+      content: {
+        type: Sequelize.TEXT,
+        allowNull: false
+      },
+      created_at: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      updated_at: {
+        allowNull: false,
+        type: Sequelize.DATE
+      }
+    });
+  },
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable('Comments');
+  }
+};
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\migrations\20250307073843-add-image-url-to-posts.js
+// migrations/2024XXXXXXXX-add-image-url-to-posts.js
+'use strict';
+
+module.exports = {
+  async up (queryInterface, Sequelize) {
+    await queryInterface.addColumn('Posts', 'image_url', {
+      type: Sequelize.STRING, // Or Sequelize.TEXT if you might store very long URLs
+      allowNull: true, // Images are optional
+    });
+  },
+
+  async down (queryInterface, Sequelize) {
+    await queryInterface.removeColumn('Posts', 'image_url');
+  }
+};
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\migrations\20250305060601-create-like-table.js
+'use strict';
+module.exports = {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable('Likes', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
+      post_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Posts',
+          key: 'id'
+        },
+        onDelete: 'CASCADE' // If a post is deleted, delete its likes
+      },
+      user_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'users',
+          key: 'id'
+        },
+        onDelete: 'SET NULL'
+      },
+      visitor_id: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      like_type: {
+        type: Sequelize.ENUM('like', 'dislike'),
+        allowNull: false
+      },
+      created_at: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      updated_at: {
+        allowNull: false,
+        type: Sequelize.DATE
+      }
+    });
+    // Add unique constraint to prevent duplicate likes
+    await queryInterface.addConstraint('Likes', {
+        fields: ['post_id', 'visitor_id', 'user_id'],
+        type: 'unique',
+        name: 'unique_like_constraint'
+    });
+  },
+  async down(queryInterface, Sequelize) {
+    await queryInterface.removeConstraint('Likes', 'unique_like_constraint');
+    await queryInterface.dropTable('Likes');
+  }
+};
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\migrations\20250306160126-update-like-model-indexes.js
+'use strict';
+const { Op } = require('sequelize');  // Import Op directly
+
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    // First, remove the existing composite index
+    await queryInterface.removeIndex('Likes', ['post_id', 'visitor_id', 'user_id']);
+    
+    // Add the new separate indexes
+    await queryInterface.addIndex('Likes', ['post_id', 'user_id'], {
+      unique: true,
+      name: 'likes_post_user_unique',
+      where: {
+        user_id: {
+          [Op.not]: null  // Use Op directly, not Sequelize.Op
+        }
+      }
+    });
+    
+    await queryInterface.addIndex('Likes', ['post_id', 'visitor_id'], {
+      unique: true,
+      name: 'likes_post_visitor_unique',
+      where: {
+        visitor_id: {
+          [Op.not]: null  // Use Op directly, not Sequelize.Op
+        }
+      }
+    });
+  },
+
+  down: async (queryInterface, Sequelize) => {
+    // Revert changes - remove new indexes
+    await queryInterface.removeIndex('Likes', 'likes_post_user_unique');
+    await queryInterface.removeIndex('Likes', 'likes_post_visitor_unique');
+    
+    // Restore original index
+    await queryInterface.addIndex('Likes', ['post_id', 'visitor_id', 'user_id'], {
+      unique: true,
+      name: 'likes_composite_unique'
+    });
+  }
+};
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\migrations\20250305060555-create-post-table.js
+'use strict';
+module.exports = {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable('Posts', { // Sequelize pluralizes by default
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
+      title: {
+        type: Sequelize.STRING(100),
+        allowNull: false
+      },
+      content: {
+        type: Sequelize.TEXT,
+        allowNull: false
+      },
+      status: {
+        type: Sequelize.ENUM('draft', 'published'),
+        defaultValue: 'published'
+      },
+      created_at: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      updated_at: {
+        allowNull: false,
+        type: Sequelize.DATE
+      }
+    });
+    // Add FULLTEXT index (for searching)
+    await queryInterface.addIndex('Posts', ['title', 'content'], {
+        type: 'FULLTEXT',
+        name: 'title_content_fulltext' // Optional name
+    });
+  },
+  async down(queryInterface, Sequelize) {
+      await queryInterface.removeIndex('Posts', 'title_content_fulltext');
+    await queryInterface.dropTable('Posts');
+  }
+};
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\models\Comment.js
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/db');
+const User = require('./User');
+
+const Comment = sequelize.define('Comment', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  post_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'Posts',
+      key: 'id'
+    },
+    validate: { // Added validation
+        notNull: {
+            msg: 'Post ID cannot be null'
+        }
+    }
+  },
+  user_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  visitor_id: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    validate: { // Added validation
+        len: {
+            args: [0, 255],
+            msg: 'Visitor ID must be within valid length'
+        }
+    }
+  },
+  content: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+    validate: {
+      notEmpty: {
+        msg: 'Comment content cannot be empty.'
+      },
+      len: {
+        args: [1, 500],
+        msg: 'Comment must be between 1 and 500 characters.'
+      }
+    }
+  }
+}, {
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+  indexes: [
+    {
+      fields: ['post_id']
+    },
+    {
+      fields: ['user_id']
+    },
+    {
+      fields: ['visitor_id']
+    }
+  ]
+});
+
+Comment.belongsTo(User, { foreignKey: 'user_id', as: 'commentUser' });
+module.exports = Comment;
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\models\User.js
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/db');
+
+const User = sequelize.define('User', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: { // Added better unique
+        args: true,
+        msg: 'Email address already in use'
+    },
+    validate: {
+      isEmail: {
+        msg: 'Must be a valid email address.'
+      },
+      notEmpty: {
+        msg: 'Email cannot be empty.'
+      }
+    }
+  },
+  password_hash: {
+    type: DataTypes.STRING,
+    allowNull: false,
+     validate: { //Added validation
+        notEmpty: {
+            msg: 'Password hash cannot be empty.'
+        }
+    }
+  },
+  role: {
+    type: DataTypes.ENUM('user', 'admin', 'owner'),
+    defaultValue: 'user',
+    validate: { // Added validation
+        isIn: {
+            args: [['user', 'admin', 'owner']],
+            msg: 'Role must be user, admin or owner'
+        }
+    }
+  }
+}, {
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+  tableName: 'users'
+});
+
+module.exports = User;
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\models\Post.js
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/db');
+
+const Post = sequelize.define('Post', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  title: {
+    type: DataTypes.STRING(100),
+    allowNull: false,
+    validate: {
+      notEmpty: {
+        msg: 'Title cannot be empty.'
+      },
+      len: {
+        args: [1, 100],
+        msg: 'Title must be between 1 and 100 characters.'
+      }
+    }
+  },
+  content: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+    validate: {
+      notEmpty: {
+        msg: 'Content cannot be empty.'
+      },
+      len: { //Added min length
+        args: [1, 10000],
+        msg: 'Content must be between 1 and 10,000 characters'
+      }
+    }
+  },
+  status: {
+    type: DataTypes.ENUM('draft', 'published'),
+    defaultValue: 'published',
+    validate: { // Added validation
+        isIn: {
+            args: [['draft', 'published']],
+            msg: 'Status must be either draft or published'
+        }
+    }
+  },
+  image_url: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    // validate: { // Added validation
+    //     isUrl: {
+    //         msg: 'Image URL must be a valid URL'
+    //     }
+    // }
+  },
+},
+{
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+  indexes: [
+    {
+      type: 'FULLTEXT',
+      fields: ['title', 'content']
+    }
+  ]
+});
+
+module.exports = Post;
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\models\Like.js
+const { DataTypes, Op } = require('sequelize');
+const { sequelize } = require('../config/db');
+const User = require('./User');
+
+const Like = sequelize.define('Like', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  post_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'Posts',
+      key: 'id'
+    },
+     validate: { // Added validation
+        notNull: {
+            msg: 'Post ID cannot be null.'
+        }
+    }
+  },
+  user_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  visitor_id: {
+    type: DataTypes.STRING,
+    allowNull: true,
+     validate: { // Added validation
+        len: {
+            args: [0, 255], // Assuming UUIDs or similar
+            msg: 'Visitor ID must be a valid length'
+        }
+    }
+  },
+  like_type: {
+    type: DataTypes.ENUM('like', 'dislike'),
+    allowNull: false,
+    validate: { // Added validation
+        isIn: {
+             args: [['like', 'dislike']],
+            msg: 'Like type must be either like or dislike.'
+        },
+        notNull: {
+            msg: 'Like type cannot be null.'
+        }
+    }
+  }
+}, {
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+  indexes: [
+    {
+      fields: ['post_id']
+    },
+    {
+      fields: ['visitor_id']
+    },
+    {
+      fields: ['user_id']
+    },
+    {
+      unique: true,
+      fields: ['post_id', 'user_id'],
+      where: {
+        user_id: {
+          [Op.not]: null
+        }
+      }
+    },
+    {
+      unique: true,
+      fields: ['post_id', 'visitor_id'],
+      where: {
+        visitor_id: {
+          [Op.not]: null
+        }
+      }
+    }
+  ]
+});
+
+Like.findByUserOrVisitor = async function(postId, userId, visitorId) {
+  const whereClause = { post_id: postId };
+
+  if (userId) {
+    whereClause.user_id = userId;
+  } else if (visitorId) {
+    whereClause.visitor_id = visitorId;
+  }
+
+  return await this.findOne({ where: whereClause });
+};
+
+Like.belongsTo(User, { foreignKey: 'user_id', as: 'likeUser' });
+
+module.exports = Like;
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\models\UserProfile.js
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/db');
+const User = require('./User');
+
+const UserProfile = sequelize.define('UserProfile', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  user_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    unique: true,
+    references: {
+      model: User,
+      key: 'id'
+    },
+     validate: { // Added validation
+        notNull: {
+            msg: 'User ID cannot be null'
+        }
+    }
+  },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: true,
+     validate: { // Added validation
+        len: {
+            args: [0, 255],
+            msg: 'Name must be less than 255 character'
+        }
+    }
+  },
+  avatar: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    // validate: { // Added validation
+    //     isUrl: {
+    //         msg: 'Avatar must be a valid URL'
+    //     }
+    // }
+  },
+  bio: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    validate: { // Added validation
+        len: {
+            args: [0, 1000],
+            msg: 'Bio must be less than 1000 character'
+        }
+    }
+  }
+}, {
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+  tableName: 'user_profiles'
+});
+
+UserProfile.belongsTo(User, { foreignKey: 'user_id' });
+User.hasOne(UserProfile, { foreignKey: 'user_id' });
+
+module.exports = UserProfile;
+
+// C:\thangs\NODE_JS\blog-system_backup\backend\models\index.js
+
+const { sequelize } = require('../config/db');
+const Post = require('./Post');
+const Comment = require('./Comment');
+const Like = require('./Like');
+const User = require('./User');
+const UserProfile = require('./UserProfile');
+const logger = require('../utils/logger'); // Import the logger
+
+// Set up associations
+Post.hasMany(Comment, { foreignKey: 'post_id', onDelete: 'CASCADE' });
+Comment.belongsTo(Post, { foreignKey: 'post_id' });
+Comment.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+Like.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+
+
+Post.hasMany(Like, { foreignKey: 'post_id', onDelete: 'CASCADE' });
+Like.belongsTo(Post, { foreignKey: 'post_id' });
+
+User.hasOne(UserProfile, { foreignKey: 'user_id' });
+UserProfile.belongsTo(User, { foreignKey: 'user_id' });
+
+const syncModels = async (force = false) => {
+  try {
+    // Sync in dependency order:
+    await User.sync({ force });
+    await UserProfile.sync({ force }); // Depends on User
+    await Post.sync({ force });
+    await Comment.sync({ force }); // Depends on Post and User
+    await Like.sync({ force });   // Depends on Post and User
+
+    logger.info('All Models synced successfully');
+  } catch (error) {
+    logger.error('Failed to sync models:', error);
+    throw error; // Re-throw the error!
+  }
+};
+
+module.exports = {
+  sequelize,
+  Post,
+  Comment,
+  Like,
+  User,
+  UserProfile,
+  syncModels
+};
+
