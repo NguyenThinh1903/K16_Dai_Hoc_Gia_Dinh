@@ -1,5 +1,7 @@
 # Skip the node_modules folder (required)
 node_modules/
+venv
+monodepth2
 
 # Skip log files
 *.Log
