@@ -78,18 +78,20 @@ def find_best_match_in_folder(screen_gray, templates_list, folder_name, use_roi=
             best_match_template_path = template_path
     if best_match_template_path:
         logger.info(f"[{folder_name}] Giống nhất: {os.path.basename(best_match_template_path)} ({best_match_value:.2f})")
-    if best_match_value >= SIMILARITY_THRESHOLD:
+    # Sử dụng ngưỡng động: 80% của giá trị match cao nhất, nhưng không thấp hơn 0.7
+    dynamic_threshold = max(0.7, best_match_value * 0.8)
+    if best_match_value >= dynamic_threshold:
         final_location = (best_match_location[0], best_match_location[1] + roi_offset_y)
         return {"path": best_match_template_path, "location": final_location}
     return None
 
 # --- VÒNG LẶP CHÍNH ---
 def main():
-    logger.info("--- Bắt đầu Bot (ROI) ---")
+    logger.info("--- Bắt đầu Bot (Cải tiến) ---")
     high_prio_templates = get_template_files(HIGH_PRIORITY_FOLDER)
     low_prio_templates = get_template_files(LOW_PRIORITY_FOLDER)
     bot_state = "TIM_VIEC"
-    logger.info(f"Thời gian chờ quảng cáo: {AD_WATCH_DELAY} giây. Ngưỡng nhận diện: {SIMILARITY_THRESHOLD*100}%.")
+    logger.info(f"Thời gian chờ quảng cáo: {AD_WATCH_DELAY} giây. Sử dụng ngưỡng động.")
     
     # Adaptive sleep variables
     current_sleep_interval = SCAN_INTERVAL
@@ -107,7 +109,8 @@ def main():
         action_taken = False
         
         if bot_state == "TIM_NUT_DONG":
-            best_match = find_best_match_in_folder(screen_gray, high_prio_templates, HIGH_PRIORITY_FOLDER, use_roi=True)
+            # Quét toàn bộ màn hình để tìm nút đóng
+            best_match = find_best_match_in_folder(screen_gray, high_prio_templates, HIGH_PRIORITY_FOLDER, use_roi=False)
             if best_match:
                 click_at(best_match["location"], best_match["path"])
                 time.sleep(2)
@@ -115,15 +118,13 @@ def main():
                 bot_state = "TIM_VIEC"
                 action_taken = True
             else:
-                best_match_low = find_best_match_in_folder(screen_gray, low_prio_templates, LOW_PRIORITY_FOLDER)
-                if best_match_low:
-                    logger.warning("!!! Tự sửa sai: Tìm nút đóng nhưng thấy nút xem QC. Chuyển trạng thái.")
-                    bot_state = "TIM_VIEC"
-                    action_taken = True
-                else:
-                    logger.info("Chưa tìm thấy nút đóng. Chờ...")
+                # Nếu không tìm thấy nút đóng, quay lại trạng thái TIM_VIEC
+                logger.info("Không tìm thấy nút đóng. Quay lại trạng thái TIM_VIEC.")
+                bot_state = "TIM_VIEC"
+                action_taken = True
         elif bot_state == "TIM_VIEC":
-            best_match_high = find_best_match_in_folder(screen_gray, high_prio_templates, HIGH_PRIORITY_FOLDER, use_roi=True)
+            # Ưu tiên tìm nút đóng trước khi xem quảng cáo mới
+            best_match_high = find_best_match_in_folder(screen_gray, high_prio_templates, HIGH_PRIORITY_FOLDER, use_roi=False)
             if best_match_high:
                 click_at(best_match_high["location"], best_match_high["path"])
                 time.sleep(2)
